@@ -1,0 +1,5 @@
+edition = "2018"
+max_width = 80
+hard_tabs = true
+tab_spaces = 4
+use_field_init_shorthand = true
