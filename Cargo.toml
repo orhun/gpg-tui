@@ -5,6 +5,17 @@ authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+crossterm = "0.18.2"
+anyhow = "1.0.36"
+pretty_assertions = "0.6.1"
+
+[dependencies.tui]
+version = "0.13.0"
+default-features = false
+features = ["crossterm"]
+
+[dev-dependencies]
+pretty_assertions = "0.6.1"
 
 [profile.dev]
 opt-level = 0

@@ -1,0 +1,50 @@
+use crate::app::handler;
+use crate::app::state::State;
+use crate::term::event::{Event, EventHandler};
+use crate::term::tui::Tui;
+use anyhow::Result;
+use std::io;
+use tui::backend::CrosstermBackend;
+use tui::Terminal;
+
+/// Main application.
+///
+/// It operates the TUI using event handler,
+/// application flags and other properties.
+pub struct App {
+	/// Terminal user interface.
+	pub tui: Tui<CrosstermBackend<io::Stdout>>,
+	/// Terminal event handler.
+	pub events: EventHandler,
+	/// Application states.
+	pub state: State,
+}
+
+impl App {
+	/// Constructs a new instance of `App`.
+	pub fn new() -> Result<Self> {
+		let backend = CrosstermBackend::new(io::stdout());
+		let terminal = Terminal::new(backend)?;
+		Ok(Self {
+			tui: Tui::new(terminal),
+			events: EventHandler::new(),
+			state: State::default(),
+		})
+	}
+
+	/// Initializes the [`Tui`] and handles events.
+	///
+	/// [`Tui`]: crate::term::tui::Tui
+	pub fn start(&mut self) -> Result<()> {
+		self.tui.init()?;
+		while self.state.running {
+			match self.events.next()? {
+				Event::Key(key_event) => {
+					handler::handle_key_input(self, key_event)?
+				}
+				_ => {}
+			}
+		}
+		Ok(())
+	}
+}
