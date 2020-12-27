@@ -1,5 +1,6 @@
 use crate::app::handler;
 use crate::app::state::State;
+use crate::args::Args;
 use crate::term::event::{Event, EventHandler};
 use crate::term::tui::Tui;
 use anyhow::Result;
@@ -11,7 +12,10 @@ use tui::Terminal;
 ///
 /// It operates the TUI using event handler,
 /// application flags and other properties.
-pub struct App {
+pub struct App<'a> {
+	/// Parsed command-line arguments.
+	#[allow(dead_code)]
+	args: &'a Args,
 	/// Terminal user interface.
 	pub tui: Tui<CrosstermBackend<io::Stdout>>,
 	/// Terminal event handler.
@@ -20,14 +24,15 @@ pub struct App {
 	pub state: State,
 }
 
-impl App {
+impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
-	pub fn new() -> Result<Self> {
+	pub fn new(args: &'a Args) -> Result<Self> {
 		let backend = CrosstermBackend::new(io::stdout());
 		let terminal = Terminal::new(backend)?;
 		Ok(Self {
+			args,
 			tui: Tui::new(terminal),
-			events: EventHandler::new(),
+			events: EventHandler::new(args.tick_rate),
 			state: State::default(),
 		})
 	}

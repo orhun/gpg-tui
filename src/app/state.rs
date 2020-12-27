@@ -1,6 +1,6 @@
 /// States (flags) about the [`App`].
 ///
-/// [`App`]: crate::app::app::App
+/// [`App`]: crate::app::launcher::App
 #[derive(Clone, Copy, Debug)]
 pub struct State {
 	/// Is app running?

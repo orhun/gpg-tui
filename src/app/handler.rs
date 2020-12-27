@@ -1,4 +1,4 @@
-use crate::app::app::App;
+use crate::app::launcher::App;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent};
 
