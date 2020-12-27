@@ -47,6 +47,7 @@ impl<'a> App<'a> {
 				Event::Key(key_event) => {
 					handler::handle_key_input(self, key_event)?
 				}
+				Event::Tick => {}
 				_ => {}
 			}
 		}
