@@ -53,4 +53,16 @@ impl<'a> App<'a> {
 		}
 		Ok(())
 	}
+
+	/// Exits the application.
+	///
+	/// It calls the [`exit`] method of `Tui` and ends
+	/// the terminal loop via changing the [`state`].
+	///
+	/// [`exit`]: crate::term::tui::Tui::exit
+	/// [`state`]: State::running
+	pub fn exit(&mut self) -> Result<()> {
+		self.state.running = false;
+		self.tui.exit()
+	}
 }
