@@ -4,7 +4,7 @@ use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
 /// Argument parser powered by [`structopt`].
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Default, StructOpt)]
 #[structopt(
     name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
