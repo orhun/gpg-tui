@@ -4,7 +4,6 @@ use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 
 /// Handle key inputs.
 pub fn handle_key_input(app: &mut App<'_>, key_event: KeyEvent) -> Result<()> {
-	println!("{:?}", key_event);
 	match key_event.code {
 		Key::Char('q') | Key::Char('Q') | Key::Esc => app.exit()?,
 		Key::Char('c') | Key::Char('d') => {
