@@ -11,7 +11,7 @@ use tui::Terminal;
 /// and initializing the interface.
 pub struct Tui<B: Backend> {
 	/// Interface to the Terminal.
-	terminal: Terminal<B>,
+	pub terminal: Terminal<B>,
 }
 
 impl<B: Backend> Tui<B> {

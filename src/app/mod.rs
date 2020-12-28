@@ -3,8 +3,11 @@
 /// Application launcher.
 pub mod launcher;
 
-/// Handler methods.
-pub mod handler;
-
 /// Application state.
 pub mod state;
+
+/// Application renderer.
+pub mod renderer;
+
+/// Handler methods.
+pub mod handler;

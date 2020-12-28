@@ -1,9 +1,10 @@
 use crate::app::handler;
+use crate::app::renderer;
 use crate::app::state::State;
 use crate::args::Args;
 use crate::term::event::{Event, EventHandler};
 use crate::term::tui::Tui;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -43,6 +44,7 @@ impl<'a> App<'a> {
 	pub fn start(&mut self) -> Result<()> {
 		self.tui.init()?;
 		while self.state.running {
+			self.draw_tui()?;
 			match self.events.next()? {
 				Event::Key(key_event) => {
 					handler::handle_key_input(self, key_event)?
@@ -52,6 +54,17 @@ impl<'a> App<'a> {
 			}
 		}
 		Ok(())
+	}
+
+	/// [`Draw`] the terminal interface by [`rendering`] the widgets.
+	///
+	/// [`Draw`]: tui::Terminal::draw
+	/// [`rendering`]: crate::app::renderer
+	pub fn draw_tui(&mut self) -> Result<()> {
+		self.tui
+			.terminal
+			.draw(|f| renderer::draw_test_block(f, f.size()))
+			.context("failed to draw TUI")
 	}
 
 	/// Exits the application.
