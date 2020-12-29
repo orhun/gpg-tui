@@ -2,6 +2,7 @@
 
 pub mod app;
 pub mod args;
+pub mod gpg;
 pub mod term;
 
 use self::app::launcher::App;
