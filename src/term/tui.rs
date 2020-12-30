@@ -1,5 +1,6 @@
+use crate::app::launcher::App;
 use crate::term::event::EventHandler;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use std::io::{self, Write};
@@ -15,7 +16,7 @@ use tui::Terminal;
 /// [`events`]: Tui::events
 pub struct Tui<B: Backend> {
 	/// Interface to the Terminal.
-	pub terminal: Terminal<B>,
+	terminal: Terminal<B>,
 	/// Terminal event handler.
 	pub events: EventHandler,
 }
@@ -41,6 +42,16 @@ impl<B: Backend> Tui<B> {
 		Ok(())
 	}
 
+	/// [`Draw`] the terminal interface by [`rendering`] the widgets.
+	///
+	/// [`Draw`]: tui::Terminal::draw
+	/// [`rendering`]: crate::app::launcher::App::render
+	pub fn draw(&mut self, app: &mut App) -> Result<()> {
+		self.terminal
+			.draw(|f| app.render(f))
+			.context("failed to draw TUI")
+	}
+
 	/// Exits the terminal interface.
 	///
 	/// It disables the raw mode and reverts back the terminal properties.
@@ -64,7 +75,7 @@ mod tests {
 	fn test_tui() -> Result<()> {
 		let backend = TestBackend::new(10, 10);
 		let terminal = Terminal::new(backend)?;
-		let mut tui = Tui::new(terminal);
+		let mut tui = Tui::new(terminal, EventHandler::new(10));
 		tui.init()?;
 		tui.exit()?;
 		Ok(())

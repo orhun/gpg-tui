@@ -1,46 +1,63 @@
-use crate::app::renderer;
-use crate::term::tui::Tui;
-use anyhow::{Context, Result};
-use std::io;
-use tui::backend::CrosstermBackend;
+use crate::gpg::context::Context as GpgContext;
+use crate::widget::list::StatefulList;
+use anyhow::Result;
+use gpgme::Key;
+use tui::backend::Backend;
+use tui::layout::Rect;
+use tui::style::Style;
+use tui::terminal::Frame;
+use tui::text::{Span, Spans};
+use tui::widgets::{Block, Borders, List, ListItem};
 
 /// Main application.
 ///
-/// It operates the TUI.
+/// It operates the TUI via rendering the widgets
+/// and updating the application state.
 pub struct App {
-	/// Terminal user interface.
-	pub tui: Tui<CrosstermBackend<io::Stdout>>,
 	/// Is app running?
 	pub running: bool,
+	/// List of public keys.
+	pub key_list: StatefulList<Key>,
 }
 
 impl App {
 	/// Constructs a new instance of `App`.
-	pub fn new(mut tui: Tui<CrosstermBackend<io::Stdout>>) -> Result<Self> {
-		tui.init()?;
-		Ok(Self { tui, running: true })
+	pub fn new() -> Result<Self> {
+		Ok(Self {
+			running: true,
+			key_list: StatefulList::with_items(GpgContext::new()?.get_keys()?),
+		})
 	}
 
-	/// [`Draw`] the terminal interface by [`rendering`] the widgets.
-	///
-	/// [`Draw`]: tui::Terminal::draw
-	/// [`rendering`]: crate::app::renderer
-	pub fn draw_tui(&mut self) -> Result<()> {
-		self.tui
-			.terminal
-			.draw(|f| renderer::draw_test_block(f, f.size()))
-			.context("failed to draw TUI")
+	/// Renders the user interface.
+	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
+		self.render_key_list(frame, frame.size())
 	}
 
-	/// Exits the application.
-	///
-	/// It calls the [`exit`] method of `Tui` and ends
-	/// the terminal loop via changing the [`running`] state.
-	///
-	/// [`exit`]: crate::term::tui::Tui::exit
-	/// [`running`]: App::running
-	pub fn exit(&mut self) -> Result<()> {
-		self.running = false;
-		self.tui.exit()
+	/// Renders the list of public keys.
+	fn render_key_list<B: Backend>(
+		&mut self,
+		frame: &mut Frame<'_, B>,
+		rect: Rect,
+	) {
+		frame.render_stateful_widget(
+			List::new(
+				self.key_list
+					.items
+					.iter()
+					.map(|i| {
+						ListItem::new(vec![Spans::from(Span::raw(
+							(*i).id().unwrap_or("?"),
+						))])
+					})
+					.collect::<Vec<ListItem>>(),
+			)
+			.block(Block::default().title("List").borders(Borders::ALL))
+			.style(Style::default())
+			.highlight_style(Style::default())
+			.highlight_symbol(">>"),
+			rect,
+			&mut self.key_list.state,
+		);
 	}
 }
