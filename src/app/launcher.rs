@@ -1,7 +1,6 @@
-use crate::gpg::context::Context as GpgContext;
+use crate::gpg::context::{GpgContext, GpgKey};
 use crate::widget::list::StatefulList;
 use anyhow::Result;
-use gpgme::Key;
 use tui::backend::Backend;
 use tui::layout::Rect;
 use tui::style::Style;
@@ -17,7 +16,7 @@ pub struct App {
 	/// Is app running?
 	pub running: bool,
 	/// List of public keys.
-	pub key_list: StatefulList<Key>,
+	pub key_list: StatefulList<GpgKey>,
 }
 
 impl App {
