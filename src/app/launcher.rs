@@ -29,6 +29,11 @@ impl App {
 		})
 	}
 
+	/// Reset the application state.
+	pub fn refresh(&mut self) {
+		self.key_list.state.select(Some(0))
+	}
+
 	/// Renders the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
 		self.render_key_list(frame, frame.size())
