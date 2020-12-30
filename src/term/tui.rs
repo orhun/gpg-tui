@@ -1,3 +1,4 @@
+use crate::term::event::EventHandler;
 use anyhow::Result;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
@@ -8,16 +9,21 @@ use tui::Terminal;
 /// Text-based user interface.
 ///
 /// `Tui` is responsible for setting up the terminal
-/// and initializing the interface.
+/// and initializing the interface. Terminal event
+/// handler can be accessed via [`events`] field.
+///
+/// [`events`]: Tui::events
 pub struct Tui<B: Backend> {
 	/// Interface to the Terminal.
 	pub terminal: Terminal<B>,
+	/// Terminal event handler.
+	pub events: EventHandler,
 }
 
 impl<B: Backend> Tui<B> {
 	/// Constructs a new instance of `Tui`.
-	pub fn new(terminal: Terminal<B>) -> Self {
-		Self { terminal }
+	pub fn new(terminal: Terminal<B>, events: EventHandler) -> Self {
+		Self { terminal, events }
 	}
 
 	/// Initializes the terminal interface.

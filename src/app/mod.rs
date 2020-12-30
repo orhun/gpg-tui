@@ -3,9 +3,6 @@
 /// Application launcher.
 pub mod launcher;
 
-/// Application state.
-pub mod state;
-
 /// Application renderer.
 pub mod renderer;
 
