@@ -1,12 +1,12 @@
-use crate::gpg::context::{GpgContext, GpgKey};
-use crate::widget::list::StatefulList;
+use crate::gpg::context::GpgContext;
+use crate::gpg::key::GpgKey;
+use crate::widget::list::StatefulTable;
 use anyhow::Result;
 use tui::backend::Backend;
-use tui::layout::Rect;
+use tui::layout::{Constraint, Rect};
 use tui::style::Style;
 use tui::terminal::Frame;
-use tui::text::{Span, Spans};
-use tui::widgets::{Block, Borders, List, ListItem};
+use tui::widgets::{Block, Borders, Row, Table};
 
 /// Main application.
 ///
@@ -16,7 +16,7 @@ pub struct App {
 	/// Is app running?
 	pub running: bool,
 	/// List of public keys.
-	pub key_list: StatefulList<GpgKey>,
+	pub key_list: StatefulTable<GpgKey>,
 }
 
 impl App {
@@ -24,7 +24,7 @@ impl App {
 	pub fn new() -> Result<Self> {
 		Ok(Self {
 			running: true,
-			key_list: StatefulList::with_items(GpgContext::new()?.get_keys()?),
+			key_list: StatefulTable::with_items(GpgContext::new()?.get_keys()?),
 		})
 	}
 
@@ -45,21 +45,22 @@ impl App {
 		rect: Rect,
 	) {
 		frame.render_stateful_widget(
-			List::new(
-				self.key_list
-					.items
-					.iter()
-					.map(|i| {
-						ListItem::new(vec![Spans::from(Span::raw(
-							(*i).id().unwrap_or("?"),
-						))])
-					})
-					.collect::<Vec<ListItem>>(),
+			Table::new(
+				["Key", "User"].iter(),
+				self.key_list.items.iter().map(|key| {
+					Row::Data(
+						vec![key.get_id(), key.get_primary_user_id()]
+							.into_iter(),
+					)
+				}),
 			)
-			.block(Block::default().title("List").borders(Borders::ALL))
+			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
+			.header_style(Style::default())
 			.highlight_style(Style::default())
-			.highlight_symbol(">>"),
+			.highlight_symbol(">>")
+			.widths(&[Constraint::Percentage(10), Constraint::Percentage(50)])
+			.column_spacing(1),
 			rect,
 			&mut self.key_list.state,
 		);

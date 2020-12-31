@@ -1,8 +1,6 @@
+use crate::gpg::key::GpgKey;
 use anyhow::Result;
-use gpgme::{Context, Key, KeyListMode, Protocol};
-
-/// Representation of a key.
-pub type GpgKey = Key;
+use gpgme::{Context, KeyListMode, Protocol};
 
 /// A context for cryptographic operations.
 pub struct GpgContext {
@@ -19,12 +17,13 @@ impl GpgContext {
 		Ok(Self { inner: context })
 	}
 
-	/// Get the list of all public keys.
+	/// Returns the list of all public keys.
 	pub fn get_keys(&mut self) -> Result<Vec<GpgKey>> {
 		Ok(self
 			.inner
 			.find_keys(Vec::<String>::new())?
 			.filter_map(|key| key.ok())
+			.map(GpgKey::new)
 			.collect())
 	}
 }

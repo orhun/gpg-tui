@@ -1,4 +1,11 @@
-//! GPGME wrapper for GnuPG actions.
+//! GPGME wrappers for GnuPG actions.
 
-/// GPGME context.
+/// Wrapper for [`Context`].
+///
+/// [`Context`]: gpgme::Context
 pub mod context;
+
+/// Wrapper for [`Key`].
+///
+/// [`Key`]: gpgme::Key
+pub mod key;
