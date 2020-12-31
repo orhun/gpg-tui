@@ -17,6 +17,9 @@ use structopt::StructOpt;
     ])
 )]
 pub struct Args {
+	/// Sets the GnuPG home directory.
+	#[structopt(long, value_name = "DIR")]
+	pub homedir: Option<String>,
 	/// Sets the tick rate of the terminal.
 	#[structopt(short, long, value_name = "MS", default_value = "250")]
 	pub tick_rate: u64,

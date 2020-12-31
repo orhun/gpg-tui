@@ -12,6 +12,7 @@ use crate::app::handler;
 use crate::term::event::{Event, EventHandler};
 use crate::term::tui::Tui;
 use anyhow::Result;
+use gpgme::Protocol;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -20,6 +21,12 @@ use tui::Terminal;
 fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
+	// Initialize GPGME.
+	let gpgme = gpgme::init();
+	if let Some(home_dir) = args.homedir {
+		gpgme.set_engine_home_dir(Protocol::OpenPgp, home_dir)?;
+	}
+	assert!(gpgme.check_version("1.6.0"));
 	// Initialize the text-based user interface.
 	let backend = CrosstermBackend::new(io::stdout());
 	let terminal = Terminal::new(backend)?;
