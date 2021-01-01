@@ -18,9 +18,9 @@ impl GpgKey {
 		Self { inner: key }
 	}
 
-	/// Returns the key ID.
-	pub fn get_id(&self) -> String {
-		self.unwrap_value(self.inner.id_raw())
+	/// Returns the key fingerprint.
+	pub fn get_fingerprint(&self) -> String {
+		self.unwrap_value(self.inner.fingerprint_raw())
 	}
 
 	/// Returns the ID of the primary user.

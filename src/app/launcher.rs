@@ -4,7 +4,7 @@ use crate::widget::list::StatefulTable;
 use anyhow::Result;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Rect};
-use tui::style::Style;
+use tui::style::{Modifier, Style};
 use tui::terminal::Frame;
 use tui::widgets::{Block, Borders, Row, Table};
 
@@ -49,7 +49,7 @@ impl App {
 				["Key", "User"].iter(),
 				self.key_list.items.iter().map(|key| {
 					Row::Data(
-						vec![key.get_id(), key.get_primary_user_id()]
+						vec![key.get_fingerprint(), key.get_primary_user_id()]
 							.into_iter(),
 					)
 				}),
@@ -57,9 +57,8 @@ impl App {
 			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
 			.header_style(Style::default())
-			.highlight_style(Style::default())
-			.highlight_symbol(">>")
-			.widths(&[Constraint::Percentage(10), Constraint::Percentage(50)])
+			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+			.widths(&[Constraint::Percentage(25), Constraint::Percentage(100)])
 			.column_spacing(1),
 			rect,
 			&mut self.key_list.state,
