@@ -61,10 +61,16 @@ impl App {
 							.first()
 							.cloned()
 							.unwrap_or_else(|| String::from("[?]")),
-						user_ids
-							.iter()
-							.skip(1)
-							.fold(String::new(), |acc, x| acc + x + "\n")
+						user_ids.iter().skip(1).enumerate().fold(
+							String::new(),
+							|acc, (i, val)| {
+								if i == user_ids.len() - 2 {
+									format!("{} └─{}\n", acc, val)
+								} else {
+									format!("{} ├─{}\n", acc, val)
+								}
+							}
+						)
 					)),
 				])
 				.height(user_ids.len().try_into().unwrap_or(1))
