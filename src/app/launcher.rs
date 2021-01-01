@@ -1,11 +1,14 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
+use crate::gpg::NONE_CHAR;
 use crate::widget::list::StatefulTable;
 use anyhow::Result;
+use std::convert::TryInto;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Rect};
 use tui::style::{Modifier, Style};
 use tui::terminal::Frame;
+use tui::text::Text;
 use tui::widgets::{Block, Borders, Row, Table};
 
 /// Main application.
@@ -46,8 +49,24 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				Row::new(vec![key.get_fingerprint(), key.get_primary_user_id()])
-					.style(Style::default())
+				let user_ids = key.get_user_ids();
+				Row::new(vec![
+					Text::from(key.get_fingerprint()),
+					Text::from(format!(
+						"{}\n{}",
+						user_ids
+							.first()
+							.cloned()
+							.unwrap_or_else(|| format!("[{}]", NONE_CHAR)),
+						user_ids
+							.iter()
+							.skip(1)
+							.fold(String::new(), |acc, x| acc + x + "\n")
+					)),
+				])
+				.height(user_ids.len().try_into().unwrap_or(1))
+				.bottom_margin(1)
+				.style(Style::default())
 			}))
 			.header(
 				Row::new(vec!["Key", "User"])
@@ -57,7 +76,7 @@ impl App {
 			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
-			.widths(&[Constraint::Percentage(25), Constraint::Percentage(100)])
+			.widths(&[Constraint::Min(40), Constraint::Percentage(100)])
 			.column_spacing(1),
 			rect,
 			&mut self.key_list.state,

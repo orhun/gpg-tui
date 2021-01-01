@@ -1,10 +1,6 @@
+use crate::gpg::NONE_CHAR;
 use gpgme::Key;
 use std::ffi::CStr;
-
-/// Char representation for the [`None`] type.
-///
-/// [`None`]: std::option::Option::None
-const NONE_CHAR: char = '-';
 
 /// Representation of a key.
 pub struct GpgKey {
@@ -23,12 +19,17 @@ impl GpgKey {
 		self.unwrap_value(self.inner.fingerprint_raw())
 	}
 
-	/// Returns the ID of the primary user.
-	pub fn get_primary_user_id(&self) -> String {
-		match self.inner.user_ids().into_iter().next() {
-			Some(user) => self.unwrap_value(user.id_raw()),
-			None => String::from(NONE_CHAR),
+	/// Returns the user IDs.
+	pub fn get_user_ids(&self) -> Vec<String> {
+		let mut user_ids = Vec::new();
+		for user in self.inner.user_ids().into_iter() {
+			user_ids.push(format!(
+				"[{}] {}",
+				user.validity(),
+				self.unwrap_value(user.id_raw())
+			));
 		}
+		user_ids
 	}
 
 	/// Unwraps the given [`CStr`] typed value as [`String`].
@@ -38,7 +39,7 @@ impl GpgKey {
 	fn unwrap_value<'a>(&self, value: Option<&'a CStr>) -> String {
 		match value {
 			Some(v) => v.to_string_lossy().into_owned(),
-			None => String::from(NONE_CHAR),
+			None => format!("[{}]", NONE_CHAR),
 		}
 	}
 }
