@@ -1,6 +1,5 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
-use crate::gpg::NONE_CHAR;
 use crate::widget::list::StatefulTable;
 use anyhow::Result;
 use std::convert::TryInto;
@@ -57,7 +56,7 @@ impl App {
 						user_ids
 							.first()
 							.cloned()
-							.unwrap_or_else(|| format!("[{}]", NONE_CHAR)),
+							.unwrap_or_else(|| String::from("[?]")),
 						user_ids
 							.iter()
 							.skip(1)

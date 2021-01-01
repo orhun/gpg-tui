@@ -9,8 +9,3 @@ pub mod context;
 ///
 /// [`Key`]: gpgme::Key
 pub mod key;
-
-/// Char representation for the [`None`] type.
-///
-/// [`None`]: std::option::Option::None
-pub const NONE_CHAR: char = '?';

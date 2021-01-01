@@ -1,4 +1,3 @@
-use crate::gpg::NONE_CHAR;
 use gpgme::Key;
 use std::ffi::CStr;
 
@@ -36,10 +35,10 @@ impl GpgKey {
 	///
 	/// [`CStr`]: std::ffi::CStr
 	/// [`String`]: std::string::String
-	fn unwrap_value<'a>(&self, value: Option<&'a CStr>) -> String {
+	fn unwrap_value(&self, value: Option<&'_ CStr>) -> String {
 		match value {
 			Some(v) => v.to_string_lossy().into_owned(),
-			None => format!("[{}]", NONE_CHAR),
+			None => String::from("[?]"),
 		}
 	}
 }
