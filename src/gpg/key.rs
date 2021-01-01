@@ -13,6 +13,16 @@ impl GpgKey {
 		Self { inner: key }
 	}
 
+	/// Returns the description of the key algorithm.
+	pub fn get_algorithm(&self) -> String {
+		match self.inner.subkeys().next() {
+			Some(subkey) => subkey
+				.algorithm_name()
+				.unwrap_or_else(|_| String::from("[?]")),
+			None => String::from("[?]"),
+		}
+	}
+
 	/// Returns the key fingerprint.
 	pub fn get_fingerprint(&self) -> String {
 		self.unwrap_value(self.inner.fingerprint_raw())

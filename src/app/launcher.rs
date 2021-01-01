@@ -50,7 +50,11 @@ impl App {
 			Table::new(self.key_list.items.iter().map(|key| {
 				let user_ids = key.get_user_ids();
 				Row::new(vec![
-					Text::from(key.get_fingerprint()),
+					Text::from(format!(
+						"{}/{}",
+						key.get_algorithm(),
+						key.get_fingerprint()
+					)),
 					Text::from(format!(
 						"{}\n{}",
 						user_ids
@@ -75,7 +79,7 @@ impl App {
 			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
-			.widths(&[Constraint::Min(40), Constraint::Percentage(100)])
+			.widths(&[Constraint::Min(50), Constraint::Percentage(100)])
 			.column_spacing(1),
 			rect,
 			&mut self.key_list.state,
