@@ -3,7 +3,7 @@ use std::ffi::CStr;
 
 /// Representation of a key.
 pub struct GpgKey {
-	/// GPGME key type.
+	/// GPGME Key type.
 	inner: Key,
 }
 
@@ -13,19 +13,19 @@ impl GpgKey {
 		Self { inner: key }
 	}
 
-	/// Returns the description of the key algorithm.
-	pub fn get_algorithm(&self) -> String {
-		match self.inner.subkeys().next() {
-			Some(subkey) => subkey
-				.algorithm_name()
-				.unwrap_or_else(|_| String::from("[?]")),
-			None => String::from("[?]"),
-		}
-	}
-
 	/// Returns the key fingerprint.
 	pub fn get_fingerprint(&self) -> String {
 		self.unwrap_value(self.inner.fingerprint_raw())
+	}
+
+	/// Returns the description of the primary key algorithm.
+	pub fn get_algorithm(&self) -> String {
+		match self.inner.primary_key() {
+			Some(key) => {
+				key.algorithm_name().unwrap_or_else(|_| String::from("[?]"))
+			}
+			None => String::from("[?]"),
+		}
 	}
 
 	/// Returns the user IDs.
