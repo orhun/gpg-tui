@@ -48,12 +48,17 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
+				let key_flags = key.get_flags();
 				let user_ids = key.get_user_ids();
 				Row::new(vec![
 					Text::from(format!(
-						"{}/{}",
+						"[{}] {}/{}",
+						key_flags
+							.first()
+							.cloned()
+							.unwrap_or_else(|| String::from("[?]")),
 						key.get_algorithm(),
-						key.get_fingerprint()
+						key.get_fingerprint(),
 					)),
 					Text::from(format!(
 						"{}\n{}",
@@ -85,7 +90,7 @@ impl App {
 			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
-			.widths(&[Constraint::Min(50), Constraint::Percentage(100)])
+			.widths(&[Constraint::Min(55), Constraint::Percentage(100)])
 			.column_spacing(1),
 			rect,
 			&mut self.key_list.state,

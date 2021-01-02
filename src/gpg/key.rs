@@ -41,6 +41,21 @@ impl GpgKey {
 		user_ids
 	}
 
+	/// Returns the flags of subkeys.
+	pub fn get_flags(&self) -> Vec<String> {
+		let mut flags = Vec::new();
+		for key in self.inner.subkeys().into_iter() {
+			flags.push(format!(
+				"{}{}{}{}",
+				if key.can_sign() { "s" } else { "-" },
+				if key.can_certify() { "c" } else { "-" },
+				if key.can_encrypt() { "e" } else { "-" },
+				if key.can_authenticate() { "a" } else { "-" },
+			))
+		}
+		flags
+	}
+
 	/// Unwraps the given [`CStr`] typed value as [`String`].
 	///
 	/// [`CStr`]: std::ffi::CStr
