@@ -1,5 +1,6 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
+use crate::gpg::subkey;
 use crate::widget::list::StatefulTable;
 use anyhow::Result;
 use std::cmp;
@@ -51,36 +52,58 @@ impl App {
 			Table::new(self.key_list.items.iter().map(|key| {
 				let user_ids = key.get_user_ids();
 				let subkeys = key.get_subkeys();
-				let time = key.get_time();
 				Row::new(vec![
 					Text::from(format!(
-						"[{}] {}/{}\n{}\n{}",
+						"[{}] {}/{}\n{}      └─{}\n{}",
 						key.get_flags(),
 						key.get_algorithm(),
 						key.get_fingerprint(),
-						format!(
-							"{}      └─{}",
-							if !subkeys.is_empty() { "|" } else { " " },
-							time
-						),
-						subkeys.join("\n")
-					)),
-					Text::from(format!(
-						"{}\n{}",
-						user_ids
-							.first()
-							.cloned()
-							.unwrap_or_else(|| String::from("[?]")),
-						user_ids.iter().skip(1).enumerate().fold(
+						if !subkeys.is_empty() { "|" } else { " " },
+						key.get_time(),
+						subkeys.iter().enumerate().fold(
 							String::new(),
-							|acc, (i, val)| {
-								if i == user_ids.len() - 2 {
-									format!("{} └─{}\n", acc, val)
-								} else {
-									format!("{} ├─{}\n", acc, val)
-								}
+							|acc, (i, key)| {
+								let time = subkey::get_time(*key);
+								format!(
+									"{}[{}] {}/{}\n{}      └─{}\n",
+									acc,
+									subkey::get_flags(*key),
+									key.algorithm_name().unwrap_or_else(|_| {
+										String::from("[?]")
+									}),
+									key.fingerprint_raw()
+										.map_or(String::from("[?]"), |v| v
+											.to_string_lossy()
+											.into_owned()),
+									if i != subkeys.len() - 1 {
+										"|"
+									} else {
+										" "
+									},
+									time
+								)
 							}
-						)
+						),
+					)),
+					Text::from(user_ids.iter().enumerate().fold(
+						String::new(),
+						|acc, (i, user)| {
+							let val = format!(
+								"[{}] {}",
+								user.validity(),
+								user.id_raw()
+									.map_or(String::from("[?]"), |v| v
+										.to_string_lossy()
+										.into_owned())
+							);
+							if i == 0 {
+								format!("{}\n", val)
+							} else if i == user_ids.len() - 1 {
+								format!("{} └─{}\n", acc, val)
+							} else {
+								format!("{} ├─{}\n", acc, val)
+							}
+						},
 					)),
 				])
 				.height(cmp::max(

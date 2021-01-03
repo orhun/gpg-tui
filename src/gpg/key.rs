@@ -1,6 +1,5 @@
 use crate::gpg::subkey;
-use gpgme::{Key, Subkey};
-use std::ffi::CStr;
+use gpgme::{Key, Subkey, UserId};
 
 /// Representation of a key.
 pub struct GpgKey {
@@ -16,7 +15,10 @@ impl GpgKey {
 
 	/// Returns the fingerprint of the primary key.
 	pub fn get_fingerprint(&self) -> String {
-		Self::unwrap_value(self.inner.fingerprint_raw())
+		match self.inner.fingerprint_raw() {
+			Some(v) => v.to_string_lossy().into_owned(),
+			None => String::from("[?]"),
+		}
 	}
 
 	/// Returns the description of the primary keys algorithm.
@@ -46,47 +48,12 @@ impl GpgKey {
 	}
 
 	/// Returns the user IDs.
-	pub fn get_user_ids(&self) -> Vec<String> {
-		let mut user_ids = Vec::new();
-		for user in self.inner.user_ids().into_iter() {
-			user_ids.push(format!(
-				"[{}] {}",
-				user.validity(),
-				Self::unwrap_value(user.id_raw())
-			));
-		}
-		user_ids
+	pub fn get_user_ids(&self) -> Vec<UserId> {
+		self.inner.user_ids().collect()
 	}
 
-	/// Returns the information about subkeys.
-	pub fn get_subkeys(&self) -> Vec<String> {
-		let mut flags = Vec::new();
-		let subkeys = self.inner.subkeys().skip(1).collect::<Vec<Subkey<'_>>>();
-		for (i, key) in subkeys.iter().enumerate() {
-			let time = subkey::get_time(*key);
-			flags.push(format!(
-				"[{}] {}/{}\n{}",
-				subkey::get_flags(*key),
-				key.algorithm_name().unwrap_or_else(|_| String::from("[?]")),
-				Self::unwrap_value(key.fingerprint_raw()),
-				format!(
-					"{}      └─{}",
-					if i != subkeys.len() - 1 { "|" } else { " " },
-					time
-				),
-			))
-		}
-		flags
-	}
-
-	/// Unwraps the given [`CStr`] typed value as [`String`].
-	///
-	/// [`CStr`]: std::ffi::CStr
-	/// [`String`]: std::string::String
-	fn unwrap_value(value: Option<&'_ CStr>) -> String {
-		match value {
-			Some(v) => v.to_string_lossy().into_owned(),
-			None => String::from("[?]"),
-		}
+	/// Returns the subkeys without primary key.
+	pub fn get_subkeys(&self) -> Vec<Subkey<'_>> {
+		self.inner.subkeys().skip(1).collect()
 	}
 }
