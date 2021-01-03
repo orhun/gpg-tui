@@ -1,4 +1,5 @@
-use gpgme::Key;
+use crate::gpg::subkey;
+use gpgme::{Key, Subkey};
 use std::ffi::CStr;
 
 /// Representation of a key.
@@ -13,17 +14,33 @@ impl GpgKey {
 		Self { inner: key }
 	}
 
-	/// Returns the key fingerprint.
+	/// Returns the fingerprint of the primary key.
 	pub fn get_fingerprint(&self) -> String {
-		self.unwrap_value(self.inner.fingerprint_raw())
+		Self::unwrap_value(self.inner.fingerprint_raw())
 	}
 
-	/// Returns the description of the primary key algorithm.
+	/// Returns the description of the primary keys algorithm.
 	pub fn get_algorithm(&self) -> String {
 		match self.inner.primary_key() {
 			Some(key) => {
 				key.algorithm_name().unwrap_or_else(|_| String::from("[?]"))
 			}
+			None => String::from("[?]"),
+		}
+	}
+
+	/// Returns the flags of the primary key.
+	pub fn get_flags(&self) -> String {
+		match self.inner.primary_key() {
+			Some(key) => subkey::get_flags(key),
+			None => String::from("[?]"),
+		}
+	}
+
+	/// Returns the time information of the primary key.
+	pub fn get_time(&self) -> String {
+		match self.inner.primary_key() {
+			Some(key) => subkey::get_time(key),
 			None => String::from("[?]"),
 		}
 	}
@@ -35,22 +52,28 @@ impl GpgKey {
 			user_ids.push(format!(
 				"[{}] {}",
 				user.validity(),
-				self.unwrap_value(user.id_raw())
+				Self::unwrap_value(user.id_raw())
 			));
 		}
 		user_ids
 	}
 
-	/// Returns the flags of subkeys.
-	pub fn get_flags(&self) -> Vec<String> {
+	/// Returns the information about subkeys.
+	pub fn get_subkeys(&self) -> Vec<String> {
 		let mut flags = Vec::new();
-		for key in self.inner.subkeys().into_iter() {
+		let subkeys = self.inner.subkeys().skip(1).collect::<Vec<Subkey<'_>>>();
+		for (i, key) in subkeys.iter().enumerate() {
+			let time = subkey::get_time(*key);
 			flags.push(format!(
-				"{}{}{}{}",
-				if key.can_sign() { "s" } else { "-" },
-				if key.can_certify() { "c" } else { "-" },
-				if key.can_encrypt() { "e" } else { "-" },
-				if key.can_authenticate() { "a" } else { "-" },
+				"[{}] {}/{}\n{}",
+				subkey::get_flags(*key),
+				key.algorithm_name().unwrap_or_else(|_| String::from("[?]")),
+				Self::unwrap_value(key.fingerprint_raw()),
+				format!(
+					"{}      └─{}",
+					if i != subkeys.len() - 1 { "|" } else { " " },
+					time
+				),
 			))
 		}
 		flags
@@ -60,7 +83,7 @@ impl GpgKey {
 	///
 	/// [`CStr`]: std::ffi::CStr
 	/// [`String`]: std::string::String
-	fn unwrap_value(&self, value: Option<&'_ CStr>) -> String {
+	fn unwrap_value(value: Option<&'_ CStr>) -> String {
 		match value {
 			Some(v) => v.to_string_lossy().into_owned(),
 			None => String::from("[?]"),

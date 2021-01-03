@@ -8,6 +8,7 @@ edition = "2018"
 gpgme = "0.9.2"
 crossterm = "0.18.2"
 anyhow = "1.0.36"
+chrono = "0.4.19"
 
 [dependencies.structopt]
 version = "0.3.21"

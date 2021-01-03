@@ -2,6 +2,7 @@ use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
 use crate::widget::list::StatefulTable;
 use anyhow::Result;
+use std::cmp;
 use std::convert::TryInto;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Rect};
@@ -48,17 +49,21 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				let key_flags = key.get_flags();
 				let user_ids = key.get_user_ids();
+				let subkeys = key.get_subkeys();
+				let time = key.get_time();
 				Row::new(vec![
 					Text::from(format!(
-						"[{}] {}/{}",
-						key_flags
-							.first()
-							.cloned()
-							.unwrap_or_else(|| String::from("[?]")),
+						"[{}] {}/{}\n{}\n{}",
+						key.get_flags(),
 						key.get_algorithm(),
 						key.get_fingerprint(),
+						format!(
+							"{}      └─{}",
+							if !subkeys.is_empty() { "|" } else { " " },
+							time
+						),
+						subkeys.join("\n")
 					)),
 					Text::from(format!(
 						"{}\n{}",
@@ -78,7 +83,10 @@ impl App {
 						)
 					)),
 				])
-				.height(user_ids.len().try_into().unwrap_or(1))
+				.height(cmp::max(
+					(subkeys.len() + 1).try_into().unwrap_or(1) * 2,
+					user_ids.len().try_into().unwrap_or(1),
+				))
 				.bottom_margin(1)
 				.style(Style::default())
 			}))
