@@ -26,7 +26,7 @@ fn main() -> Result<()> {
 	if let Some(home_dir) = args.homedir {
 		gpgme.set_engine_home_dir(Protocol::OpenPgp, home_dir)?;
 	}
-	assert!(gpgme.check_version("1.6.0"));
+	assert!(gpgme.check_version("1.7.0"));
 	// Initialize the text-based user interface.
 	let backend = CrosstermBackend::new(io::stdout());
 	let terminal = Terminal::new(backend)?;
