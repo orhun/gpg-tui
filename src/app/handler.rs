@@ -11,6 +11,7 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 				app.running = false;
 			}
 		}
+		Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh(),
 		Key::Up => app.key_list.previous(),
 		Key::Down => app.key_list.next(),
 		_ => {}
