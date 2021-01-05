@@ -50,68 +50,17 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				let user_ids = key.get_user_ids();
-				let subkeys = key.get_subkeys();
-				Row::new(vec![
-					Text::from(format!(
-						"[{}] {}/{}\n{}      └─{}\n{}",
-						key.get_flags(),
-						key.get_algorithm(),
-						key.get_fingerprint(),
-						if !subkeys.is_empty() { "|" } else { " " },
-						key.get_time(),
-						subkeys.iter().enumerate().fold(
-							String::new(),
-							|acc, (i, key)| {
-								let time = subkey::get_time(*key);
-								format!(
-									"{}[{}] {}/{}\n{}      └─{}\n",
-									acc,
-									subkey::get_flags(*key),
-									key.algorithm_name().unwrap_or_else(|_| {
-										String::from("[?]")
-									}),
-									key.fingerprint_raw()
-										.map_or(String::from("[?]"), |v| v
-											.to_string_lossy()
-											.into_owned()),
-									if i != subkeys.len() - 1 {
-										"|"
-									} else {
-										" "
-									},
-									time
-								)
-							}
-						),
-					)),
-					Text::from(user_ids.iter().enumerate().fold(
-						String::new(),
-						|acc, (i, user)| {
-							let val = format!(
-								"[{}] {}",
-								user.validity(),
-								user.id_raw()
-									.map_or(String::from("[?]"), |v| v
-										.to_string_lossy()
-										.into_owned())
-							);
-							if i == 0 {
-								format!("{}\n", val)
-							} else if i == user_ids.len() - 1 {
-								format!("{} └─{}\n", acc, val)
-							} else {
-								format!("{} ├─{}\n", acc, val)
-							}
-						},
-					)),
-				])
-				.height(cmp::max(
-					(subkeys.len() + 1).try_into().unwrap_or(1) * 2,
-					user_ids.len().try_into().unwrap_or(1),
-				))
-				.bottom_margin(1)
-				.style(Style::default())
+				let first_row = self.get_first_row(key);
+				let first_row_height = first_row.lines().count();
+				let second_row = self.get_second_row(key);
+				let second_row_height = second_row.lines().count();
+				Row::new(vec![Text::from(first_row), Text::from(second_row)])
+					.height(cmp::max(
+						first_row_height.try_into().unwrap_or(1),
+						second_row_height.try_into().unwrap_or(1),
+					))
+					.bottom_margin(1)
+					.style(Style::default())
 			}))
 			.header(
 				Row::new(vec!["Key", "User"])
@@ -126,5 +75,61 @@ impl App {
 			rect,
 			&mut self.key_list.state,
 		);
+	}
+
+	/// Returns the first row of the table.
+	fn get_first_row(&self, key: &GpgKey) -> String {
+		let subkeys = key.get_subkeys();
+		format!(
+			"[{}] {}/{}\n{}      └─{}\n{}",
+			key.get_flags(),
+			key.get_algorithm(),
+			key.get_fingerprint(),
+			if !subkeys.is_empty() { "|" } else { " " },
+			key.get_time(),
+			subkeys
+				.iter()
+				.enumerate()
+				.fold(String::new(), |acc, (i, key)| {
+					let time = subkey::get_time(*key);
+					format!(
+						"{}[{}] {}/{}\n{}      └─{}\n",
+						acc,
+						subkey::get_flags(*key),
+						key.algorithm_name()
+							.unwrap_or_else(|_| { String::from("[?]") }),
+						key.fingerprint_raw()
+							.map_or(String::from("[?]"), |v| v
+								.to_string_lossy()
+								.into_owned()),
+						if i != subkeys.len() - 1 { "|" } else { " " },
+						time
+					)
+				})
+		)
+	}
+
+	/// Returns the second row of the table.
+	fn get_second_row(&self, key: &GpgKey) -> String {
+		let user_ids = key.get_user_ids();
+		user_ids
+			.iter()
+			.enumerate()
+			.fold(String::new(), |acc, (i, user)| {
+				let val = format!(
+					"[{}] {}",
+					user.validity(),
+					user.id_raw().map_or(String::from("[?]"), |v| v
+						.to_string_lossy()
+						.into_owned())
+				);
+				if i == 0 {
+					format!("{}\n", val)
+				} else if i == user_ids.len() - 1 {
+					format!("{} └─{}\n", acc, val)
+				} else {
+					format!("{} ├─{}\n", acc, val)
+				}
+			})
 	}
 }
