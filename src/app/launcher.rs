@@ -1,8 +1,9 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
-use crate::gpg::subkey;
 use crate::widget::list::StatefulTable;
 use anyhow::Result;
+use chrono::{DateTime, Utc};
+use gpgme::{UserId, UserIdSignature};
 use std::cmp;
 use std::convert::TryInto;
 use tui::backend::Backend;
@@ -50,14 +51,14 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				let first_row = self.get_first_row(key);
-				let first_row_height = first_row.lines().count();
-				let second_row = self.get_second_row(key);
-				let second_row_height = second_row.lines().count();
-				Row::new(vec![Text::from(first_row), Text::from(second_row)])
+				let keys_row = self.get_keys_row(key);
+				let keys_row_height = keys_row.lines().count();
+				let users_row = self.get_users_row(key);
+				let users_row_height = users_row.lines().count();
+				Row::new(vec![Text::from(keys_row), Text::from(users_row)])
 					.height(cmp::max(
-						first_row_height.try_into().unwrap_or(1),
-						second_row_height.try_into().unwrap_or(1),
+						keys_row_height.try_into().unwrap_or(1),
+						users_row_height.try_into().unwrap_or(1),
 					))
 					.bottom_margin(1)
 					.style(Style::default())
@@ -77,59 +78,96 @@ impl App {
 		);
 	}
 
-	/// Returns the first row of the table.
-	fn get_first_row(&self, key: &GpgKey) -> String {
+	/// Returns information about keys for the first row of the table.
+	fn get_keys_row(&self, key: &GpgKey) -> String {
 		let subkeys = key.get_subkeys();
-		format!(
-			"[{}] {}/{}\n{}      └─{}\n{}",
-			key.get_flags(),
-			key.get_algorithm(),
-			key.get_fingerprint(),
-			if !subkeys.is_empty() { "|" } else { " " },
-			key.get_time(),
-			subkeys
-				.iter()
-				.enumerate()
-				.fold(String::new(), |acc, (i, key)| {
-					let time = subkey::get_time(*key);
-					format!(
-						"{}[{}] {}/{}\n{}      └─{}\n",
-						acc,
-						subkey::get_flags(*key),
-						key.algorithm_name()
-							.unwrap_or_else(|_| { String::from("[?]") }),
-						key.fingerprint_raw()
-							.map_or(String::from("[?]"), |v| v
-								.to_string_lossy()
-								.into_owned()),
-						if i != subkeys.len() - 1 { "|" } else { " " },
-						time
-					)
-				})
-		)
+		subkeys
+			.iter()
+			.enumerate()
+			.fold(String::new(), |acc, (i, key)| {
+				format!(
+					"{}[{}] {}/{}\n{}      └─{}\n",
+					acc,
+					GpgKey::get_flags(*key),
+					key.algorithm_name()
+						.unwrap_or_else(|_| { String::from("[?]") }),
+					key.fingerprint().unwrap_or("[?]"),
+					if i != subkeys.len() - 1 { "|" } else { " " },
+					GpgKey::get_time(*key),
+				)
+			})
 	}
 
-	/// Returns the second row of the table.
-	fn get_second_row(&self, key: &GpgKey) -> String {
+	/// Returns information about users for the second row of the table.
+	fn get_users_row(&self, key: &GpgKey) -> String {
 		let user_ids = key.get_user_ids();
 		user_ids
 			.iter()
 			.enumerate()
 			.fold(String::new(), |acc, (i, user)| {
-				let val = format!(
-					"[{}] {}",
+				format!(
+					"{}{}[{}] {}\n{}",
+					acc,
+					if i == 0 {
+						""
+					} else if i == user_ids.len() - 1 {
+						" └─"
+					} else {
+						" ├─"
+					},
 					user.validity(),
-					user.id_raw().map_or(String::from("[?]"), |v| v
-						.to_string_lossy()
-						.into_owned())
-				);
-				if i == 0 {
-					format!("{}\n", val)
-				} else if i == user_ids.len() - 1 {
-					format!("{} └─{}\n", acc, val)
-				} else {
-					format!("{} ├─{}\n", acc, val)
-				}
+					user.id().unwrap_or("[?]"),
+					self.get_user_signatures(key, user, user_ids.len(), i)
+				)
+			})
+	}
+
+	/// Returns the signature information of an user.
+	fn get_user_signatures(
+		&self,
+		key: &GpgKey,
+		user: &UserId,
+		user_count: usize,
+		user_index: usize,
+	) -> String {
+		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
+		signatures
+			.iter()
+			.enumerate()
+			.fold(String::new(), |acc, (i, sig)| {
+				format!(
+					"{} {}  {}[{:x}] {} ({})\n",
+					acc,
+					if user_count == 1 {
+						" "
+					} else if user_index == user_count - 1 {
+						"    "
+					} else if user_index == 0 {
+						"│"
+					} else {
+						"│   "
+					},
+					if i == signatures.len() - 1 {
+						"└─"
+					} else {
+						"├─"
+					},
+					sig.cert_class(),
+					if sig.signer_key_id() == key.get_id() {
+						String::from("selfsig")
+					} else {
+						format!(
+							"{} {}",
+							sig.signer_key_id().unwrap_or("[?]"),
+							sig.signer_user_id().unwrap_or("[?]"),
+						)
+					},
+					if let Some(date) = sig.creation_time() {
+						DateTime::<Utc>::from(date).format("%F").to_string()
+					} else {
+						String::from("[?]")
+					}
+				)
 			})
 	}
 }

@@ -13,6 +13,7 @@ impl GpgContext {
 	pub fn new() -> Result<Self> {
 		let mut context = Context::from_protocol(Protocol::OpenPgp)?;
 		context.set_key_list_mode(KeyListMode::LOCAL)?;
+		context.set_key_list_mode(KeyListMode::SIGS)?;
 		context.set_offline(true);
 		Ok(Self { inner: context })
 	}
