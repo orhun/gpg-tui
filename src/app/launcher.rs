@@ -1,6 +1,6 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
-use crate::widget::list::StatefulTable;
+use crate::widget::table::StatefulTable;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use gpgme::{UserId, UserIdSignature};

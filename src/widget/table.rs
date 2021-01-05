@@ -1,8 +1,8 @@
 use tui::widgets::TableState as State;
 
-/// List widget with TUI controlled states.
+/// Table widget with TUI controlled states.
 pub struct StatefulTable<T> {
-	/// List items (states).
+	/// Table items (states).
 	pub items: Vec<T>,
 	/// State that can be modified by TUI.
 	pub state: State,
