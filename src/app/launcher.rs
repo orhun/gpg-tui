@@ -51,15 +51,18 @@ impl App {
 	) {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				let keys_row = self.get_keys_row(key);
-				let keys_row_height = keys_row.lines().count();
-				let users_row = self.get_users_row(key);
-				let users_row_height = users_row.lines().count();
+				let max_row_height =
+					rect.height.checked_sub(4).unwrap_or(rect.height);
+				let keys_row = self
+					.adjust_row_height(self.get_keys_row(key), max_row_height);
+				let users_row = self
+					.adjust_row_height(self.get_users_row(key), max_row_height);
+				let row_height = cmp::max(
+					keys_row.lines().count().try_into().unwrap_or(1),
+					users_row.lines().count().try_into().unwrap_or(1),
+				);
 				Row::new(vec![Text::from(keys_row), Text::from(users_row)])
-					.height(cmp::max(
-						keys_row_height.try_into().unwrap_or(1),
-						users_row_height.try_into().unwrap_or(1),
-					))
+					.height(row_height)
 					.bottom_margin(1)
 					.style(Style::default())
 			}))
@@ -76,6 +79,21 @@ impl App {
 			rect,
 			&mut self.key_list.state,
 		);
+	}
+
+	/// Limits the row height to the maximum height.
+	fn adjust_row_height(&self, row: String, max_height: u16) -> String {
+		if row.lines().count() > max_height.into() {
+			row.lines()
+				.collect::<Vec<&str>>()
+				.drain(
+					0..(max_height.checked_sub(1).unwrap_or(max_height)).into(),
+				)
+				.collect::<Vec<&str>>()
+				.join("\n") + "\n ..."
+		} else {
+			row
+		}
 	}
 
 	/// Returns information about keys for the first row of the table.
