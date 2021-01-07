@@ -13,7 +13,7 @@ use tui::terminal::Frame;
 use tui::text::Text;
 use tui::widgets::{Block, Borders, Row, Table};
 
-/// Threshold value (width) for minimizing the table.
+/// Threshold value (width) for minimizing.
 const TABLE_MIN_THRESHOLD: u16 = 100;
 /// Length of keys row in maximized mode.
 const KEYS_ROW_MAX_LENGTH: u16 = 55;
@@ -27,8 +27,8 @@ const KEYS_ROW_MIN_LENGTH: u16 = 31;
 pub struct App {
 	/// Is app running?
 	pub running: bool,
-	/// Is table minimized?
-	pub table_minimized: bool,
+	/// Is app minimized?
+	pub minimized: bool,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
 }
@@ -38,7 +38,7 @@ impl App {
 	pub fn new() -> Result<Self> {
 		Ok(Self {
 			running: true,
-			table_minimized: false,
+			minimized: false,
 			key_list: StatefulTable::with_items(GpgContext::new()?.get_keys()?),
 		})
 	}
@@ -50,7 +50,9 @@ impl App {
 
 	/// Renders the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
-		self.render_key_list(frame, frame.size())
+		let rect = frame.size();
+		self.minimized = rect.width < TABLE_MIN_THRESHOLD;
+		self.render_key_list(frame, rect);
 	}
 
 	/// Renders the list of public keys.
@@ -59,7 +61,6 @@ impl App {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		self.table_minimized = rect.width < TABLE_MIN_THRESHOLD;
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
 				let max_row_height =
@@ -86,7 +87,7 @@ impl App {
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
 			.widths(&[
-				Constraint::Min(if self.table_minimized {
+				Constraint::Min(if self.minimized {
 					KEYS_ROW_MIN_LENGTH
 				} else {
 					KEYS_ROW_MAX_LENGTH
@@ -127,7 +128,7 @@ impl App {
 					GpgKey::get_flags(*key),
 					key.algorithm_name()
 						.unwrap_or_else(|_| { String::from("[?]") }),
-					if self.table_minimized {
+					if self.minimized {
 						key.id()
 					} else {
 						key.fingerprint()
@@ -136,7 +137,7 @@ impl App {
 					if i != subkeys.len() - 1 { "|" } else { " " },
 					GpgKey::get_time(
 						*key,
-						if self.table_minimized { "%Y" } else { "%F" }
+						if self.minimized { "%Y" } else { "%F" }
 					),
 				)
 			})
@@ -160,7 +161,7 @@ impl App {
 						" ├─"
 					},
 					user.validity(),
-					if self.table_minimized {
+					if self.minimized {
 						user.email()
 					} else {
 						user.id()
@@ -204,7 +205,7 @@ impl App {
 					sig.cert_class(),
 					if sig.signer_key_id() == key.get_id() {
 						String::from("selfsig")
-					} else if self.table_minimized {
+					} else if self.minimized {
 						sig.signer_key_id().unwrap_or("[?]").to_string()
 					} else {
 						format!(
@@ -215,11 +216,7 @@ impl App {
 					},
 					if let Some(date) = sig.creation_time() {
 						DateTime::<Utc>::from(date)
-							.format(if self.table_minimized {
-								"%Y"
-							} else {
-								"%F"
-							})
+							.format(if self.minimized { "%Y" } else { "%F" })
 							.to_string()
 					} else {
 						String::from("[?]")
