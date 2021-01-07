@@ -50,21 +50,23 @@ impl GpgKey {
 	/// * creation time
 	/// * expiration time
 	/// * is the key expired/revoked/disabled/invalid/qualified?
-	pub fn get_time(key: Subkey<'_>) -> String {
+	pub fn get_time(key: Subkey<'_>, format: &str) -> String {
 		format!(
 			"({}){}{}{}{}{}{}",
 			if let Some(date) = key.creation_time() {
-				DateTime::<Utc>::from(date).format("%F").to_string()
+				DateTime::<Utc>::from(date).format(format).to_string()
 			} else {
 				String::from("[?]")
 			},
 			if let Some(date) = key.expiration_time() {
-				DateTime::<Utc>::from(date).format(" ─> (%F)").to_string()
+				DateTime::<Utc>::from(date)
+					.format(&format!(" ─> ({})", format))
+					.to_string()
 			} else {
 				String::new()
 			},
-			if key.is_expired() { " [expired]" } else { "" },
-			if key.is_revoked() { " [revoked]" } else { "" },
+			if key.is_expired() { " [exp]" } else { "" },
+			if key.is_revoked() { " [rev]" } else { "" },
 			if key.is_disabled() { " ⊗" } else { "" },
 			if key.is_invalid() { " ✗" } else { "" },
 			if key.is_qualified() { " ✓" } else { "" }
