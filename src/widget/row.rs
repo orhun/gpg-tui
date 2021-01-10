@@ -40,24 +40,23 @@ pub struct RowItem {
 impl RowItem {
 	/// Constructs a new instance of `RowItem`.
 	pub fn new(
-		data: String,
+		data: Vec<String>,
 		max_width: Option<u16>,
 		max_height: u16,
 		scroll: ScrollAmount,
 	) -> Self {
 		let mut item = Self {
-			data: data.lines().map(String::from).collect(),
 			max_width,
 			max_height,
 			height_overflow: (data
-				.lines()
-				.count()
+				.len()
 				.checked_sub(max_height.into())
 				.unwrap_or_default()
 				+ 1)
 			.try_into()
 			.unwrap_or_default(),
 			scroll,
+			data,
 		};
 		item.process();
 		item

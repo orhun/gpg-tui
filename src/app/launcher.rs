@@ -124,60 +124,64 @@ impl App {
 	}
 
 	/// Returns information about keys for the first row of the table.
-	fn get_key_info(&self, key: &GpgKey) -> String {
+	fn get_key_info(&self, key: &GpgKey) -> Vec<String> {
+		let mut key_info = Vec::new();
 		let subkeys = key.get_subkeys();
-		subkeys
-			.iter()
-			.enumerate()
-			.fold(String::new(), |acc, (i, key)| {
-				format!(
-					"{}[{}] {}/{}\n{}      └─{}\n",
-					acc,
-					GpgKey::get_flags(*key),
-					key.algorithm_name()
-						.unwrap_or_else(|_| { String::from("[?]") }),
-					if self.minimized {
-						key.id()
-					} else {
-						key.fingerprint()
-					}
-					.unwrap_or("[?]"),
-					if i != subkeys.len() - 1 { "|" } else { " " },
-					GpgKey::get_time(
-						*key,
-						if self.minimized { "%Y" } else { "%F" }
-					),
+		for (i, key) in subkeys.iter().enumerate() {
+			key_info.push(format!(
+				"[{}] {}/{}",
+				GpgKey::get_flags(*key),
+				key.algorithm_name()
+					.unwrap_or_else(|_| { String::from("[?]") }),
+				if self.minimized {
+					key.id()
+				} else {
+					key.fingerprint()
+				}
+				.unwrap_or("[?]"),
+			));
+			key_info.push(format!(
+				"{}      └─{}",
+				if i != subkeys.len() - 1 { "|" } else { " " },
+				GpgKey::get_time(
+					*key,
+					if self.minimized { "%Y" } else { "%F" }
 				)
-			})
+			));
+		}
+		key_info
 	}
 
 	/// Returns information about users for the second row of the table.
-	fn get_user_info(&self, key: &GpgKey) -> String {
+	fn get_user_info(&self, key: &GpgKey) -> Vec<String> {
+		let mut user_info = Vec::new();
 		let user_ids = key.get_user_ids();
-		user_ids
-			.iter()
-			.enumerate()
-			.fold(String::new(), |acc, (i, user)| {
-				format!(
-					"{}{}[{}] {}\n{}",
-					acc,
-					if i == 0 {
-						""
-					} else if i == user_ids.len() - 1 {
-						" └─"
-					} else {
-						" ├─"
-					},
-					user.validity(),
-					if self.minimized {
-						user.email()
-					} else {
-						user.id()
-					}
-					.unwrap_or("[?]"),
-					self.get_user_signatures(key, user, user_ids.len(), i)
-				)
-			})
+		for (i, user) in user_ids.iter().enumerate() {
+			user_info.push(format!(
+				"{}[{}] {}",
+				if i == 0 {
+					""
+				} else if i == user_ids.len() - 1 {
+					" └─"
+				} else {
+					" ├─"
+				},
+				user.validity(),
+				if self.minimized {
+					user.email()
+				} else {
+					user.id()
+				}
+				.unwrap_or("[?]")
+			));
+			user_info.extend(self.get_user_signatures(
+				key,
+				user,
+				user_ids.len(),
+				i,
+			))
+		}
+		user_info
 	}
 
 	/// Returns the signature information of an user.
@@ -187,15 +191,14 @@ impl App {
 		user: &UserId,
 		user_count: usize,
 		user_index: usize,
-	) -> String {
+	) -> Vec<String> {
 		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
 		signatures
 			.iter()
 			.enumerate()
-			.fold(String::new(), |acc, (i, sig)| {
+			.map(|(i, sig)| {
 				format!(
-					"{} {}  {}[{:x}] {} ({})\n",
-					acc,
+					" {}  {}[{:x}] {} ({})",
 					if user_count == 1 {
 						" "
 					} else if user_index == user_count - 1 {
@@ -231,5 +234,6 @@ impl App {
 					}
 				)
 			})
+			.collect()
 	}
 }
