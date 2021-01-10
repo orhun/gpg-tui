@@ -3,6 +3,7 @@ use gpgme::{Key, Subkey, UserId};
 use std::str::Utf8Error;
 
 /// Representation of a key.
+#[derive(Clone, Debug)]
 pub struct GpgKey {
 	/// GPGME Key type.
 	pub inner: Key,
