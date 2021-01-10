@@ -1,5 +1,6 @@
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
+use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -45,7 +46,9 @@ impl App {
 
 	/// Reset the application state.
 	pub fn refresh(&mut self) {
-		self.key_list.state.select(Some(0))
+		self.key_list.state.select(Some(0));
+		self.key_list.reset_scroll();
+		self.minimized = false;
 	}
 
 	/// Renders the user interface.
@@ -61,22 +64,42 @@ impl App {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
+		let max_row_height = rect.height.checked_sub(4).unwrap_or(rect.height);
+		let max_row_width = rect
+			.width
+			.checked_sub(
+				if self.minimized {
+					KEYS_ROW_MIN_LENGTH
+				} else {
+					KEYS_ROW_MAX_LENGTH
+				} + 5,
+			)
+			.unwrap_or(rect.width);
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
-				let max_row_height =
-					rect.height.checked_sub(4).unwrap_or(rect.height);
-				let keys_row = self
-					.adjust_row_height(self.get_keys_row(key), max_row_height);
-				let users_row = self
-					.adjust_row_height(self.get_users_row(key), max_row_height);
-				let row_height = cmp::max(
-					keys_row.lines().count().try_into().unwrap_or(1),
-					users_row.lines().count().try_into().unwrap_or(1),
+				let keys_row = RowItem::new(
+					self.get_key_info(key),
+					None,
+					max_row_height,
+					self.key_list.scroll,
 				);
-				Row::new(vec![Text::from(keys_row), Text::from(users_row)])
-					.height(row_height)
-					.bottom_margin(1)
-					.style(Style::default())
+				let users_row = RowItem::new(
+					self.get_user_info(key),
+					Some(max_row_width),
+					max_row_height,
+					self.key_list.scroll,
+				);
+				Row::new(vec![
+					Text::from(keys_row.get()),
+					Text::from(users_row.get()),
+				])
+				.height(
+					cmp::max(keys_row.len(), users_row.len())
+						.try_into()
+						.unwrap_or(1),
+				)
+				.bottom_margin(1)
+				.style(Style::default())
 			}))
 			.header(
 				Row::new(vec!["Key", "User"])
@@ -100,23 +123,8 @@ impl App {
 		);
 	}
 
-	/// Limits the row height to the maximum height.
-	fn adjust_row_height(&self, row: String, max_height: u16) -> String {
-		if row.lines().count() > max_height.into() {
-			row.lines()
-				.collect::<Vec<&str>>()
-				.drain(
-					0..(max_height.checked_sub(1).unwrap_or(max_height)).into(),
-				)
-				.collect::<Vec<&str>>()
-				.join("\n") + "\n ..."
-		} else {
-			row
-		}
-	}
-
 	/// Returns information about keys for the first row of the table.
-	fn get_keys_row(&self, key: &GpgKey) -> String {
+	fn get_key_info(&self, key: &GpgKey) -> String {
 		let subkeys = key.get_subkeys();
 		subkeys
 			.iter()
@@ -144,7 +152,7 @@ impl App {
 	}
 
 	/// Returns information about users for the second row of the table.
-	fn get_users_row(&self, key: &GpgKey) -> String {
+	fn get_user_info(&self, key: &GpgKey) -> String {
 		let user_ids = key.get_user_ids();
 		user_ids
 			.iter()

@@ -1,8 +1,9 @@
 use crate::app::launcher::App;
+use crate::widget::row::ScrollDirection;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 
-/// Handle key inputs.
+/// Handle key events.
 pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 	match key_event.code {
 		Key::Char('q') | Key::Char('Q') | Key::Esc => app.running = false,
@@ -12,8 +13,30 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			}
 		}
 		Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh(),
-		Key::Up => app.key_list.previous(),
-		Key::Down => app.key_list.next(),
+		Key::Up => {
+			if key_event.modifiers == Modifiers::ALT {
+				app.key_list.scroll(ScrollDirection::Up(1))
+			} else {
+				app.key_list.previous()
+			}
+		}
+		Key::Right => {
+			if key_event.modifiers == Modifiers::ALT {
+				app.key_list.scroll(ScrollDirection::Right(1))
+			}
+		}
+		Key::Down => {
+			if key_event.modifiers == Modifiers::ALT {
+				app.key_list.scroll(ScrollDirection::Down(1))
+			} else {
+				app.key_list.next()
+			}
+		}
+		Key::Left => {
+			if key_event.modifiers == Modifiers::ALT {
+				app.key_list.scroll(ScrollDirection::Left(1))
+			}
+		}
 		_ => {}
 	}
 	Ok(())
