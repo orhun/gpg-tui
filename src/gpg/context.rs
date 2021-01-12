@@ -24,7 +24,7 @@ impl GpgContext {
 			.inner
 			.find_keys(Vec::<String>::new())?
 			.filter_map(|key| key.ok())
-			.map(GpgKey::new)
+			.map(GpgKey::from)
 			.collect())
 	}
 }

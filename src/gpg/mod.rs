@@ -9,3 +9,6 @@ pub mod context;
 ///
 /// [`Key`]: gpgme::Key
 pub mod key;
+
+/// Handler methods.
+pub mod handler;

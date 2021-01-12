@@ -1,76 +1,125 @@
-use chrono::{DateTime, Utc};
-use gpgme::{Key, Subkey, UserId};
-use std::str::Utf8Error;
+use crate::gpg::handler;
+use gpgme::{Key, Subkey, UserId, UserIdSignature};
 
 /// Representation of a key.
 #[derive(Clone, Debug)]
 pub struct GpgKey {
 	/// GPGME Key type.
-	pub inner: Key,
+	inner: Key,
+}
+
+impl From<Key> for GpgKey {
+	fn from(key: Key) -> Self {
+		Self { inner: key }
+	}
 }
 
 impl GpgKey {
-	/// Constructs a new instance of `GpgKey`.
-	pub fn new(key: Key) -> Self {
-		Self { inner: key }
+	/// Returns information about the subkeys.
+	pub fn get_subkey_info(&self, truncate: bool) -> Vec<String> {
+		let mut key_info = Vec::new();
+		let subkeys = self.inner.subkeys().collect::<Vec<Subkey>>();
+		for (i, subkey) in subkeys.iter().enumerate() {
+			key_info.push(format!(
+				"[{}] {}/{}",
+				handler::get_subkey_flags(*subkey),
+				subkey
+					.algorithm_name()
+					.unwrap_or_else(|_| { String::from("[?]") }),
+				if truncate {
+					subkey.id()
+				} else {
+					subkey.fingerprint()
+				}
+				.unwrap_or("[?]"),
+			));
+			key_info.push(format!(
+				"{}      └─{}",
+				if i != subkeys.len() - 1 { "|" } else { " " },
+				handler::get_subkey_time(
+					*subkey,
+					if truncate { "%Y" } else { "%F" }
+				)
+			));
+		}
+		key_info
 	}
 
-	/// Returns the ID of the primary key.
-	pub fn get_id(&self) -> Result<&str, Option<Utf8Error>> {
-		self.inner.id()
+	/// Returns information about the users of the key.
+	pub fn get_user_info(&self, truncate: bool) -> Vec<String> {
+		let mut user_info = Vec::new();
+		let user_ids = self.inner.user_ids().collect::<Vec<UserId>>();
+		for (i, user) in user_ids.iter().enumerate() {
+			user_info.push(format!(
+				"{}[{}] {}",
+				if i == 0 {
+					""
+				} else if i == user_ids.len() - 1 {
+					" └─"
+				} else {
+					" ├─"
+				},
+				user.validity(),
+				if truncate { user.email() } else { user.id() }
+					.unwrap_or("[?]")
+			));
+			user_info.extend(self.get_user_signatures(
+				user,
+				user_ids.len(),
+				i,
+				truncate,
+			))
+		}
+		user_info
 	}
 
-	/// Returns the subkeys.
-	pub fn get_subkeys(&self) -> Vec<Subkey<'_>> {
-		self.inner.subkeys().collect()
-	}
-
-	/// Returns the user IDs.
-	pub fn get_user_ids(&self) -> Vec<UserId> {
-		self.inner.user_ids().collect()
-	}
-
-	/// Returns the flags of the given Subkey.
-	///
-	/// * `S`: sign
-	/// * `C`: certify
-	/// * `E`: encrypt
-	/// * `A`: authenticate
-	pub fn get_flags(key: Subkey<'_>) -> String {
-		format!(
-			"{}{}{}{}",
-			if key.can_sign() { "s" } else { "-" },
-			if key.can_certify() { "c" } else { "-" },
-			if key.can_encrypt() { "e" } else { "-" },
-			if key.can_authenticate() { "a" } else { "-" },
-		)
-	}
-
-	/// Returns the time information of the given Subkey.
-	///
-	/// * creation time
-	/// * expiration time
-	/// * is the key expired/revoked/disabled/invalid/qualified?
-	pub fn get_time(key: Subkey<'_>, format: &str) -> String {
-		format!(
-			"({}){}{}{}{}{}{}",
-			if let Some(date) = key.creation_time() {
-				DateTime::<Utc>::from(date).format(format).to_string()
-			} else {
-				String::from("[?]")
-			},
-			if let Some(date) = key.expiration_time() {
-				DateTime::<Utc>::from(date)
-					.format(&format!(" ─> ({})", format))
-					.to_string()
-			} else {
-				String::new()
-			},
-			if key.is_expired() { " [exp]" } else { "" },
-			if key.is_revoked() { " [rev]" } else { "" },
-			if key.is_disabled() { " ⊗" } else { "" },
-			if key.is_invalid() { " ✗" } else { "" },
-			if key.is_qualified() { " ✓" } else { "" }
-		)
+	/// Returns the signature information of an user.
+	fn get_user_signatures(
+		&self,
+		user: &UserId,
+		user_count: usize,
+		user_index: usize,
+		truncate: bool,
+	) -> Vec<String> {
+		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
+		signatures
+			.iter()
+			.enumerate()
+			.map(|(i, sig)| {
+				format!(
+					" {}  {}[{:x}] {} {}",
+					if user_count == 1 {
+						" "
+					} else if user_index == user_count - 1 {
+						"    "
+					} else if user_index == 0 {
+						"│"
+					} else {
+						"│   "
+					},
+					if i == signatures.len() - 1 {
+						"└─"
+					} else {
+						"├─"
+					},
+					sig.cert_class(),
+					if sig.signer_key_id() == self.inner.id() {
+						String::from("selfsig")
+					} else if truncate {
+						sig.signer_key_id().unwrap_or("[?]").to_string()
+					} else {
+						format!(
+							"{} {}",
+							sig.signer_key_id().unwrap_or("[?]"),
+							sig.signer_user_id().unwrap_or("[?]")
+						)
+					},
+					handler::get_signature_time(
+						*sig,
+						if truncate { "%Y" } else { "%F" }
+					)
+				)
+			})
+			.collect()
 	}
 }

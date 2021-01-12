@@ -3,8 +3,6 @@ use crate::gpg::key::GpgKey;
 use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
-use chrono::{DateTime, Utc};
-use gpgme::{UserId, UserIdSignature};
 use std::cmp;
 use std::convert::TryInto;
 use tui::backend::Backend;
@@ -78,13 +76,13 @@ impl App {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
 				let keys_row = RowItem::new(
-					self.get_key_info(key),
+					key.get_subkey_info(self.minimized),
 					None,
 					max_row_height,
 					self.key_list.scroll,
 				);
 				let users_row = RowItem::new(
-					self.get_user_info(key),
+					key.get_user_info(self.minimized),
 					Some(max_row_width),
 					max_row_height,
 					self.key_list.scroll,
@@ -121,119 +119,5 @@ impl App {
 			rect,
 			&mut self.key_list.state,
 		);
-	}
-
-	/// Returns information about keys for the first row of the table.
-	fn get_key_info(&self, key: &GpgKey) -> Vec<String> {
-		let mut key_info = Vec::new();
-		let subkeys = key.get_subkeys();
-		for (i, key) in subkeys.iter().enumerate() {
-			key_info.push(format!(
-				"[{}] {}/{}",
-				GpgKey::get_flags(*key),
-				key.algorithm_name()
-					.unwrap_or_else(|_| { String::from("[?]") }),
-				if self.minimized {
-					key.id()
-				} else {
-					key.fingerprint()
-				}
-				.unwrap_or("[?]"),
-			));
-			key_info.push(format!(
-				"{}      └─{}",
-				if i != subkeys.len() - 1 { "|" } else { " " },
-				GpgKey::get_time(
-					*key,
-					if self.minimized { "%Y" } else { "%F" }
-				)
-			));
-		}
-		key_info
-	}
-
-	/// Returns information about users for the second row of the table.
-	fn get_user_info(&self, key: &GpgKey) -> Vec<String> {
-		let mut user_info = Vec::new();
-		let user_ids = key.get_user_ids();
-		for (i, user) in user_ids.iter().enumerate() {
-			user_info.push(format!(
-				"{}[{}] {}",
-				if i == 0 {
-					""
-				} else if i == user_ids.len() - 1 {
-					" └─"
-				} else {
-					" ├─"
-				},
-				user.validity(),
-				if self.minimized {
-					user.email()
-				} else {
-					user.id()
-				}
-				.unwrap_or("[?]")
-			));
-			user_info.extend(self.get_user_signatures(
-				key,
-				user,
-				user_ids.len(),
-				i,
-			))
-		}
-		user_info
-	}
-
-	/// Returns the signature information of an user.
-	fn get_user_signatures(
-		&self,
-		key: &GpgKey,
-		user: &UserId,
-		user_count: usize,
-		user_index: usize,
-	) -> Vec<String> {
-		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
-		signatures
-			.iter()
-			.enumerate()
-			.map(|(i, sig)| {
-				format!(
-					" {}  {}[{:x}] {} ({})",
-					if user_count == 1 {
-						" "
-					} else if user_index == user_count - 1 {
-						"    "
-					} else if user_index == 0 {
-						"│"
-					} else {
-						"│   "
-					},
-					if i == signatures.len() - 1 {
-						"└─"
-					} else {
-						"├─"
-					},
-					sig.cert_class(),
-					if sig.signer_key_id() == key.get_id() {
-						String::from("selfsig")
-					} else if self.minimized {
-						sig.signer_key_id().unwrap_or("[?]").to_string()
-					} else {
-						format!(
-							"{} {}",
-							sig.signer_key_id().unwrap_or("[?]"),
-							sig.signer_user_id().unwrap_or("[?]")
-						)
-					},
-					if let Some(date) = sig.creation_time() {
-						DateTime::<Utc>::from(date)
-							.format(if self.minimized { "%Y" } else { "%F" })
-							.to_string()
-					} else {
-						String::from("[?]")
-					}
-				)
-			})
-			.collect()
 	}
 }
