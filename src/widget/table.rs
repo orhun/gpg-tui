@@ -96,3 +96,37 @@ impl<T> StatefulTable<T> {
 		self.scroll = ScrollAmount::default();
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::assert_eq;
+	#[test]
+	fn test_widget_table() {
+		let mut table =
+			StatefulTable::with_items(vec!["data1", "data2", "data3"]);
+		table.state.select(Some(1));
+		assert_eq!(Some(1), table.state.selected());
+		table.next();
+		assert_eq!(Some(2), table.state.selected());
+		table.previous();
+		assert_eq!(Some(1), table.state.selected());
+		table.reset_scroll();
+		assert_eq!(
+			"ScrollAmount { vertical: 0, horizontal: 0 }",
+			&format!("{:?}", table.scroll)
+		);
+		table.scroll(ScrollDirection::Down(3));
+		table.scroll(ScrollDirection::Right(2));
+		assert_eq!(
+			"ScrollAmount { vertical: 3, horizontal: 2 }",
+			&format!("{:?}", table.scroll)
+		);
+		table.scroll(ScrollDirection::Up(1));
+		table.scroll(ScrollDirection::Left(1));
+		assert_eq!(
+			"ScrollAmount { vertical: 2, horizontal: 1 }",
+			&format!("{:?}", table.scroll)
+		);
+	}
+}

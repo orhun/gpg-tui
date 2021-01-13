@@ -88,11 +88,11 @@ impl App {
 					self.key_list.scroll,
 				);
 				Row::new(vec![
-					Text::from(keys_row.get()),
-					Text::from(users_row.get()),
+					Text::from(keys_row.data.join("\n")),
+					Text::from(users_row.data.join("\n")),
 				])
 				.height(
-					cmp::max(keys_row.len(), users_row.len())
+					cmp::max(keys_row.data.len(), users_row.data.len())
 						.try_into()
 						.unwrap_or(1),
 				)

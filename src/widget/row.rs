@@ -26,7 +26,7 @@ pub struct ScrollAmount {
 #[derive(Clone, Debug)]
 pub struct RowItem {
 	/// Row data.
-	data: Vec<String>,
+	pub data: Vec<String>,
 	/// Maximum width of the row.
 	max_width: Option<u16>,
 	/// Maximum height of the row.
@@ -62,21 +62,6 @@ impl RowItem {
 		item
 	}
 
-	/// Returns the row data as `String`.
-	pub fn get(&self) -> String {
-		self.data.join("\n")
-	}
-
-	/// Returns the number of lines in the row.
-	pub fn len(&self) -> usize {
-		self.data.len()
-	}
-
-	/// Returns `true` if the row has a length of 0.
-	pub fn is_empty(&self) -> bool {
-		self.len() == 0
-	}
-
 	/// Processes the row data.
 	///
 	/// It involves scrolling vertically/horizontally
@@ -87,7 +72,7 @@ impl RowItem {
 				self.scroll_vertical();
 			}
 			if self.scroll.vertical < self.height_overflow {
-				self.limit_height();
+				self.limit_height(self.max_height);
 			}
 		}
 		if let Some(width) = self.max_width {
@@ -155,8 +140,7 @@ impl RowItem {
 	}
 
 	/// Limits the row height to match the maximum height.
-	fn limit_height(&mut self) {
-		let height = self.max_height;
+	fn limit_height(&mut self, height: u16) {
 		self.data = self
 			.data
 			.drain(0..(height).into())
@@ -169,5 +153,33 @@ impl RowItem {
 				}
 			})
 			.collect::<Vec<String>>()
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::assert_eq;
+	#[test]
+	fn test_widget_row() {
+		assert_eq!(
+			vec!["..", ".ne3", ".ne4", ".."],
+			RowItem::new(
+				vec![
+					String::from("line1"),
+					String::from("line2"),
+					String::from("line3"),
+					String::from("line4"),
+					String::from("line5"),
+				],
+				Some(4),
+				4,
+				ScrollAmount {
+					vertical: 1,
+					horizontal: 1,
+				},
+			)
+			.data
+		);
 	}
 }
