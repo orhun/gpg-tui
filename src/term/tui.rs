@@ -72,6 +72,7 @@ mod tests {
 	use super::*;
 	use tui::backend::TestBackend;
 	#[test]
+	#[ignore]
 	fn test_tui() -> Result<()> {
 		let backend = TestBackend::new(10, 10);
 		let terminal = Terminal::new(backend)?;
