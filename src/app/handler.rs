@@ -6,10 +6,10 @@ use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 /// Handle key events.
 pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 	match key_event.code {
-		Key::Char('q') | Key::Char('Q') | Key::Esc => app.running = false,
+		Key::Char('q') | Key::Char('Q') | Key::Esc => app.state.running = false,
 		Key::Char('c') | Key::Char('d') => {
 			if key_event.modifiers == Modifiers::CONTROL {
-				app.running = false;
+				app.state.running = false;
 			}
 		}
 		Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh(),

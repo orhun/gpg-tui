@@ -1,3 +1,4 @@
+use crate::app::state::AppState;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
 use crate::widget::row::RowItem;
@@ -24,10 +25,8 @@ const KEYS_ROW_MIN_LENGTH: u16 = 31;
 /// It operates the TUI via rendering the widgets
 /// and updating the application state.
 pub struct App {
-	/// Is app running?
-	pub running: bool,
-	/// Is app minimized?
-	pub minimized: bool,
+	/// Application state.
+	pub state: AppState,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
 }
@@ -36,8 +35,7 @@ impl App {
 	/// Constructs a new instance of `App`.
 	pub fn new() -> Result<Self> {
 		Ok(Self {
-			running: true,
-			minimized: false,
+			state: AppState::default(),
 			key_list: StatefulTable::with_items(GpgContext::new()?.get_keys()?),
 		})
 	}
@@ -46,13 +44,13 @@ impl App {
 	pub fn refresh(&mut self) {
 		self.key_list.state.select(Some(0));
 		self.key_list.reset_scroll();
-		self.minimized = false;
+		self.state = AppState::default();
 	}
 
 	/// Renders the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
 		let rect = frame.size();
-		self.minimized = rect.width < TABLE_MIN_THRESHOLD;
+		self.state.minimized = rect.width < TABLE_MIN_THRESHOLD;
 		self.render_key_list(frame, rect);
 	}
 
@@ -66,7 +64,7 @@ impl App {
 		let max_row_width = rect
 			.width
 			.checked_sub(
-				if self.minimized {
+				if self.state.minimized {
 					KEYS_ROW_MIN_LENGTH
 				} else {
 					KEYS_ROW_MAX_LENGTH
@@ -76,13 +74,13 @@ impl App {
 		frame.render_stateful_widget(
 			Table::new(self.key_list.items.iter().map(|key| {
 				let keys_row = RowItem::new(
-					key.get_subkey_info(self.minimized),
+					key.get_subkey_info(self.state.minimized),
 					None,
 					max_row_height,
 					self.key_list.scroll,
 				);
 				let users_row = RowItem::new(
-					key.get_user_info(self.minimized),
+					key.get_user_info(self.state.minimized),
 					Some(max_row_width),
 					max_row_height,
 					self.key_list.scroll,
@@ -108,7 +106,7 @@ impl App {
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
 			.widths(&[
-				Constraint::Min(if self.minimized {
+				Constraint::Min(if self.state.minimized {
 					KEYS_ROW_MIN_LENGTH
 				} else {
 					KEYS_ROW_MAX_LENGTH

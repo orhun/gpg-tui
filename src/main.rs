@@ -37,7 +37,7 @@ fn main() -> Result<()> {
 	let mut app = App::new()?;
 	app.refresh();
 	// Start the main loop.
-	while app.running {
+	while app.state.running {
 		// Render the user interface.
 		tui.draw(&mut app)?;
 		// Handle events.
