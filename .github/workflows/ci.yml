@@ -65,6 +65,7 @@ jobs:
           flags: unit-testss
           fail_ci_if_error: true
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   clippy:
     name: Lints
