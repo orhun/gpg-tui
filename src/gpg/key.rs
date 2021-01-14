@@ -1,6 +1,17 @@
 use crate::gpg::handler;
 use gpgme::{Key, Subkey, UserId, UserIdSignature};
 
+/// Level of detail to show for key.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum KeyDetailLevel {
+	/// Show only the primary key and user ID.
+	Minimum = 0,
+	/// Show all subkeys and user IDs.
+	Standard = 1,
+	/// Show signatures.
+	Full = 2,
+}
+
 /// Representation of a key.
 #[derive(Clone, Debug)]
 pub struct GpgKey {
@@ -16,7 +27,11 @@ impl From<Key> for GpgKey {
 
 impl GpgKey {
 	/// Returns information about the subkeys.
-	pub fn get_subkey_info(&self, truncate: bool) -> Vec<String> {
+	pub fn get_subkey_info(
+		&self,
+		detail: KeyDetailLevel,
+		truncate: bool,
+	) -> Vec<String> {
 		let mut key_info = Vec::new();
 		let subkeys = self.inner.subkeys().collect::<Vec<Subkey>>();
 		for (i, subkey) in subkeys.iter().enumerate() {
@@ -33,6 +48,9 @@ impl GpgKey {
 				}
 				.unwrap_or("[?]"),
 			));
+			if detail == KeyDetailLevel::Minimum {
+				break;
+			}
 			key_info.push(format!(
 				"{}      └─{}",
 				if i != subkeys.len() - 1 { "|" } else { " " },
@@ -46,7 +64,11 @@ impl GpgKey {
 	}
 
 	/// Returns information about the users of the key.
-	pub fn get_user_info(&self, truncate: bool) -> Vec<String> {
+	pub fn get_user_info(
+		&self,
+		detail: KeyDetailLevel,
+		truncate: bool,
+	) -> Vec<String> {
 		let mut user_info = Vec::new();
 		let user_ids = self.inner.user_ids().collect::<Vec<UserId>>();
 		for (i, user) in user_ids.iter().enumerate() {
@@ -63,12 +85,17 @@ impl GpgKey {
 				if truncate { user.email() } else { user.id() }
 					.unwrap_or("[?]")
 			));
-			user_info.extend(self.get_user_signatures(
-				user,
-				user_ids.len(),
-				i,
-				truncate,
-			))
+			if detail == KeyDetailLevel::Minimum {
+				break;
+			}
+			if detail == KeyDetailLevel::Full {
+				user_info.extend(self.get_user_signatures(
+					user,
+					user_ids.len(),
+					i,
+					truncate,
+				));
+			}
 		}
 		user_info
 	}
