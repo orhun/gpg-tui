@@ -35,7 +35,6 @@ fn main() -> Result<()> {
 	tui.init()?;
 	// Create an application for rendering.
 	let mut app = App::new()?;
-	app.refresh();
 	// Start the main loop.
 	while app.state.running {
 		// Render the user interface.

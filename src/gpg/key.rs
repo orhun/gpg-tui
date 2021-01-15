@@ -12,26 +12,38 @@ pub enum KeyDetailLevel {
 	Full = 2,
 }
 
+impl KeyDetailLevel {
+	/// Increases the level of detail.
+	pub fn increase(&mut self) {
+		*self = match *self as i8 + 1 {
+			1 => KeyDetailLevel::Standard,
+			2 => KeyDetailLevel::Full,
+			_ => KeyDetailLevel::Minimum,
+		}
+	}
+}
+
 /// Representation of a key.
 #[derive(Clone, Debug)]
 pub struct GpgKey {
 	/// GPGME Key type.
 	inner: Key,
+	/// Level of detail to show about key information.
+	pub detail: KeyDetailLevel,
 }
 
 impl From<Key> for GpgKey {
 	fn from(key: Key) -> Self {
-		Self { inner: key }
+		Self {
+			inner: key,
+			detail: KeyDetailLevel::Minimum,
+		}
 	}
 }
 
 impl GpgKey {
 	/// Returns information about the subkeys.
-	pub fn get_subkey_info(
-		&self,
-		detail: KeyDetailLevel,
-		truncate: bool,
-	) -> Vec<String> {
+	pub fn get_subkey_info(&self, truncate: bool) -> Vec<String> {
 		let mut key_info = Vec::new();
 		let subkeys = self.inner.subkeys().collect::<Vec<Subkey>>();
 		for (i, subkey) in subkeys.iter().enumerate() {
@@ -48,7 +60,7 @@ impl GpgKey {
 				}
 				.unwrap_or("[?]"),
 			));
-			if detail == KeyDetailLevel::Minimum {
+			if self.detail == KeyDetailLevel::Minimum {
 				break;
 			}
 			key_info.push(format!(
@@ -64,11 +76,7 @@ impl GpgKey {
 	}
 
 	/// Returns information about the users of the key.
-	pub fn get_user_info(
-		&self,
-		detail: KeyDetailLevel,
-		truncate: bool,
-	) -> Vec<String> {
+	pub fn get_user_info(&self, truncate: bool) -> Vec<String> {
 		let mut user_info = Vec::new();
 		let user_ids = self.inner.user_ids().collect::<Vec<UserId>>();
 		for (i, user) in user_ids.iter().enumerate() {
@@ -85,10 +93,10 @@ impl GpgKey {
 				if truncate { user.email() } else { user.id() }
 					.unwrap_or("[?]")
 			));
-			if detail == KeyDetailLevel::Minimum {
+			if self.detail == KeyDetailLevel::Minimum {
 				break;
 			}
-			if detail == KeyDetailLevel::Full {
+			if self.detail == KeyDetailLevel::Full {
 				user_info.extend(self.get_user_signatures(
 					user,
 					user_ids.len(),

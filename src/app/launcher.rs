@@ -41,10 +41,9 @@ impl App {
 	}
 
 	/// Reset the application state.
-	pub fn refresh(&mut self) {
-		self.key_list.state.select(Some(0));
-		self.key_list.reset_scroll();
-		self.state = AppState::default();
+	pub fn refresh(&mut self) -> Result<()> {
+		*self = Self::new()?;
+		Ok(())
 	}
 
 	/// Renders the user interface.
@@ -72,39 +71,31 @@ impl App {
 			)
 			.unwrap_or(rect.width);
 		frame.render_stateful_widget(
-			Table::new(self.key_list.items.iter().enumerate().map(
-				|(i, key)| {
-					let detail_level =
-						if self.key_list.state.selected() == Some(i) {
-							self.state.selected_row_detail
-						} else {
-							self.state.table_detail
-						};
-					let keys_row = RowItem::new(
-						key.get_subkey_info(detail_level, self.state.minimized),
-						None,
-						max_row_height,
-						self.key_list.scroll,
-					);
-					let users_row = RowItem::new(
-						key.get_user_info(detail_level, self.state.minimized),
-						Some(max_row_width),
-						max_row_height,
-						self.key_list.scroll,
-					);
-					Row::new(vec![
-						Text::from(keys_row.data.join("\n")),
-						Text::from(users_row.data.join("\n")),
-					])
-					.height(
-						cmp::max(keys_row.data.len(), users_row.data.len())
-							.try_into()
-							.unwrap_or(1),
-					)
-					.bottom_margin(1)
-					.style(Style::default())
-				},
-			))
+			Table::new(self.key_list.items.iter().map(|key| {
+				let keys_row = RowItem::new(
+					key.get_subkey_info(self.state.minimized),
+					None,
+					max_row_height,
+					self.key_list.scroll,
+				);
+				let users_row = RowItem::new(
+					key.get_user_info(self.state.minimized),
+					Some(max_row_width),
+					max_row_height,
+					self.key_list.scroll,
+				);
+				Row::new(vec![
+					Text::from(keys_row.data.join("\n")),
+					Text::from(users_row.data.join("\n")),
+				])
+				.height(
+					cmp::max(keys_row.data.len(), users_row.data.len())
+						.try_into()
+						.unwrap_or(1),
+				)
+				.bottom_margin(1)
+				.style(Style::default())
+			}))
 			.header(
 				Row::new(vec!["Key", "User"])
 					.style(Style::default())

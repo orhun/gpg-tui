@@ -9,8 +9,6 @@ pub struct AppState {
 	pub minimized: bool,
 	/// Level of detail to show for keys table.
 	pub table_detail: KeyDetailLevel,
-	/// Level of detail to show for the selected row of the keys table.
-	pub selected_row_detail: KeyDetailLevel,
 }
 
 impl Default for AppState {
@@ -19,7 +17,6 @@ impl Default for AppState {
 			running: true,
 			minimized: false,
 			table_detail: KeyDetailLevel::Minimum,
-			selected_row_detail: KeyDetailLevel::Minimum,
 		}
 	}
 }

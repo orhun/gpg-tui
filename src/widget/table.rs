@@ -14,7 +14,8 @@ pub struct StatefulTable<T> {
 
 impl<T> StatefulTable<T> {
 	/// Constructs a new instance of `StatefulTable`.
-	pub fn new(items: Vec<T>, state: State) -> StatefulTable<T> {
+	pub fn new(items: Vec<T>, mut state: State) -> StatefulTable<T> {
+		state.select(Some(0));
 		Self {
 			items,
 			state,
