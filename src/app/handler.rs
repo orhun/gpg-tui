@@ -13,26 +13,26 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			}
 		}
 		Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh()?,
-		Key::Up => {
+		Key::Up | Key::Char('k') | Key::Char('K') => {
 			if key_event.modifiers == Modifiers::ALT {
 				app.key_list.scroll(ScrollDirection::Up(1))
 			} else {
 				app.key_list.previous();
 			}
 		}
-		Key::Right => {
+		Key::Right | Key::Char('l') | Key::Char('L') => {
 			if key_event.modifiers == Modifiers::ALT {
 				app.key_list.scroll(ScrollDirection::Right(1))
 			}
 		}
-		Key::Down => {
+		Key::Down | Key::Char('j') | Key::Char('J') => {
 			if key_event.modifiers == Modifiers::ALT {
 				app.key_list.scroll(ScrollDirection::Down(1))
 			} else {
 				app.key_list.next();
 			}
 		}
-		Key::Left => {
+		Key::Left | Key::Char('h') | Key::Char('H') => {
 			if key_event.modifiers == Modifiers::ALT {
 				app.key_list.scroll(ScrollDirection::Left(1))
 			}
