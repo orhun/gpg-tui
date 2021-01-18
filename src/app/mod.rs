@@ -6,5 +6,8 @@ pub mod launcher;
 /// Application state.
 pub mod state;
 
+/// Application commands.
+pub mod command;
+
 /// Handler methods.
 pub mod handler;

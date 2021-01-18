@@ -1,3 +1,4 @@
+use crate::app::command::Command;
 use crate::app::state::AppState;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
@@ -7,14 +8,15 @@ use anyhow::Result;
 use std::cmp;
 use std::convert::TryInto;
 use tui::backend::Backend;
-use tui::layout::{Constraint, Rect};
+use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Modifier, Style};
 use tui::terminal::Frame;
-use tui::text::Text;
-use tui::widgets::{Block, Borders, Row, Table};
+use tui::text::{Span, Text};
+use tui::widgets::{Paragraph, Row, Table, Wrap};
+use unicode_width::UnicodeWidthStr;
 
 /// Threshold value (width) for minimizing.
-const TABLE_MIN_THRESHOLD: u16 = 100;
+const TABLE_MIN_THRESHOLD: u16 = 90;
 /// Length of keys row in maximized mode.
 const KEYS_ROW_MAX_LENGTH: u16 = 55;
 /// Length of keys row in minimized mode.
@@ -27,6 +29,8 @@ const KEYS_ROW_MIN_LENGTH: u16 = 31;
 pub struct App {
 	/// Application state.
 	pub state: AppState,
+	/// Application command.
+	pub command: Command,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
 }
@@ -36,6 +40,7 @@ impl App {
 	pub fn new() -> Result<Self> {
 		Ok(Self {
 			state: AppState::default(),
+			command: Command::ListPublicKeys,
 			key_list: StatefulTable::with_items(GpgContext::new()?.get_keys()?),
 		})
 	}
@@ -46,20 +51,58 @@ impl App {
 		Ok(())
 	}
 
-	/// Renders the user interface.
+	/// Renders all the widgets thus the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
 		let rect = frame.size();
 		self.state.minimized = rect.width < TABLE_MIN_THRESHOLD;
-		self.render_key_list(frame, rect);
+		let chunks = Layout::default()
+			.direction(Direction::Vertical)
+			.constraints(
+				[Constraint::Min(rect.height - 1), Constraint::Min(1)].as_ref(),
+			)
+			.split(rect);
+		self.render_command_prompt(frame, chunks[1]);
+		match self.command {
+			Command::ListPublicKeys => self.render_key_list(frame, chunks[0]),
+			Command::Quit => self.state.running = false,
+		}
 	}
 
-	/// Renders the list of public keys.
+	/// Renders the command prompt. (widget)
+	fn render_command_prompt<B: Backend>(
+		&mut self,
+		frame: &mut Frame<'_, B>,
+		rect: Rect,
+	) {
+		frame.render_widget(
+			Paragraph::new(Span::raw(if !self.state.input.is_empty() {
+				self.state.input.clone()
+			} else {
+				self.command.to_string()
+			}))
+			.style(Style::default())
+			.alignment(if !self.state.input.is_empty() {
+				Alignment::Left
+			} else {
+				Alignment::Right
+			})
+			.wrap(Wrap { trim: false }),
+			rect,
+		);
+		if !self.state.input.is_empty() {
+			frame.set_cursor(
+				rect.x + self.state.input.width() as u16,
+				rect.y + 1,
+			);
+		}
+	}
+
+	/// Renders the list of keys. (widget)
 	fn render_key_list<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let max_row_height = rect.height.checked_sub(4).unwrap_or(rect.height);
 		let max_row_width = rect
 			.width
 			.checked_sub(
@@ -67,7 +110,7 @@ impl App {
 					KEYS_ROW_MIN_LENGTH
 				} else {
 					KEYS_ROW_MAX_LENGTH
-				} + 5,
+				} + 3,
 			)
 			.unwrap_or(rect.width);
 		frame.render_stateful_widget(
@@ -75,13 +118,13 @@ impl App {
 				let keys_row = RowItem::new(
 					key.get_subkey_info(self.state.minimized),
 					None,
-					max_row_height,
+					rect.height,
 					self.key_list.scroll,
 				);
 				let users_row = RowItem::new(
 					key.get_user_info(self.state.minimized),
 					Some(max_row_width),
-					max_row_height,
+					rect.height,
 					self.key_list.scroll,
 				);
 				Row::new(vec![
@@ -96,12 +139,6 @@ impl App {
 				.bottom_margin(1)
 				.style(Style::default())
 			}))
-			.header(
-				Row::new(vec!["Key", "User"])
-					.style(Style::default())
-					.bottom_margin(1),
-			)
-			.block(Block::default().title("Table").borders(Borders::ALL))
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
 			.widths(&[

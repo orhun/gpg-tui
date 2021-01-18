@@ -170,6 +170,7 @@ dependencies = [
  "pretty_assertions",
  "structopt",
  "tui",
+ "unicode-width",
 ]
 
 [[package]]
