@@ -78,7 +78,15 @@ impl App {
 			Paragraph::new(Span::raw(if !self.state.input.is_empty() {
 				self.state.input.clone()
 			} else {
-				self.command.to_string()
+				match self.command {
+					Command::ListPublicKeys => format!(
+						"{} ({}/{})",
+						self.command.to_string(),
+						self.key_list.state.selected().unwrap_or_default() + 1,
+						self.key_list.items.len()
+					),
+					_ => self.command.to_string(),
+				}
 			}))
 			.style(Style::default())
 			.alignment(if !self.state.input.is_empty() {
