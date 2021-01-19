@@ -19,10 +19,20 @@ impl GpgContext {
 	}
 
 	/// Returns the list of all public keys.
-	pub fn get_keys(&mut self) -> Result<Vec<GpgKey>> {
+	pub fn get_public_keys(&mut self) -> Result<Vec<GpgKey>> {
 		Ok(self
 			.inner
 			.find_keys(Vec::<String>::new())?
+			.filter_map(|key| key.ok())
+			.map(GpgKey::from)
+			.collect())
+	}
+
+	/// Returns the list of all secret keys.
+	pub fn get_secret_keys(&mut self) -> Result<Vec<GpgKey>> {
+		Ok(self
+			.inner
+			.find_secret_keys(Vec::<String>::new())?
 			.filter_map(|key| key.ok())
 			.map(GpgKey::from)
 			.collect())

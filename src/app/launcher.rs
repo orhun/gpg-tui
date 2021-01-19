@@ -26,28 +26,49 @@ const KEYS_ROW_MIN_LENGTH: u16 = 31;
 ///
 /// It operates the TUI via rendering the widgets
 /// and updating the application state.
-pub struct App {
+pub struct App<'a> {
 	/// Application state.
 	pub state: AppState,
 	/// Application command.
 	pub command: Command,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
+	/// GnuPG context.
+	gnupg: &'a mut GpgContext,
 }
 
-impl App {
+impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
-	pub fn new() -> Result<Self> {
+	pub fn new(gnupg: &'a mut GpgContext) -> Result<Self> {
 		Ok(Self {
 			state: AppState::default(),
-			command: Command::ListPublicKeys,
-			key_list: StatefulTable::with_items(GpgContext::new()?.get_keys()?),
+			command: Command::default(),
+			key_list: StatefulTable::with_items(gnupg.get_public_keys()?),
+			gnupg,
 		})
 	}
 
-	/// Reset the application state.
+	/// Resets the application state.
 	pub fn refresh(&mut self) -> Result<()> {
-		*self = Self::new()?;
+		self.state = AppState::default();
+		self.run_command(Command::default())
+	}
+
+	/// Runs the given command which is used to specify
+	/// the widget to render or action to perform.
+	pub fn run_command(&mut self, command: Command) -> Result<()> {
+		match command {
+			Command::ListPublicKeys => {
+				self.key_list =
+					StatefulTable::with_items(self.gnupg.get_public_keys()?)
+			}
+			Command::ListSecretKeys => {
+				self.key_list =
+					StatefulTable::with_items(self.gnupg.get_secret_keys()?)
+			}
+			Command::Quit => self.state.running = false,
+		}
+		self.command = command;
 		Ok(())
 	}
 
@@ -63,8 +84,10 @@ impl App {
 			.split(rect);
 		self.render_command_prompt(frame, chunks[1]);
 		match self.command {
-			Command::ListPublicKeys => self.render_key_list(frame, chunks[0]),
-			Command::Quit => self.state.running = false,
+			Command::ListPublicKeys | Command::ListSecretKeys => {
+				self.render_keys_table(frame, chunks[0])
+			}
+			_ => {}
 		}
 	}
 
@@ -79,12 +102,21 @@ impl App {
 				self.state.input.clone()
 			} else {
 				match self.command {
-					Command::ListPublicKeys => format!(
-						"{} ({}/{})",
-						self.command.to_string(),
-						self.key_list.state.selected().unwrap_or_default() + 1,
-						self.key_list.items.len()
-					),
+					Command::ListPublicKeys | Command::ListSecretKeys => {
+						if !self.key_list.items.is_empty() {
+							format!(
+								"{} ({}/{})",
+								self.command.to_string(),
+								self.key_list
+									.state
+									.selected()
+									.unwrap_or_default() + 1,
+								self.key_list.items.len()
+							)
+						} else {
+							self.command.to_string()
+						}
+					}
 					_ => self.command.to_string(),
 				}
 			}))
@@ -105,8 +137,8 @@ impl App {
 		}
 	}
 
-	/// Renders the list of keys. (widget)
-	fn render_key_list<B: Backend>(
+	/// Renders the table of keys. (widget)
+	fn render_keys_table<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
 		rect: Rect,

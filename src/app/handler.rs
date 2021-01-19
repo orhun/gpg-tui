@@ -14,8 +14,8 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			}
 			Key::Enter => {
 				if let Ok(command) = Command::from_str(&app.state.input) {
-					app.command = command;
 					app.state.input.clear();
+					app.run_command(command)?;
 				}
 			}
 			Key::Backspace => {
@@ -74,6 +74,12 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 					}
 				}
 			}
+			Key::Char('`') => app.run_command(match app.command {
+				Command::ListPublicKeys => Command::ListSecretKeys,
+				_ => Command::ListPublicKeys,
+			})?,
+			Key::Char('p') => app.run_command(Command::ListPublicKeys)?,
+			Key::Char('s') => app.run_command(Command::ListSecretKeys)?,
 			Key::Char(':') => {
 				app.state.input = String::from(":");
 			}

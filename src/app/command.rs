@@ -10,14 +10,15 @@ use std::str::FromStr;
 pub enum Command {
 	/// List the public keys.
 	ListPublicKeys,
+	/// List the secret keys.
+	ListSecretKeys,
 	/// Quit the application.
 	Quit,
 }
 
-impl Command {
-	/// Returns an iterator for `Command` variants.
-	pub fn iterator() -> impl Iterator<Item = Self> {
-		[Self::ListPublicKeys, Self::Quit].iter().copied()
+impl Default for Command {
+	fn default() -> Self {
+		Self::ListPublicKeys
 	}
 }
 
@@ -28,6 +29,7 @@ impl Display for Command {
 			"{}",
 			match self {
 				Self::ListPublicKeys => "list pub",
+				Self::ListSecretKeys => "list sec",
 				Self::Quit => "quit",
 			}
 		)
@@ -44,5 +46,14 @@ impl FromStr for Command {
 			}
 		}
 		Err(())
+	}
+}
+
+impl Command {
+	/// Returns an iterator for `Command` variants.
+	pub fn iterator() -> impl Iterator<Item = Self> {
+		[Self::ListPublicKeys, Self::ListSecretKeys, Self::Quit]
+			.iter()
+			.copied()
 	}
 }
