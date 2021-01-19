@@ -16,7 +16,7 @@ use tui::widgets::{Paragraph, Row, Table, Wrap};
 use unicode_width::UnicodeWidthStr;
 
 /// Threshold value (width) for minimizing.
-const TABLE_MIN_THRESHOLD: u16 = 90;
+const MINIMIZE_THRESHOLD: u16 = 90;
 /// Lengths of keys row in minimized/maximized mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 
@@ -73,7 +73,7 @@ impl<'a> App<'a> {
 	/// Renders all the widgets thus the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
 		let rect = frame.size();
-		self.state.minimized = rect.width < TABLE_MIN_THRESHOLD;
+		self.state.minimized = rect.width < MINIMIZE_THRESHOLD;
 		let chunks = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
