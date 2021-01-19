@@ -17,10 +17,8 @@ use unicode_width::UnicodeWidthStr;
 
 /// Threshold value (width) for minimizing.
 const TABLE_MIN_THRESHOLD: u16 = 90;
-/// Length of keys row in maximized mode.
-const KEYS_ROW_MAX_LENGTH: u16 = 55;
-/// Length of keys row in minimized mode.
-const KEYS_ROW_MIN_LENGTH: u16 = 31;
+/// Lengths of keys row in minimized/maximized mode.
+const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 
 /// Main application.
 ///
@@ -147,9 +145,9 @@ impl<'a> App<'a> {
 			.width
 			.checked_sub(
 				if self.state.minimized {
-					KEYS_ROW_MIN_LENGTH
+					KEYS_ROW_LENGTH.0
 				} else {
-					KEYS_ROW_MAX_LENGTH
+					KEYS_ROW_LENGTH.1
 				} + 3,
 			)
 			.unwrap_or(rect.width);
@@ -183,9 +181,9 @@ impl<'a> App<'a> {
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
 			.widths(&[
 				Constraint::Min(if self.state.minimized {
-					KEYS_ROW_MIN_LENGTH
+					KEYS_ROW_LENGTH.0
 				} else {
-					KEYS_ROW_MAX_LENGTH
+					KEYS_ROW_LENGTH.1
 				}),
 				Constraint::Percentage(100),
 			])
