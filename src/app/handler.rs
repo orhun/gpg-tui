@@ -7,22 +7,27 @@ use std::str::FromStr;
 
 /// Handle key events.
 pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
-	if !app.state.input.is_empty() {
+	if app.prompt.is_input_enabled() {
 		match key_event.code {
 			Key::Char(c) => {
-				app.state.input.push(c);
+				app.prompt.text.push(c);
 			}
 			Key::Enter => {
-				if let Ok(command) = Command::from_str(&app.state.input) {
-					app.state.input.clear();
+				if let Ok(command) = Command::from_str(&app.prompt.text) {
+					app.prompt.clear();
 					app.run_command(command)?;
+				} else {
+					app.prompt.set_output(format!(
+						"Invalid command: {}",
+						app.prompt.text.replacen(":", "", 1)
+					));
 				}
 			}
 			Key::Backspace => {
-				app.state.input.pop();
+				app.prompt.text.pop();
 			}
 			Key::Esc => {
-				app.state.input.clear();
+				app.prompt.clear();
 			}
 			_ => {}
 		}
@@ -80,9 +85,7 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			})?,
 			Key::Char('p') => app.run_command(Command::ListPublicKeys)?,
 			Key::Char('s') => app.run_command(Command::ListSecretKeys)?,
-			Key::Char(':') => {
-				app.state.input = String::from(":");
-			}
+			Key::Char(':') => app.prompt.enable_input(),
 			_ => {}
 		}
 	}

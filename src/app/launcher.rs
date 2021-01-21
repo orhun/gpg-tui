@@ -1,4 +1,5 @@
 use crate::app::command::Command;
+use crate::app::prompt::Prompt;
 use crate::app::state::AppState;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::GpgKey;
@@ -19,6 +20,8 @@ use unicode_width::UnicodeWidthStr;
 const MINIMIZE_THRESHOLD: u16 = 90;
 /// Lengths of keys row in minimized/maximized mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
+/// Max duration of prompt messages (in seconds).
+const MESSAGE_DURATION: u64 = 1;
 
 /// Main application.
 ///
@@ -27,6 +30,8 @@ const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 pub struct App<'a> {
 	/// Application state.
 	pub state: AppState,
+	/// Application prompt.
+	pub prompt: Prompt,
 	/// Application command.
 	pub command: Command,
 	/// List of public keys.
@@ -40,6 +45,7 @@ impl<'a> App<'a> {
 	pub fn new(gnupg: &'a mut GpgContext) -> Result<Self> {
 		Ok(Self {
 			state: AppState::default(),
+			prompt: Prompt::default(),
 			command: Command::default(),
 			key_list: StatefulTable::with_items(gnupg.get_public_keys()?),
 			gnupg,
@@ -49,7 +55,19 @@ impl<'a> App<'a> {
 	/// Resets the application state.
 	pub fn refresh(&mut self) -> Result<()> {
 		self.state = AppState::default();
+		self.prompt = Prompt::default();
 		self.run_command(Command::default())
+	}
+
+	/// Handles the tick event of the application.
+	///
+	/// It is currently used to flush the prompt messages.
+	pub fn tick(&mut self) {
+		if let Some(clock) = self.prompt.clock {
+			if clock.elapsed().as_secs() > MESSAGE_DURATION {
+				self.prompt.clear()
+			}
+		}
 	}
 
 	/// Runs the given command which is used to specify
@@ -96,8 +114,8 @@ impl<'a> App<'a> {
 		rect: Rect,
 	) {
 		frame.render_widget(
-			Paragraph::new(Span::raw(if !self.state.input.is_empty() {
-				self.state.input.clone()
+			Paragraph::new(Span::raw(if !self.prompt.text.is_empty() {
+				self.prompt.text.clone()
 			} else {
 				match self.command {
 					Command::ListPublicKeys | Command::ListSecretKeys => {
@@ -119,7 +137,7 @@ impl<'a> App<'a> {
 				}
 			}))
 			.style(Style::default())
-			.alignment(if !self.state.input.is_empty() {
+			.alignment(if !self.prompt.text.is_empty() {
 				Alignment::Left
 			} else {
 				Alignment::Right
@@ -127,9 +145,9 @@ impl<'a> App<'a> {
 			.wrap(Wrap { trim: false }),
 			rect,
 		);
-		if !self.state.input.is_empty() {
+		if self.prompt.is_input_enabled() {
 			frame.set_cursor(
-				rect.x + self.state.input.width() as u16,
+				rect.x + self.prompt.text.width() as u16,
 				rect.y + 1,
 			);
 		}

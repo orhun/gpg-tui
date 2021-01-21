@@ -46,7 +46,7 @@ fn main() -> Result<()> {
 			Event::Key(key_event) => {
 				handler::handle_key_input(key_event, &mut app)?
 			}
-			Event::Tick => {}
+			Event::Tick => app.tick(),
 			_ => {}
 		}
 	}
