@@ -38,3 +38,21 @@ impl Prompt {
 		self.clock = None;
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::{assert_eq, assert_ne};
+	#[test]
+	fn test_app_prompt() {
+		let mut prompt = Prompt::default();
+		prompt.enable_input();
+		assert!(prompt.is_input_enabled());
+		prompt.set_output(String::from("test"));
+		assert_eq!(String::from("test"), prompt.text);
+		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
+		prompt.clear();
+		assert_eq!(String::new(), prompt.text);
+		assert_eq!(None, prompt.clock);
+	}
+}
