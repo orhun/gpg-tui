@@ -1,5 +1,6 @@
-use crate::gpg::key::GpgKey;
+use crate::gpg::key::{GpgKey, KeyType};
 use anyhow::Result;
+use gpgme::context::Keys;
 use gpgme::{Context, KeyListMode, Protocol};
 
 /// A context for cryptographic operations.
@@ -18,21 +19,32 @@ impl GpgContext {
 		Ok(Self { inner: context })
 	}
 
-	/// Returns the list of all public keys.
-	pub fn get_public_keys(&mut self) -> Result<Vec<GpgKey>> {
-		Ok(self
-			.inner
-			.find_keys(Vec::<String>::new())?
-			.filter_map(|key| key.ok())
-			.map(GpgKey::from)
-			.collect())
+	/// Returns an iterator over a list of all public/secret keys
+	/// matching one or more of the specified patterns.
+	fn get_keys_iter(
+		&mut self,
+		key_type: KeyType,
+		patterns: Option<Vec<String>>,
+	) -> Result<Keys> {
+		Ok(match key_type {
+			KeyType::Public => {
+				self.inner.find_keys(patterns.unwrap_or_default())?
+			}
+			KeyType::Secret => {
+				self.inner.find_secret_keys(patterns.unwrap_or_default())?
+			}
+		})
 	}
 
-	/// Returns the list of all secret keys.
-	pub fn get_secret_keys(&mut self) -> Result<Vec<GpgKey>> {
+	/// Returns a list of all public/secret keys matching
+	/// one or more of the specified patterns.
+	pub fn get_keys(
+		&mut self,
+		key_type: KeyType,
+		patterns: Option<Vec<String>>,
+	) -> Result<Vec<GpgKey>> {
 		Ok(self
-			.inner
-			.find_secret_keys(Vec::<String>::new())?
+			.get_keys_iter(key_type, patterns)?
 			.filter_map(|key| key.ok())
 			.map(GpgKey::from)
 			.collect())

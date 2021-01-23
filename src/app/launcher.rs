@@ -2,7 +2,7 @@ use crate::app::command::Command;
 use crate::app::prompt::Prompt;
 use crate::app::state::AppState;
 use crate::gpg::context::GpgContext;
-use crate::gpg::key::GpgKey;
+use crate::gpg::key::{GpgKey, KeyType};
 use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
@@ -47,7 +47,9 @@ impl<'a> App<'a> {
 			state: AppState::default(),
 			prompt: Prompt::default(),
 			command: Command::default(),
-			key_list: StatefulTable::with_items(gnupg.get_public_keys()?),
+			key_list: StatefulTable::with_items(
+				gnupg.get_keys(KeyType::Public, None)?,
+			),
 			gnupg,
 		})
 	}
@@ -74,13 +76,10 @@ impl<'a> App<'a> {
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
 		match command {
-			Command::ListPublicKeys => {
-				self.key_list =
-					StatefulTable::with_items(self.gnupg.get_public_keys()?)
-			}
-			Command::ListSecretKeys => {
-				self.key_list =
-					StatefulTable::with_items(self.gnupg.get_secret_keys()?)
+			Command::ListKeys(key_type) => {
+				self.key_list = StatefulTable::with_items(
+					self.gnupg.get_keys(key_type, None)?,
+				)
 			}
 			Command::Quit => self.state.running = false,
 		}
@@ -100,9 +99,7 @@ impl<'a> App<'a> {
 			.split(rect);
 		self.render_command_prompt(frame, chunks[1]);
 		match self.command {
-			Command::ListPublicKeys | Command::ListSecretKeys => {
-				self.render_keys_table(frame, chunks[0])
-			}
+			Command::ListKeys(_) => self.render_keys_table(frame, chunks[0]),
 			_ => {}
 		}
 	}
@@ -118,7 +115,7 @@ impl<'a> App<'a> {
 				self.prompt.text.clone()
 			} else {
 				match self.command {
-					Command::ListPublicKeys | Command::ListSecretKeys => {
+					Command::ListKeys(_) => {
 						if !self.key_list.items.is_empty() {
 							format!(
 								"{} ({}/{})",

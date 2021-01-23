@@ -1,6 +1,15 @@
 use crate::gpg::handler;
 use gpgme::{Key, Subkey, UserId, UserIdSignature};
 
+/// Type of the key.
+#[derive(Clone, Copy, Debug)]
+pub enum KeyType {
+	/// Public key.
+	Public,
+	/// Secret (private) key.
+	Secret,
+}
+
 /// Level of detail to show for key.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum KeyDetailLevel {

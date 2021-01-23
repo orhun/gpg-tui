@@ -1,5 +1,6 @@
 use crate::app::command::Command;
 use crate::app::launcher::App;
+use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
@@ -80,11 +81,17 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 				}
 			}
 			Key::Char('`') => app.run_command(match app.command {
-				Command::ListPublicKeys => Command::ListSecretKeys,
-				_ => Command::ListPublicKeys,
+				Command::ListKeys(KeyType::Public) => {
+					Command::ListKeys(KeyType::Secret)
+				}
+				_ => Command::ListKeys(KeyType::Public),
 			})?,
-			Key::Char('p') => app.run_command(Command::ListPublicKeys)?,
-			Key::Char('s') => app.run_command(Command::ListSecretKeys)?,
+			Key::Char('p') => {
+				app.run_command(Command::ListKeys(KeyType::Public))?
+			}
+			Key::Char('s') => {
+				app.run_command(Command::ListKeys(KeyType::Secret))?
+			}
 			Key::Char(':') => app.prompt.enable_input(),
 			_ => {}
 		}

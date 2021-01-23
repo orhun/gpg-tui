@@ -1,4 +1,6 @@
+use crate::gpg::key::KeyType;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::slice::Iter;
 use std::str::FromStr;
 
 /// Command to run on rendering process.
@@ -8,17 +10,15 @@ use std::str::FromStr;
 /// [`App`]: crate::app::launcher::App
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
-	/// List the public keys.
-	ListPublicKeys,
-	/// List the secret keys.
-	ListSecretKeys,
+	/// List the public/secret keys.
+	ListKeys(KeyType),
 	/// Quit the application.
 	Quit,
 }
 
 impl Default for Command {
 	fn default() -> Self {
-		Self::ListPublicKeys
+		Self::ListKeys(KeyType::Public)
 	}
 }
 
@@ -28,8 +28,8 @@ impl Display for Command {
 			f,
 			"{}",
 			match self {
-				Self::ListPublicKeys => "list pub",
-				Self::ListSecretKeys => "list sec",
+				Self::ListKeys(KeyType::Public) => "list pub",
+				Self::ListKeys(KeyType::Secret) => "list sec",
 				Self::Quit => "quit",
 			}
 		)
@@ -42,7 +42,7 @@ impl FromStr for Command {
 		let s = s.replacen(':', "", 1);
 		for command in Command::iterator() {
 			if command.to_string().matches(&s).count() >= 1 {
-				return Ok(command);
+				return Ok(*command);
 			}
 		}
 		Err(())
@@ -50,10 +50,13 @@ impl FromStr for Command {
 }
 
 impl Command {
-	/// Returns an iterator for `Command` variants.
-	pub fn iterator() -> impl Iterator<Item = Self> {
-		[Self::ListPublicKeys, Self::ListSecretKeys, Self::Quit]
-			.iter()
-			.copied()
+	/// Returns an slice iterator for `Command` variants.
+	pub fn iterator() -> Iter<'static, Self> {
+		[
+			Command::ListKeys(KeyType::Public),
+			Command::ListKeys(KeyType::Secret),
+			Command::Quit,
+		]
+		.iter()
 	}
 }
