@@ -27,8 +27,8 @@ impl Prompt {
 	}
 
 	/// Sets the output message.
-	pub fn set_output(&mut self, message: String) {
-		self.text = message;
+	pub fn set_output<S: AsRef<str>>(&mut self, message: S) {
+		self.text = message.as_ref().to_string();
 		self.clock = Some(Instant::now());
 	}
 
@@ -48,7 +48,7 @@ mod tests {
 		let mut prompt = Prompt::default();
 		prompt.enable_input();
 		assert!(prompt.is_input_enabled());
-		prompt.set_output(String::from("test"));
+		prompt.set_output("test");
 		assert_eq!(String::from("test"), prompt.text);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
 		prompt.clear();
