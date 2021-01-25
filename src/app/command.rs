@@ -1,17 +1,19 @@
 use crate::gpg::key::KeyType;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::slice::Iter;
 use std::str::FromStr;
+use std::vec::IntoIter;
 
 /// Command to run on rendering process.
 ///
 /// It specifies the main operation to perform on [`App`].
 ///
 /// [`App`]: crate::app::launcher::App
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Command {
 	/// List the public/secret keys.
 	ListKeys(KeyType),
+	/// Export the public/secret keys.
+	ExportKeys(KeyType, Vec<String>),
 	/// Quit the application.
 	Quit,
 }
@@ -28,9 +30,9 @@ impl Display for Command {
 			f,
 			"{}",
 			match self {
-				Self::ListKeys(KeyType::Public) => "list pub",
-				Self::ListKeys(KeyType::Secret) => "list sec",
-				Self::Quit => "quit",
+				Self::ListKeys(key_type) => format!("list {}", key_type),
+				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
+				Self::Quit => String::from("quit"),
 			}
 		)
 	}
@@ -40,9 +42,20 @@ impl FromStr for Command {
 	type Err = ();
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let s = s.replacen(':', "", 1);
-		for command in Command::iterator() {
+		for command in Command::iter() {
 			if command.to_string().matches(&s).count() >= 1 {
-				return Ok(*command);
+				return Ok(command);
+			} else if s.contains(&command.to_string()) {
+				if let Command::ExportKeys(key_type, _) = command {
+					return Ok(Command::ExportKeys(
+						key_type,
+						s.split_whitespace()
+							.collect::<Vec<&str>>()
+							.drain(2..)
+							.map(String::from)
+							.collect(),
+					));
+				}
 			}
 		}
 		Err(())
@@ -50,13 +63,15 @@ impl FromStr for Command {
 }
 
 impl Command {
-	/// Returns an slice iterator for `Command` variants.
-	pub fn iterator() -> Iter<'static, Self> {
-		[
+	/// Returns an iterator for `Command` variants.
+	pub fn iter() -> IntoIter<Self> {
+		vec![
 			Command::ListKeys(KeyType::Public),
 			Command::ListKeys(KeyType::Secret),
+			Command::ExportKeys(KeyType::Public, Vec::new()),
+			Command::ExportKeys(KeyType::Secret, Vec::new()),
 			Command::Quit,
 		]
-		.iter()
+		.into_iter()
 	}
 }

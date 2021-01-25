@@ -1,13 +1,19 @@
 use crate::app::command::Command;
 use crate::app::launcher::App;
 use crate::gpg::key::KeyType;
+use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 use std::str::FromStr;
+use tui::backend::Backend;
 
 /// Handle key events.
-pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
+pub fn handle_key_input<B: Backend>(
+	key_event: KeyEvent,
+	tui: &mut Tui<B>,
+	app: &mut App,
+) -> Result<()> {
 	if app.prompt.is_input_enabled() {
 		match key_event.code {
 			Key::Char(c) => {
@@ -16,7 +22,13 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			Key::Enter => {
 				if let Ok(command) = Command::from_str(&app.prompt.text) {
 					app.prompt.clear();
-					app.run_command(command)?;
+					if let Command::ExportKeys(_, _) = command {
+						tui.toggle_pause()?;
+						app.run_command(command)?;
+						tui.toggle_pause()?;
+					} else {
+						app.run_command(command)?;
+					}
 				} else {
 					app.prompt.set_output(format!(
 						"Invalid command: {}",
@@ -91,6 +103,22 @@ pub fn handle_key_input(key_event: KeyEvent, app: &mut App) -> Result<()> {
 			}
 			Key::Char('s') => {
 				app.run_command(Command::ListKeys(KeyType::Secret))?
+			}
+			Key::Char('e') => {
+				tui.toggle_pause()?;
+				app.run_command(Command::ExportKeys(
+					match app.command {
+						Command::ListKeys(key_type) => key_type,
+						_ => KeyType::Public,
+					},
+					vec![app.key_list.items[app
+						.key_list
+						.state
+						.selected()
+						.expect("invalid selection")]
+					.get_id()],
+				))?;
+				tui.toggle_pause()?;
 			}
 			Key::Char(':') => app.prompt.enable_input(),
 			_ => {}

@@ -79,11 +79,22 @@ impl<'a> App<'a> {
 			Command::ListKeys(key_type) => {
 				self.key_list = StatefulTable::with_items(
 					self.gnupg.get_keys(key_type, None)?,
-				)
+				);
+				self.command = command;
+			}
+			Command::ExportKeys(key_type, ref patterns) => {
+				self.prompt.set_output(
+					match self
+						.gnupg
+						.export_keys(key_type, Some(patterns.to_vec()))
+					{
+						Ok(path) => format!("Export: {}", path),
+						Err(e) => format!("Error: {}", e),
+					},
+				);
 			}
 			Command::Quit => self.state.running = false,
 		}
-		self.command = command;
 		Ok(())
 	}
 
@@ -98,9 +109,8 @@ impl<'a> App<'a> {
 			)
 			.split(rect);
 		self.render_command_prompt(frame, chunks[1]);
-		match self.command {
-			Command::ListKeys(_) => self.render_keys_table(frame, chunks[0]),
-			_ => {}
+		if let Command::ListKeys(_) = self.command {
+			self.render_keys_table(frame, chunks[0])
 		}
 	}
 

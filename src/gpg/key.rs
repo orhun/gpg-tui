@@ -1,13 +1,27 @@
 use crate::gpg::handler;
 use gpgme::{Key, Subkey, UserId, UserIdSignature};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 /// Type of the key.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum KeyType {
 	/// Public key.
 	Public,
 	/// Secret (private) key.
 	Secret,
+}
+
+impl Display for KeyType {
+	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+		write!(
+			f,
+			"{}",
+			match self {
+				Self::Public => "pub",
+				Self::Secret => "sec",
+			}
+		)
+	}
 }
 
 /// Level of detail to show for key.
@@ -51,6 +65,13 @@ impl From<Key> for GpgKey {
 }
 
 impl GpgKey {
+	/// Returns the key ID with '0x' prefix.
+	pub fn get_id(&self) -> String {
+		self.inner
+			.id()
+			.map_or(String::from("[?]"), |v| format!("0x{}", v))
+	}
+
 	/// Returns information about the subkeys.
 	pub fn get_subkey_info(&self, truncate: bool) -> Vec<String> {
 		let mut key_info = Vec::new();

@@ -1,22 +1,34 @@
 use crate::gpg::key::{GpgKey, KeyType};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use gpgme::context::Keys;
-use gpgme::{Context, KeyListMode, Protocol};
+use gpgme::{
+	Context, ExportMode, Gpgme, Key, KeyListMode, PinentryMode, Protocol,
+};
+use std::fs::{self, File};
+use std::io::Write;
+use std::path::PathBuf;
 
 /// A context for cryptographic operations.
 pub struct GpgContext {
 	/// GPGME context type.
 	inner: Context,
+	/// GPGME configuration manager.
+	config: Gpgme,
 }
 
 impl GpgContext {
 	/// Constructs a new instance of `Context`.
-	pub fn new() -> Result<Self> {
+	pub fn new(gpgme: Gpgme) -> Result<Self> {
 		let mut context = Context::from_protocol(Protocol::OpenPgp)?;
 		context.set_key_list_mode(KeyListMode::LOCAL)?;
 		context.set_key_list_mode(KeyListMode::SIGS)?;
-		context.set_offline(true);
-		Ok(Self { inner: context })
+		context.set_armor(true);
+		context.set_offline(false);
+		context.set_pinentry_mode(PinentryMode::Ask)?;
+		Ok(Self {
+			inner: context,
+			config: gpgme,
+		})
 	}
 
 	/// Returns an iterator over a list of all public/secret keys
@@ -48,5 +60,94 @@ impl GpgContext {
 			.filter_map(|key| key.ok())
 			.map(GpgKey::from)
 			.collect())
+	}
+
+	/// Exports the public/secret keys matching
+	/// on or more of the specified patterns.
+	///
+	/// It saves the output to the specified/default path.
+	/// See [`save_exported_keys`].
+	///
+	/// [`save_exported_keys`]: GpgContext::save_exported_keys
+	pub fn export_keys(
+		&mut self,
+		key_type: KeyType,
+		patterns: Option<Vec<String>>,
+	) -> Result<String> {
+		let mut output = Vec::new();
+		let keys = self
+			.get_keys_iter(key_type, patterns.clone())?
+			.filter_map(|key| key.ok())
+			.collect::<Vec<Key>>();
+		self.inner.export_keys(
+			&keys,
+			if key_type == KeyType::Secret {
+				ExportMode::SECRET
+			} else {
+				ExportMode::empty()
+			},
+			&mut output,
+		)?;
+		if output.is_empty() {
+			Err(anyhow!("failed to export keys"))
+		} else {
+			self.save_exported_keys(
+				output,
+				key_type,
+				patterns.unwrap_or_default(),
+			)
+		}
+	}
+
+	/// Returns the output directory to be used for
+	/// saving the exported keys and other operations.
+	///
+	/// It is either the GnuPG (default/engine) home directory
+	/// or an user-specified path (TODO: not yet implemented).
+	fn get_output_dir(&self) -> Result<PathBuf> {
+		Ok(PathBuf::from(
+			match self
+				.config
+				.engine_info()?
+				.get(Protocol::OpenPgp)
+				.expect("failed to get engine info")
+				.home_dir()
+			{
+				Ok(home_dir) => home_dir,
+				Err(_) => self
+					.config
+					.get_dir_info(Gpgme::HOME_DIR)
+					.expect("failed to get homedir"),
+			},
+		)
+		.join("out"))
+	}
+
+	/// Saves the exported key to the specified/default path.
+	///
+	/// File name is determined via given patterns.
+	/// See [`get_output_dir`] for output directory.
+	///
+	/// [`get_output_dir`]: GpgContext::get_output_dir
+	fn save_exported_keys(
+		&self,
+		output: Vec<u8>,
+		key_type: KeyType,
+		patterns: Vec<String>,
+	) -> Result<String> {
+		let path = self.get_output_dir()?.join(format!(
+			"{}_{}.gpg",
+			key_type,
+			if patterns.len() == 1 {
+				&patterns[0]
+			} else {
+				"out"
+			}
+		));
+		if !path.exists() {
+			fs::create_dir_all(path.parent().expect("path has no parent"))?;
+		}
+		File::create(&path)?.write_all(&output)?;
+		Ok(path.to_string_lossy().to_string())
 	}
 }

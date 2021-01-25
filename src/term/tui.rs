@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use std::io::{self, Write};
+use std::sync::atomic::Ordering;
 use tui::backend::Backend;
 use tui::Terminal;
 
@@ -19,12 +20,18 @@ pub struct Tui<B: Backend> {
 	terminal: Terminal<B>,
 	/// Terminal event handler.
 	pub events: EventHandler,
+	/// Is the interface paused?
+	pub paused: bool,
 }
 
 impl<B: Backend> Tui<B> {
 	/// Constructs a new instance of `Tui`.
 	pub fn new(terminal: Terminal<B>, events: EventHandler) -> Self {
-		Self { terminal, events }
+		Self {
+			terminal,
+			events,
+			paused: false,
+		}
 	}
 
 	/// Initializes the terminal interface.
@@ -39,6 +46,25 @@ impl<B: Backend> Tui<B> {
 		)?;
 		self.terminal.hide_cursor()?;
 		self.terminal.clear()?;
+		Ok(())
+	}
+
+	/// Toggles the [`paused`] state of interface.
+	///
+	/// It disables the key input and exits the
+	/// terminal interface on pause (and vice-versa).
+	///
+	/// [`paused`]: Tui::paused
+	pub fn toggle_pause(&mut self) -> Result<()> {
+		self.paused = !self.paused;
+		if self.paused {
+			self.exit()?;
+		} else {
+			self.init()?;
+		}
+		self.events
+			.key_input_disabled
+			.store(self.paused, Ordering::Relaxed);
 		Ok(())
 	}
 

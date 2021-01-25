@@ -29,7 +29,7 @@ fn main() -> Result<()> {
 	}
 	assert!(gpgme.check_version("1.7.0"));
 	// Create an application for rendering.
-	let mut context = GpgContext::new()?;
+	let mut context = GpgContext::new(gpgme)?;
 	let mut app = App::new(&mut context)?;
 	// Initialize the text-based user interface.
 	let backend = CrosstermBackend::new(io::stdout());
@@ -44,7 +44,7 @@ fn main() -> Result<()> {
 		// Handle events.
 		match tui.events.next()? {
 			Event::Key(key_event) => {
-				handler::handle_key_input(key_event, &mut app)?
+				handler::handle_key_input(key_event, &mut tui, &mut app)?
 			}
 			Event::Tick => app.tick(),
 			_ => {}
