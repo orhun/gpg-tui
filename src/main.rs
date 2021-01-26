@@ -9,11 +9,12 @@ pub mod widget;
 use self::app::launcher::App;
 use self::args::Args;
 use crate::app::handler;
+use crate::gpg::config::GpgConfig;
 use crate::gpg::context::GpgContext;
 use crate::term::event::{Event, EventHandler};
 use crate::term::tui::Tui;
 use anyhow::Result;
-use gpgme::Protocol;
+use std::convert::TryFrom;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -22,15 +23,12 @@ use tui::Terminal;
 fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
-	// Initialize GPGME.
-	let gpgme = gpgme::init();
-	if let Some(home_dir) = args.homedir {
-		gpgme.set_engine_home_dir(Protocol::OpenPgp, home_dir)?;
-	}
-	assert!(gpgme.check_version("1.7.0"));
+	// Initialize GPGME library.
+	let config = GpgConfig::try_from(&args)?;
+	config.check_gpgme_version("1.7.0");
+	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.
-	let mut context = GpgContext::new(gpgme)?;
-	let mut app = App::new(&mut context)?;
+	let mut app = App::new(&mut gpgme)?;
 	// Initialize the text-based user interface.
 	let backend = CrosstermBackend::new(io::stdout());
 	let terminal = Terminal::new(backend)?;

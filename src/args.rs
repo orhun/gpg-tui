@@ -1,5 +1,6 @@
 //! Command-line argument parser.
 
+use std::path::PathBuf;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -17,9 +18,15 @@ use structopt::StructOpt;
     ])
 )]
 pub struct Args {
+	/// Creates ASCII armored output.
+	#[structopt(short, long)]
+	pub armor: bool,
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "DIR")]
 	pub homedir: Option<String>,
+	/// Sets the output directory.
+	#[structopt(short, long, value_name = "DIR")]
+	pub output: Option<PathBuf>,
 	/// Sets the tick rate of the terminal.
 	#[structopt(short, long, value_name = "MS", default_value = "250")]
 	pub tick_rate: u64,

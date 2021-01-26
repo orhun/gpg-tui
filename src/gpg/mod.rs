@@ -1,5 +1,10 @@
 //! GnuPG actions via GPGME.
 
+/// Wrapper for [`Gpgme`].
+///
+/// [`Gpgme`]: gpgme::Gpgme
+pub mod config;
+
 /// Wrapper for [`Context`].
 ///
 /// [`Context`]: gpgme::Context

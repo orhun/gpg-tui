@@ -36,21 +36,21 @@ pub struct App<'a> {
 	pub command: Command,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
-	/// GnuPG context.
-	gnupg: &'a mut GpgContext,
+	/// GPGME context.
+	gpgme: &'a mut GpgContext,
 }
 
 impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
-	pub fn new(gnupg: &'a mut GpgContext) -> Result<Self> {
+	pub fn new(gpgme: &'a mut GpgContext) -> Result<Self> {
 		Ok(Self {
 			state: AppState::default(),
 			prompt: Prompt::default(),
 			command: Command::default(),
 			key_list: StatefulTable::with_items(
-				gnupg.get_keys(KeyType::Public, None)?,
+				gpgme.get_keys(KeyType::Public, None)?,
 			),
-			gnupg,
+			gpgme,
 		})
 	}
 
@@ -78,14 +78,14 @@ impl<'a> App<'a> {
 		match command {
 			Command::ListKeys(key_type) => {
 				self.key_list = StatefulTable::with_items(
-					self.gnupg.get_keys(key_type, None)?,
+					self.gpgme.get_keys(key_type, None)?,
 				);
 				self.command = command;
 			}
 			Command::ExportKeys(key_type, ref patterns) => {
 				self.prompt.set_output(
 					match self
-						.gnupg
+						.gpgme
 						.export_keys(key_type, Some(patterns.to_vec()))
 					{
 						Ok(path) => format!("Export: {}", path),
