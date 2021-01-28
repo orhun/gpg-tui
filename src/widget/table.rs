@@ -3,8 +3,10 @@ use tui::widgets::TableState as State;
 
 /// Table widget with TUI controlled states.
 #[derive(Clone, Debug)]
-pub struct StatefulTable<T> {
-	/// Table items (states).
+pub struct StatefulTable<T: Clone> {
+	/// Default table items (for search functionality).
+	pub default_items: Vec<T>,
+	/// Table items.
 	pub items: Vec<T>,
 	/// State that can be modified by TUI.
 	pub state: State,
@@ -12,11 +14,12 @@ pub struct StatefulTable<T> {
 	pub scroll: ScrollAmount,
 }
 
-impl<T> StatefulTable<T> {
+impl<T: Clone> StatefulTable<T> {
 	/// Constructs a new instance of `StatefulTable`.
 	pub fn new(items: Vec<T>, mut state: State) -> StatefulTable<T> {
 		state.select(Some(0));
 		Self {
+			default_items: items.clone(),
 			items,
 			state,
 			scroll: ScrollAmount::default(),
@@ -90,6 +93,12 @@ impl<T> StatefulTable<T> {
 					.unwrap_or_default();
 			}
 		}
+	}
+
+	/// Resets the items state.
+	pub fn reset_state(&mut self) {
+		self.items = self.default_items.clone();
+		self.state.select(Some(0));
 	}
 
 	/// Resets the scroll state.

@@ -21,9 +21,20 @@ impl Prompt {
 		self.clock = None;
 	}
 
+	/// Enables the search.
+	pub fn enable_search(&mut self) {
+		self.text = String::from("/");
+		self.clock = None;
+	}
+
 	/// Checks if the input is enabled.
 	pub fn is_input_enabled(&self) -> bool {
 		!self.text.is_empty() && self.clock.is_none()
+	}
+
+	/// Checks if the search is enabled.
+	pub fn is_search_enabled(&self) -> bool {
+		self.text.starts_with('/')
 	}
 
 	/// Sets the output message.

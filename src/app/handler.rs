@@ -18,9 +18,27 @@ pub fn handle_key_input<B: Backend>(
 		match key_event.code {
 			Key::Char(c) => {
 				app.prompt.text.push(c);
+				if app.prompt.is_search_enabled() {
+					app.key_list.reset_state();
+				}
+			}
+			Key::Backspace => {
+				app.prompt.text.pop();
+				if app.prompt.is_search_enabled() {
+					app.key_list.reset_state();
+				}
+			}
+			Key::Esc => {
+				app.prompt.clear();
+				if app.prompt.is_search_enabled() {
+					app.key_list.reset_state();
+				}
 			}
 			Key::Enter => {
-				if let Ok(command) = Command::from_str(&app.prompt.text) {
+				if app.prompt.is_search_enabled() {
+					app.prompt.clear();
+				} else if let Ok(command) = Command::from_str(&app.prompt.text)
+				{
 					app.prompt.clear();
 					if let Command::ExportKeys(_, _) = command {
 						tui.toggle_pause()?;
@@ -35,12 +53,6 @@ pub fn handle_key_input<B: Backend>(
 						app.prompt.text.replacen(":", "", 1)
 					));
 				}
-			}
-			Key::Backspace => {
-				app.prompt.text.pop();
-			}
-			Key::Esc => {
-				app.prompt.clear();
 			}
 			_ => {}
 		}
@@ -84,11 +96,23 @@ pub fn handle_key_input<B: Backend>(
 				for key in app.key_list.items.iter_mut() {
 					key.detail = app.state.table_detail;
 				}
+				for key in app.key_list.default_items.iter_mut() {
+					key.detail = app.state.table_detail;
+				}
 			}
 			Key::Tab => {
 				if let Some(index) = app.key_list.state.selected() {
 					if let Some(key) = app.key_list.items.get_mut(index) {
 						key.detail.increase()
+					}
+					if app.key_list.items.len()
+						== app.key_list.default_items.len()
+					{
+						if let Some(key) =
+							app.key_list.default_items.get_mut(index)
+						{
+							key.detail.increase()
+						}
 					}
 				}
 			}
@@ -121,6 +145,10 @@ pub fn handle_key_input<B: Backend>(
 				tui.toggle_pause()?;
 			}
 			Key::Char(':') => app.prompt.enable_input(),
+			Key::Char('/') => {
+				app.prompt.enable_search();
+				app.key_list.items = app.key_list.default_items.clone();
+			}
 			_ => {}
 		}
 	}

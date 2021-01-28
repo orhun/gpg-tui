@@ -166,42 +166,21 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let max_row_width = rect
-			.width
-			.checked_sub(
-				if self.state.minimized {
-					KEYS_ROW_LENGTH.0
-				} else {
-					KEYS_ROW_LENGTH.1
-				} + 3,
-			)
-			.unwrap_or(rect.width);
 		frame.render_stateful_widget(
-			Table::new(self.key_list.items.iter().map(|key| {
-				let keys_row = RowItem::new(
-					key.get_subkey_info(self.state.minimized),
-					None,
+			Table::new(
+				self.get_keys_table_rows(
+					rect.width
+						.checked_sub(
+							if self.state.minimized {
+								KEYS_ROW_LENGTH.0
+							} else {
+								KEYS_ROW_LENGTH.1
+							} + 3,
+						)
+						.unwrap_or(rect.width),
 					rect.height,
-					self.key_list.scroll,
-				);
-				let users_row = RowItem::new(
-					key.get_user_info(self.state.minimized),
-					Some(max_row_width),
-					rect.height,
-					self.key_list.scroll,
-				);
-				Row::new(vec![
-					Text::from(keys_row.data.join("\n")),
-					Text::from(users_row.data.join("\n")),
-				])
-				.height(
-					cmp::max(keys_row.data.len(), users_row.data.len())
-						.try_into()
-						.unwrap_or(1),
-				)
-				.bottom_margin(1)
-				.style(Style::default())
-			}))
+				),
+			)
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
 			.widths(&[
@@ -216,5 +195,65 @@ impl<'a> App<'a> {
 			rect,
 			&mut self.key_list.state,
 		);
+	}
+
+	/// Returns the rows for keys table.
+	fn get_keys_table_rows(
+		&mut self,
+		max_width: u16,
+		max_height: u16,
+	) -> Vec<Row<'a>> {
+		let mut rows = Vec::new();
+		self.key_list.items = self
+			.key_list
+			.items
+			.clone()
+			.into_iter()
+			.filter(|key| {
+				let subkey_info = key.get_subkey_info(self.state.minimized);
+				let user_info = key.get_user_info(self.state.minimized);
+				if self.prompt.is_search_enabled() {
+					let search_term =
+						self.prompt.text.replacen("/", "", 1).to_lowercase();
+					if !subkey_info
+						.join("\n")
+						.to_lowercase()
+						.contains(&search_term) && !user_info
+						.join("\n")
+						.to_lowercase()
+						.contains(&search_term)
+					{
+						return false;
+					}
+				}
+				let keys_row = RowItem::new(
+					subkey_info,
+					None,
+					max_height,
+					self.key_list.scroll,
+				);
+				let users_row = RowItem::new(
+					user_info,
+					Some(max_width),
+					max_height,
+					self.key_list.scroll,
+				);
+				rows.push(
+					Row::new(vec![
+						Text::from(keys_row.data.join("\n")),
+						Text::from(users_row.data.join("\n")),
+					])
+					.height(
+						cmp::max(keys_row.data.len(), users_row.data.len())
+							.try_into()
+							.unwrap_or(1),
+					)
+					.bottom_margin(1)
+					.style(Style::default()),
+				);
+				true
+			})
+			.collect();
+		rows
 	}
 }
