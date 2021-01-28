@@ -1,7 +1,6 @@
 use crate::gpg::key::KeyType;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
-use std::vec::IntoIter;
 
 /// Command to run on rendering process.
 ///
@@ -41,37 +40,31 @@ impl Display for Command {
 impl FromStr for Command {
 	type Err = ();
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let s = s.replacen(':', "", 1);
-		for command in Command::iter() {
-			if command.to_string().matches(&s).count() >= 1 {
-				return Ok(command);
-			} else if s.contains(&command.to_string()) {
-				if let Command::ExportKeys(key_type, _) = command {
-					return Ok(Command::ExportKeys(
-						key_type,
-						s.split_whitespace()
-							.collect::<Vec<&str>>()
-							.drain(2..)
-							.map(String::from)
-							.collect(),
-					));
-				}
-			}
+		let mut values = s
+			.replacen(':', "", 1)
+			.split_whitespace()
+			.map(String::from)
+			.collect::<Vec<String>>();
+		let command = values.first().cloned().unwrap_or_default();
+		let args = values.drain(1..).collect::<Vec<String>>();
+		if "list".matches(&command).count() >= 1 {
+			Ok(Self::ListKeys(KeyType::from_str(
+				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
+			)?))
+		} else if "export".matches(&command).count() >= 1 {
+			Ok(Command::ExportKeys(
+				KeyType::from_str(
+					&args
+						.first()
+						.cloned()
+						.unwrap_or_else(|| String::from("pub")),
+				)?,
+				args[1..].to_vec(),
+			))
+		} else if "quit".matches(&command).count() >= 1 || command == "q!" {
+			Ok(Self::Quit)
+		} else {
+			Err(())
 		}
-		Err(())
-	}
-}
-
-impl Command {
-	/// Returns an iterator for `Command` variants.
-	pub fn iter() -> IntoIter<Self> {
-		vec![
-			Command::ListKeys(KeyType::Public),
-			Command::ListKeys(KeyType::Secret),
-			Command::ExportKeys(KeyType::Public, Vec::new()),
-			Command::ExportKeys(KeyType::Secret, Vec::new()),
-			Command::Quit,
-		]
-		.into_iter()
 	}
 }

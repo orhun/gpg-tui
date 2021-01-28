@@ -1,6 +1,7 @@
 use crate::gpg::handler;
 use gpgme::{Key, Subkey, UserId, UserIdSignature};
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::str::FromStr;
 
 /// Type of the key.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -21,6 +22,18 @@ impl Display for KeyType {
 				Self::Secret => "sec",
 			}
 		)
+	}
+}
+
+impl FromStr for KeyType {
+	type Err = ();
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		for key_type in &[Self::Public, Self::Secret] {
+			if key_type.to_string().matches(&s).count() >= 1 {
+				return Ok(*key_type);
+			}
+		}
+		Err(())
 	}
 }
 
