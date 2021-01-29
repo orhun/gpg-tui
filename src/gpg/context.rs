@@ -11,7 +11,7 @@ pub struct GpgContext {
 	/// GPGME context type.
 	inner: Context,
 	/// GPGME configuration manager.
-	config: GpgConfig,
+	pub config: GpgConfig,
 }
 
 impl GpgContext {

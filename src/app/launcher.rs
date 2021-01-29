@@ -8,6 +8,7 @@ use crate::widget::table::StatefulTable;
 use anyhow::Result;
 use std::cmp;
 use std::convert::TryInto;
+use std::str::FromStr;
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Modifier, Style};
@@ -37,7 +38,7 @@ pub struct App<'a> {
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
 	/// GPGME context.
-	gpgme: &'a mut GpgContext,
+	pub gpgme: &'a mut GpgContext,
 }
 
 impl<'a> App<'a> {
@@ -93,6 +94,24 @@ impl<'a> App<'a> {
 					},
 				);
 			}
+			Command::Set(option, value) => match option.as_str() {
+				"armor" => {
+					if let Ok(value) = FromStr::from_str(&value) {
+						self.gpgme.config.armor = value;
+						self.prompt.set_output(format!("armor: {}", value))
+					} else {
+						self.prompt.set_output("Usage: set armor <true/false>")
+					}
+				}
+				_ => {
+					if !option.is_empty() {
+						self.prompt
+							.set_output(format!("Invalid option: {}", option));
+					} else {
+						self.prompt.set_output("Usage: set <option> <value>");
+					}
+				}
+			},
 			Command::Quit => self.state.running = false,
 		}
 		Ok(())

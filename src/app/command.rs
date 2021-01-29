@@ -13,6 +13,8 @@ pub enum Command {
 	ListKeys(KeyType),
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>),
+	/// Set the value of an option.
+	Set(String, String),
 	/// Quit the application.
 	Quit,
 }
@@ -31,6 +33,7 @@ impl Display for Command {
 			match self {
 				Self::ListKeys(key_type) => format!("list {}", key_type),
 				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
+				Self::Set(option, value) => format!("set {} {}", option, value),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -42,17 +45,17 @@ impl FromStr for Command {
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let mut values = s
 			.replacen(':', "", 1)
+			.to_lowercase()
 			.split_whitespace()
 			.map(String::from)
 			.collect::<Vec<String>>();
 		let command = values.first().cloned().unwrap_or_default();
 		let args = values.drain(1..).collect::<Vec<String>>();
-		if "list".matches(&command).count() >= 1 {
-			Ok(Self::ListKeys(KeyType::from_str(
+		match command.as_str() {
+			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
-			)?))
-		} else if "export".matches(&command).count() >= 1 {
-			Ok(Command::ExportKeys(
+			)?)),
+			"export" | "exp" => Ok(Command::ExportKeys(
 				KeyType::from_str(
 					&args
 						.first()
@@ -60,11 +63,13 @@ impl FromStr for Command {
 						.unwrap_or_else(|| String::from("pub")),
 				)?,
 				args[1..].to_vec(),
-			))
-		} else if "quit".matches(&command).count() >= 1 || command == "q!" {
-			Ok(Self::Quit)
-		} else {
-			Err(())
+			)),
+			"set" | "s" => Ok(Command::Set(
+				args.get(0).cloned().unwrap_or_default(),
+				args.get(1).cloned().unwrap_or_default(),
+			)),
+			"quit" | "q" | "q!" => Ok(Self::Quit),
+			_ => Err(()),
 		}
 	}
 }

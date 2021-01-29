@@ -35,7 +35,7 @@ pub fn handle_key_input<B: Backend>(
 				}
 			}
 			Key::Enter => {
-				if app.prompt.is_search_enabled() {
+				if app.prompt.is_search_enabled() || app.prompt.text.len() < 2 {
 					app.prompt.clear();
 				} else if let Ok(command) = Command::from_str(&app.prompt.text)
 				{
@@ -143,6 +143,12 @@ pub fn handle_key_input<B: Backend>(
 					.get_id()],
 				))?;
 				tui.toggle_pause()?;
+			}
+			Key::Char('a') => {
+				app.run_command(Command::Set(
+					String::from("armor"),
+					(!app.gpgme.config.armor).to_string(),
+				))?;
 			}
 			Key::Char(':') => app.prompt.enable_input(),
 			Key::Char('/') => {
