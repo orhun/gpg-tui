@@ -98,6 +98,7 @@ impl<'a> App<'a> {
 				"armor" => {
 					if let Ok(value) = FromStr::from_str(&value) {
 						self.gpgme.config.armor = value;
+						self.gpgme.apply_config();
 						self.prompt.set_output(format!("armor: {}", value))
 					} else {
 						self.prompt.set_output("Usage: set armor <true/false>")

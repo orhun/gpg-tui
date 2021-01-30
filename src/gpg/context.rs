@@ -29,6 +29,11 @@ impl GpgContext {
 		})
 	}
 
+	/// Applies the current configuration values to the context.
+	pub fn apply_config(&mut self) {
+		self.inner.set_armor(self.config.armor);
+	}
+
 	/// Returns an iterator over a list of all public/secret keys
 	/// matching one or more of the specified patterns.
 	fn get_keys_iter(
@@ -110,13 +115,14 @@ impl GpgContext {
 		patterns: Vec<String>,
 	) -> Result<String> {
 		let path = self.config.output_dir.join(format!(
-			"{}_{}.gpg",
+			"{}_{}.{}",
 			key_type,
 			if patterns.len() == 1 {
 				&patterns[0]
 			} else {
 				"out"
-			}
+			},
+			if self.config.armor { "asc" } else { "pgp" }
 		));
 		if !path.exists() {
 			fs::create_dir_all(path.parent().expect("path has no parent"))?;
