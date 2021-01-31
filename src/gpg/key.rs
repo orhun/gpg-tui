@@ -224,7 +224,10 @@ mod tests {
 				== Ok(TEST_USER)
 			{
 				let date = Utc::now().format("%F").to_string();
-				key.detail = KeyDetailLevel::Full;
+				key.detail.increase();
+				assert_eq!(KeyDetailLevel::Standard, key.detail);
+				key.detail.increase();
+				assert_eq!(KeyDetailLevel::Full, key.detail);
 				assert!(key.get_subkey_info(false).join("\n").contains(&date));
 				assert!(key
 					.get_subkey_info(true)
