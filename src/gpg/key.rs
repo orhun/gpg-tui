@@ -201,3 +201,41 @@ impl GpgKey {
 			.collect()
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::args::Args;
+	use crate::gpg::config::GpgConfig;
+	use crate::gpg::context::GpgContext;
+	use anyhow::Result;
+	use chrono::Utc;
+	use pretty_assertions::assert_eq;
+	const TEST_USER: &str = "Test User <test@example.org>";
+	#[test]
+	fn test_gpg_key() -> Result<()> {
+		let args = Args::default();
+		let config = GpgConfig::new(&args)?;
+		let mut context = GpgContext::new(config)?;
+		let mut keys = context.get_keys(KeyType::Public, None)?;
+		if keys.len() == 1 {
+			let key = &mut keys[0];
+			if key.inner.user_ids().collect::<Vec<UserId>>()[0].id()
+				== Ok(TEST_USER)
+			{
+				let date = Utc::now().format("%F").to_string();
+				key.detail = KeyDetailLevel::Full;
+				assert!(key.get_subkey_info(false).join("\n").contains(&date));
+				assert!(key
+					.get_subkey_info(true)
+					.join("\n")
+					.contains(key.inner.id().unwrap()));
+				assert_eq!(
+					format!("[u] {}\n    └─[13] selfsig ({})", TEST_USER, date),
+					key.get_user_info(false).join("\n")
+				);
+			}
+		}
+		Ok(())
+	}
+}
