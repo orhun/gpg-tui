@@ -50,6 +50,10 @@ jobs:
           override: true
       - name: Checkout the repository
         uses: actions/checkout@master
+      - name: Generate a test key
+        run: |
+          echo "${{ secrets.TEST_PASSPHRASE }}" | gpg --pinentry-mode loopback \
+          --passphrase-fd 0 --quick-gen-key "Test User <test@example.org>"
       - name: Run cargo-tarpaulin
         run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
