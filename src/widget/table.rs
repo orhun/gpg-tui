@@ -138,5 +138,6 @@ mod tests {
 			"ScrollAmount { vertical: 2, horizontal: 1 }",
 			&format!("{:?}", table.scroll)
 		);
+		assert_eq!(table.default_items, table.items);
 	}
 }
