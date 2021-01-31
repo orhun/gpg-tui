@@ -21,15 +21,15 @@ impl Prompt {
 		self.clock = None;
 	}
 
+	/// Checks if the input is enabled.
+	pub fn is_input_enabled(&self) -> bool {
+		!self.text.is_empty() && self.clock.is_none()
+	}
+
 	/// Enables the search.
 	pub fn enable_search(&mut self) {
 		self.text = String::from("/");
 		self.clock = None;
-	}
-
-	/// Checks if the input is enabled.
-	pub fn is_input_enabled(&self) -> bool {
-		!self.text.is_empty() && self.clock.is_none()
 	}
 
 	/// Checks if the search is enabled.
@@ -59,6 +59,8 @@ mod tests {
 		let mut prompt = Prompt::default();
 		prompt.enable_input();
 		assert!(prompt.is_input_enabled());
+		prompt.enable_search();
+		assert!(prompt.is_search_enabled());
 		prompt.set_output("test");
 		assert_eq!(String::from("test"), prompt.text);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
