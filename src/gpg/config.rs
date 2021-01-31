@@ -1,7 +1,6 @@
 use crate::args::Args;
 use anyhow::{self, Result};
 use gpgme::{Gpgme, Protocol};
-use std::convert::TryFrom;
 use std::path::PathBuf;
 
 /// Configuration manager for GPGME.
@@ -15,9 +14,9 @@ pub struct GpgConfig {
 	pub output_dir: PathBuf,
 }
 
-impl<'a> TryFrom<&'a Args> for GpgConfig {
-	type Error = anyhow::Error;
-	fn try_from(args: &'a Args) -> Result<Self> {
+impl GpgConfig {
+	/// Constructs a new instance of `GpgConfig`.
+	pub fn new(args: &Args) -> Result<Self> {
 		let gpgme = gpgme::init();
 		let mut output_dir =
 			PathBuf::from(if let Some(home_dir) = &args.homedir {
@@ -38,12 +37,22 @@ impl<'a> TryFrom<&'a Args> for GpgConfig {
 			output_dir,
 		})
 	}
-}
 
-impl GpgConfig {
 	/// Checks if the linked version of the library is
 	/// at least the specified version.
 	pub fn check_gpgme_version(&self, version: &str) {
 		assert!(self.inner.check_version(version));
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	#[test]
+	fn test_gpg_config() -> Result<()> {
+		let args = Args::default();
+		let config = GpgConfig::new(&args)?;
+		config.check_gpgme_version("1.7.0");
+		Ok(())
 	}
 }

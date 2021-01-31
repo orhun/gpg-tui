@@ -14,7 +14,6 @@ use crate::gpg::context::GpgContext;
 use crate::term::event::{Event, EventHandler};
 use crate::term::tui::Tui;
 use anyhow::Result;
-use std::convert::TryFrom;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -24,7 +23,7 @@ fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
 	// Initialize GPGME library.
-	let config = GpgConfig::try_from(&args)?;
+	let config = GpgConfig::new(&args)?;
 	config.check_gpgme_version("1.7.0");
 	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.

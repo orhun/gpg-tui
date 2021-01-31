@@ -15,7 +15,7 @@ pub struct GpgContext {
 }
 
 impl GpgContext {
-	/// Constructs a new instance of `Context`.
+	/// Constructs a new instance of `GpgContext`.
 	pub fn new(config: GpgConfig) -> Result<Self> {
 		let mut context = Context::from_protocol(Protocol::OpenPgp)?;
 		context.set_key_list_mode(KeyListMode::LOCAL)?;
@@ -129,5 +129,27 @@ impl GpgContext {
 		}
 		File::create(&path)?.write_all(&output)?;
 		Ok(path.to_string_lossy().to_string())
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::args::Args;
+	use pretty_assertions::assert_eq;
+	use std::fs;
+	#[test]
+	fn test_gpg_context() -> Result<()> {
+		let args = Args::default();
+		let config = GpgConfig::new(&args)?;
+		let mut context = GpgContext::new(config)?;
+		assert_eq!(false, context.config.armor);
+		context.config.armor = true;
+		context.apply_config();
+		assert_eq!(true, context.config.armor);
+		context.get_keys_iter(KeyType::Public, None)?;
+		context.get_keys(KeyType::Public, None)?;
+		fs::remove_file(context.export_keys(KeyType::Public, None)?)?;
+		Ok(())
 	}
 }
