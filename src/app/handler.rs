@@ -126,13 +126,13 @@ pub fn handle_key_input<B: Backend>(
 				}
 				_ => Command::ListKeys(KeyType::Public),
 			})?,
-			Key::Char('p') => {
+			Key::Char('p') | Key::Char('P') => {
 				app.run_command(Command::ListKeys(KeyType::Public))?
 			}
-			Key::Char('s') => {
+			Key::Char('s') | Key::Char('S') => {
 				app.run_command(Command::ListKeys(KeyType::Secret))?
 			}
-			Key::Char('e') => {
+			Key::Char('e') | Key::Char('E') => {
 				tui.toggle_pause()?;
 				app.run_command(Command::ExportKeys(
 					match app.command {
@@ -148,13 +148,13 @@ pub fn handle_key_input<B: Backend>(
 				))?;
 				tui.toggle_pause()?;
 			}
-			Key::Char('a') => {
+			Key::Char('a') | Key::Char('A') => {
 				app.run_command(Command::Set(
 					String::from("armor"),
 					(!app.gpgme.config.armor).to_string(),
 				))?;
 			}
-			Key::Char('v') => {
+			Key::Char('v') | Key::Char('V') => {
 				app.state.visual_mode = !app.state.visual_mode;
 				tui.toggle_mouse_capture(!app.state.visual_mode)?;
 				app.run_command(Command::VisualMode(app.state.visual_mode))?;
