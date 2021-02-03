@@ -15,6 +15,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Set the value of an option.
 	Set(String, String),
+	/// Enable/disable visual mode.
+	VisualMode(bool),
 	/// Quit the application.
 	Quit,
 }
@@ -34,6 +36,11 @@ impl Display for Command {
 				Self::ListKeys(key_type) => format!("list {}", key_type),
 				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
 				Self::Set(option, value) => format!("set {} {}", option, value),
+				Self::VisualMode(enabled) => String::from(if *enabled {
+					"-- VISUAL --"
+				} else {
+					"-- NORMAL --"
+				}),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -72,6 +79,8 @@ impl FromStr for Command {
 				args.get(0).cloned().unwrap_or_default(),
 				args.get(1).cloned().unwrap_or_default(),
 			)),
+			"normal" | "n" => Ok(Self::VisualMode(false)),
+			"visual" | "v" => Ok(Self::VisualMode(true)),
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			_ => Err(()),
 		}
@@ -145,6 +154,16 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Quit, command);
 			assert_eq!("quit", &command.to_string())
+		}
+		for cmd in &[":visual", ":v"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::VisualMode(true), command);
+			assert_eq!("-- VISUAL --", &command.to_string())
+		}
+		for cmd in &[":normal", ":n"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::VisualMode(false), command);
+			assert_eq!("-- NORMAL --", &command.to_string())
 		}
 		assert!(Command::from_str("test").is_err());
 	}

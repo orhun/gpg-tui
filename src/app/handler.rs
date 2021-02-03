@@ -44,6 +44,10 @@ pub fn handle_key_input<B: Backend>(
 						tui.toggle_pause()?;
 						app.run_command(command)?;
 						tui.toggle_pause()?;
+					} else if let Command::VisualMode(enabled) = command {
+						app.state.visual_mode = enabled;
+						tui.toggle_mouse_capture(!app.state.visual_mode)?;
+						app.run_command(command)?;
 					} else {
 						app.run_command(command)?;
 					}
@@ -149,6 +153,11 @@ pub fn handle_key_input<B: Backend>(
 					String::from("armor"),
 					(!app.gpgme.config.armor).to_string(),
 				))?;
+			}
+			Key::Char('v') => {
+				app.state.visual_mode = !app.state.visual_mode;
+				tui.toggle_mouse_capture(!app.state.visual_mode)?;
+				app.run_command(Command::VisualMode(app.state.visual_mode))?;
 			}
 			Key::Char(':') => app.prompt.enable_input(),
 			Key::Char('/') => {

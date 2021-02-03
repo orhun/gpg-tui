@@ -113,6 +113,9 @@ impl<'a> App<'a> {
 					}
 				}
 			},
+			Command::VisualMode(_) => {
+				self.prompt.set_output(command.to_string())
+			}
 			Command::Quit => self.state.running = false,
 		}
 		Ok(())

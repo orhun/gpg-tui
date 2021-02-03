@@ -7,6 +7,8 @@ pub struct AppState {
 	pub running: bool,
 	/// Is app minimized?
 	pub minimized: bool,
+	/// Is visual mode enabled?
+	pub visual_mode: bool,
 	/// Level of detail to show for keys table.
 	pub table_detail: KeyDetailLevel,
 }
@@ -16,6 +18,7 @@ impl Default for AppState {
 		Self {
 			running: true,
 			minimized: false,
+			visual_mode: false,
 			table_detail: KeyDetailLevel::Minimum,
 		}
 	}
