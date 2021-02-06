@@ -65,9 +65,16 @@ pub fn handle_key_input<B: Backend>(
 			Key::Char('q') | Key::Char('Q') | Key::Esc => {
 				app.state.running = false
 			}
-			Key::Char('c') | Key::Char('d') => {
+			Key::Char('d') | Key::Char('D') => {
 				if key_event.modifiers == Modifiers::CONTROL {
 					app.state.running = false;
+				}
+			}
+			Key::Char('c') | Key::Char('C') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					app.state.running = false;
+				} else {
+					app.run_command(Command::Copy)?;
 				}
 			}
 			Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh()?,

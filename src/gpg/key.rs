@@ -78,6 +78,13 @@ impl From<Key> for GpgKey {
 }
 
 impl GpgKey {
+	/// Returns the key fingerprint.
+	pub fn get_fingerprint(&self) -> String {
+		self.inner
+			.fingerprint()
+			.map_or(String::from("[?]"), |v| v.to_string())
+	}
+
 	/// Returns the key ID with '0x' prefix.
 	pub fn get_id(&self) -> String {
 		self.inner

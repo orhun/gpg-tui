@@ -6,6 +6,8 @@ use crate::gpg::key::{GpgKey, KeyType};
 use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
+use copypasta_ext::prelude::*;
+use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::convert::TryInto;
 use std::str::FromStr;
@@ -37,6 +39,8 @@ pub struct App<'a> {
 	pub command: Command,
 	/// List of public keys.
 	pub key_list: StatefulTable<GpgKey>,
+	/// Clipboard context.
+	pub clipboard: ClipboardContext,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
 }
@@ -51,6 +55,8 @@ impl<'a> App<'a> {
 			key_list: StatefulTable::with_items(
 				gpgme.get_keys(KeyType::Public, None)?,
 			),
+			clipboard: ClipboardContext::new()
+				.expect("failed to initialize clipboard"),
 			gpgme,
 		})
 	}
@@ -115,6 +121,19 @@ impl<'a> App<'a> {
 			},
 			Command::VisualMode(_) => {
 				self.prompt.set_output(command.to_string())
+			}
+			Command::Copy => {
+				self.clipboard
+					.set_contents(
+						self.key_list.items[self
+							.key_list
+							.state
+							.selected()
+							.expect("invalid selection")]
+						.get_fingerprint(),
+					)
+					.expect("failed to set clipboard contents");
+				self.prompt.set_output("Copied to clipboard")
 			}
 			Command::Quit => self.state.running = false,
 		}

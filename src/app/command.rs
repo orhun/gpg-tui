@@ -17,6 +17,8 @@ pub enum Command {
 	Set(String, String),
 	/// Enable/disable visual mode.
 	VisualMode(bool),
+	/// Copy key information to clipboard.
+	Copy,
 	/// Quit the application.
 	Quit,
 }
@@ -41,6 +43,7 @@ impl Display for Command {
 				} else {
 					"-- NORMAL --"
 				}),
+				Self::Copy => String::from("copy"),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -81,6 +84,7 @@ impl FromStr for Command {
 			)),
 			"normal" | "n" => Ok(Self::VisualMode(false)),
 			"visual" | "v" => Ok(Self::VisualMode(true)),
+			"copy" | "c" => Ok(Self::Copy),
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			_ => Err(()),
 		}

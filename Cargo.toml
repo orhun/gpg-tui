@@ -10,6 +10,7 @@ crossterm = "0.18.2"
 anyhow = "1.0.36"
 chrono = "0.4.19"
 unicode-width = "0.1.8"
+copypasta-ext = "0.3.2"
 
 [dependencies.structopt]
 version = "0.3.21"
