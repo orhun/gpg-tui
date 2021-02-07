@@ -78,6 +78,13 @@ impl From<Key> for GpgKey {
 }
 
 impl GpgKey {
+	/// Returns the key ID with '0x' prefix.
+	pub fn get_id(&self) -> String {
+		self.inner
+			.id()
+			.map_or(String::from("[?]"), |v| format!("0x{}", v))
+	}
+
 	/// Returns the key fingerprint.
 	pub fn get_fingerprint(&self) -> String {
 		self.inner
@@ -85,11 +92,14 @@ impl GpgKey {
 			.map_or(String::from("[?]"), |v| v.to_string())
 	}
 
-	/// Returns the key ID with '0x' prefix.
-	pub fn get_id(&self) -> String {
-		self.inner
-			.id()
-			.map_or(String::from("[?]"), |v| format!("0x{}", v))
+	/// Returns the primary user of the key.
+	pub fn get_user_id(&self) -> String {
+		match self.inner.user_ids().next() {
+			Some(user) => {
+				user.id().map_or(String::from("[?]"), |v| v.to_string())
+			}
+			None => String::from("[?]"),
+		}
 	}
 
 	/// Returns information about the subkeys.

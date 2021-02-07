@@ -1,3 +1,5 @@
+use crate::app::clipboard::CopyType;
+use crate::app::mode::AppMode;
 use crate::gpg::key::KeyType;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
@@ -15,10 +17,10 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Set the value of an option.
 	Set(String, String),
-	/// Enable/disable visual mode.
-	VisualMode(bool),
-	/// Copy key information to clipboard.
-	Copy,
+	/// Switch the application mode.
+	SwitchMode(AppMode),
+	/// Copy a property to clipboard.
+	Copy(CopyType),
 	/// Quit the application.
 	Quit,
 }
@@ -38,12 +40,8 @@ impl Display for Command {
 				Self::ListKeys(key_type) => format!("list {}", key_type),
 				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
 				Self::Set(option, value) => format!("set {} {}", option, value),
-				Self::VisualMode(enabled) => String::from(if *enabled {
-					"-- VISUAL --"
-				} else {
-					"-- NORMAL --"
-				}),
-				Self::Copy => String::from("copy"),
+				Self::SwitchMode(mode) => mode.to_string(),
+				Self::Copy(copy_type) => format!("copy: {}", copy_type),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -82,9 +80,18 @@ impl FromStr for Command {
 				args.get(0).cloned().unwrap_or_default(),
 				args.get(1).cloned().unwrap_or_default(),
 			)),
-			"normal" | "n" => Ok(Self::VisualMode(false)),
-			"visual" | "v" => Ok(Self::VisualMode(true)),
-			"copy" | "c" => Ok(Self::Copy),
+			"mode" | "m" => Ok(Self::SwitchMode(AppMode::from_str(
+				&args.first().cloned().ok_or(())?,
+			)?)),
+			"normal" | "n" => Ok(Self::SwitchMode(AppMode::Normal)),
+			"visual" | "v" => Ok(Self::SwitchMode(AppMode::Visual)),
+			"copy" | "c" => {
+				if let Some(arg) = args.first().cloned() {
+					Ok(Self::Copy(CopyType::from_str(&arg)?))
+				} else {
+					Ok(Self::SwitchMode(AppMode::Copy))
+				}
+			}
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			_ => Err(()),
 		}
@@ -159,15 +166,20 @@ mod tests {
 			assert_eq!(Command::Quit, command);
 			assert_eq!("quit", &command.to_string())
 		}
-		for cmd in &[":visual", ":v"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::VisualMode(true), command);
-			assert_eq!("-- VISUAL --", &command.to_string())
-		}
 		for cmd in &[":normal", ":n"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::VisualMode(false), command);
+			assert_eq!(Command::SwitchMode(AppMode::Normal), command);
 			assert_eq!("-- NORMAL --", &command.to_string())
+		}
+		for cmd in &[":visual", ":v"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::SwitchMode(AppMode::Visual), command);
+			assert_eq!("-- VISUAL --", &command.to_string())
+		}
+		for cmd in &[":copy", ":c"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::SwitchMode(AppMode::Copy), command);
+			assert_eq!("-- COPY --", &command.to_string())
 		}
 		assert!(Command::from_str("test").is_err());
 	}

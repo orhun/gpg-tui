@@ -68,14 +68,14 @@ impl<B: Backend> Tui<B> {
 		Ok(())
 	}
 
-	/// Enables/disables the mouse capture.
-	pub fn toggle_mouse_capture(&mut self, capture: bool) -> Result<()> {
-		if capture {
-			crossterm::execute!(io::stdout(), EnableMouseCapture)?;
-		} else {
-			crossterm::execute!(io::stdout(), DisableMouseCapture)?;
-		}
-		Ok(())
+	/// Enables the mouse capture.
+	pub fn enable_mouse_capture(&mut self) -> Result<()> {
+		Ok(crossterm::execute!(io::stdout(), EnableMouseCapture)?)
+	}
+
+	/// Disables the mouse capture.
+	pub fn disable_mouse_capture(&mut self) -> Result<()> {
+		Ok(crossterm::execute!(io::stdout(), DisableMouseCapture)?)
 	}
 
 	/// [`Draw`] the terminal interface by [`rendering`] the widgets.

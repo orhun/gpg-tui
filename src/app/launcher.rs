@@ -1,4 +1,6 @@
+use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
+use crate::app::mode::AppMode;
 use crate::app::prompt::Prompt;
 use crate::app::state::AppState;
 use crate::gpg::context::GpgContext;
@@ -119,21 +121,35 @@ impl<'a> App<'a> {
 					}
 				}
 			},
-			Command::VisualMode(_) => {
-				self.prompt.set_output(command.to_string())
+			Command::SwitchMode(mode) => {
+				self.state.mode = mode;
+				self.prompt.set_output(mode.to_string())
 			}
-			Command::Copy => {
+			Command::Copy(copy_type) => {
+				let selected_key = &self.key_list.items[self
+					.key_list
+					.state
+					.selected()
+					.expect("invalid selection")];
 				self.clipboard
-					.set_contents(
-						self.key_list.items[self
-							.key_list
-							.state
-							.selected()
-							.expect("invalid selection")]
-						.get_fingerprint(),
-					)
+					.set_contents(match copy_type {
+						CopyType::TableRow(1) => selected_key
+							.get_subkey_info(self.state.minimized)
+							.join("\n"),
+						CopyType::TableRow(2) => selected_key
+							.get_user_info(self.state.minimized)
+							.join("\n"),
+						CopyType::KeyId => selected_key.get_id(),
+						CopyType::KeyFingerprint => {
+							selected_key.get_fingerprint()
+						}
+						CopyType::KeyUserId => selected_key.get_user_id(),
+						_ => String::new(),
+					})
 					.expect("failed to set clipboard contents");
-				self.prompt.set_output("Copied to clipboard")
+				self.prompt
+					.set_output(format!("{} copied to clipboard", copy_type));
+				self.state.mode = AppMode::Normal;
 			}
 			Command::Quit => self.state.running = false,
 		}

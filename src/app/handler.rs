@@ -1,5 +1,7 @@
+use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::launcher::App;
+use crate::app::mode::AppMode;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -44,9 +46,12 @@ pub fn handle_key_input<B: Backend>(
 						tui.toggle_pause()?;
 						app.run_command(command)?;
 						tui.toggle_pause()?;
-					} else if let Command::VisualMode(enabled) = command {
-						app.state.visual_mode = enabled;
-						tui.toggle_mouse_capture(!app.state.visual_mode)?;
+					} else if let Command::SwitchMode(mode) = command {
+						match mode {
+							AppMode::Normal => tui.enable_mouse_capture()?,
+							AppMode::Visual => tui.disable_mouse_capture()?,
+							_ => {}
+						}
 						app.run_command(command)?;
 					} else {
 						app.run_command(command)?;
@@ -73,11 +78,16 @@ pub fn handle_key_input<B: Backend>(
 			Key::Char('c') | Key::Char('C') => {
 				if key_event.modifiers == Modifiers::CONTROL {
 					app.state.running = false;
+				} else if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
 				} else {
-					app.run_command(Command::Copy)?;
+					app.run_command(Command::SwitchMode(AppMode::Copy))?;
 				}
 			}
-			Key::Char('r') | Key::Char('R') | Key::F(5) => app.refresh()?,
+			Key::Char('r') | Key::Char('R') | Key::F(5) => {
+				app.refresh()?;
+				tui.enable_mouse_capture()?;
+			}
 			Key::Up | Key::Char('k') | Key::Char('K') => {
 				if key_event.modifiers == Modifiers::ALT {
 					app.key_list.scroll(ScrollDirection::Up(1))
@@ -161,10 +171,38 @@ pub fn handle_key_input<B: Backend>(
 					(!app.gpgme.config.armor).to_string(),
 				))?;
 			}
+			Key::Char('n') | Key::Char('N') => {
+				tui.enable_mouse_capture()?;
+				app.run_command(Command::SwitchMode(AppMode::Normal))?;
+			}
 			Key::Char('v') | Key::Char('V') => {
-				app.state.visual_mode = !app.state.visual_mode;
-				tui.toggle_mouse_capture(!app.state.visual_mode)?;
-				app.run_command(Command::VisualMode(app.state.visual_mode))?;
+				tui.disable_mouse_capture()?;
+				app.run_command(Command::SwitchMode(AppMode::Visual))?;
+			}
+			Key::Char('1') => {
+				if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::TableRow(1)))?;
+				}
+			}
+			Key::Char('2') => {
+				if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::TableRow(2)))?;
+				}
+			}
+			Key::Char('i') | Key::Char('I') => {
+				if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::KeyId))?;
+				}
+			}
+			Key::Char('f') | Key::Char('F') => {
+				if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
+				}
+			}
+			Key::Char('u') | Key::Char('U') => {
+				if app.state.mode == AppMode::Copy {
+					app.run_command(Command::Copy(CopyType::KeyUserId))?;
+				}
 			}
 			Key::Char(':') => app.prompt.enable_input(),
 			Key::Char('/') => {

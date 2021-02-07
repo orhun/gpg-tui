@@ -6,6 +6,9 @@ pub mod launcher;
 /// Application state.
 pub mod state;
 
+/// Application mode.
+pub mod mode;
+
 /// Application prompt.
 pub mod prompt;
 
@@ -14,3 +17,6 @@ pub mod command;
 
 /// Handler methods.
 pub mod handler;
+
+/// Clipboard helper.
+pub mod clipboard;

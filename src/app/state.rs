@@ -1,3 +1,4 @@
+use crate::app::mode::AppMode;
 use crate::gpg::key::KeyDetailLevel;
 
 /// Application states for handling interface and events.
@@ -7,8 +8,8 @@ pub struct AppState {
 	pub running: bool,
 	/// Is app minimized?
 	pub minimized: bool,
-	/// Is visual mode enabled?
-	pub visual_mode: bool,
+	/// Application mode.
+	pub mode: AppMode,
 	/// Level of detail to show for keys table.
 	pub table_detail: KeyDetailLevel,
 }
@@ -18,7 +19,7 @@ impl Default for AppState {
 		Self {
 			running: true,
 			minimized: false,
-			visual_mode: false,
+			mode: AppMode::Normal,
 			table_detail: KeyDetailLevel::Minimum,
 		}
 	}
