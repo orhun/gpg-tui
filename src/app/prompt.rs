@@ -22,7 +22,7 @@ impl Prompt {
 
 	/// Enables the command input.
 	pub fn enable_command_input(&mut self) {
-		self.text = if self.text.is_empty() {
+		self.text = if self.text.is_empty() || self.clock.is_some() {
 			String::from(":")
 		} else {
 			format!(":{}", &self.text[1..self.text.len()])
@@ -37,7 +37,7 @@ impl Prompt {
 
 	/// Enables the search.
 	pub fn enable_search(&mut self) {
-		self.text = if self.text.is_empty() {
+		self.text = if self.text.is_empty() || self.clock.is_some() {
 			String::from("/")
 		} else {
 			format!("/{}", &self.text[1..self.text.len()])
