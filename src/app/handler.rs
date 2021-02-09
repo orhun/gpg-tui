@@ -6,6 +6,7 @@ use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
+use copypasta_ext::prelude::ClipboardProvider;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 use std::str::FromStr;
 use tui::backend::Backend;
@@ -16,8 +17,16 @@ pub fn handle_key_input<B: Backend>(
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
-	if app.prompt.is_input_enabled() {
+	if app.prompt.is_enabled() {
 		match key_event.code {
+			Key::Tab => {
+				if app.prompt.is_command_input_enabled() {
+					app.prompt.enable_search();
+				} else if app.prompt.is_search_enabled() {
+					app.prompt.enable_command_input();
+					app.key_list.items = app.key_list.default_items.clone();
+				}
+			}
 			Key::Char(c) => {
 				app.prompt.text.push(c);
 				if app.prompt.is_search_enabled() {
@@ -82,6 +91,19 @@ pub fn handle_key_input<B: Backend>(
 					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
 				} else {
 					app.run_command(Command::SwitchMode(AppMode::Copy))?;
+				}
+			}
+			Key::Char('v') | Key::Char('V') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					app.prompt.text = format!(
+						":{}",
+						app.clipboard
+							.get_contents()
+							.expect("failed to get clipboard contents")
+					);
+				} else {
+					tui.disable_mouse_capture()?;
+					app.run_command(Command::SwitchMode(AppMode::Visual))?;
 				}
 			}
 			Key::Char('r') | Key::Char('R') | Key::F(5) => {
@@ -175,10 +197,6 @@ pub fn handle_key_input<B: Backend>(
 				tui.enable_mouse_capture()?;
 				app.run_command(Command::SwitchMode(AppMode::Normal))?;
 			}
-			Key::Char('v') | Key::Char('V') => {
-				tui.disable_mouse_capture()?;
-				app.run_command(Command::SwitchMode(AppMode::Visual))?;
-			}
 			Key::Char('1') => {
 				if app.state.mode == AppMode::Copy {
 					app.run_command(Command::Copy(CopyType::TableRow(1)))?;
@@ -204,7 +222,7 @@ pub fn handle_key_input<B: Backend>(
 					app.run_command(Command::Copy(CopyType::KeyUserId))?;
 				}
 			}
-			Key::Char(':') => app.prompt.enable_input(),
+			Key::Char(':') => app.prompt.enable_command_input(),
 			Key::Char('/') => {
 				app.prompt.enable_search();
 				app.key_list.items = app.key_list.default_items.clone();

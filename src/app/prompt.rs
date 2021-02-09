@@ -15,20 +15,33 @@ pub struct Prompt {
 }
 
 impl Prompt {
-	/// Enables the user input.
-	pub fn enable_input(&mut self) {
-		self.text = String::from(":");
+	/// Checks if the prompt is enabled.
+	pub fn is_enabled(&self) -> bool {
+		!self.text.is_empty() && self.clock.is_none()
+	}
+
+	/// Enables the command input.
+	pub fn enable_command_input(&mut self) {
+		self.text = if self.text.is_empty() {
+			String::from(":")
+		} else {
+			format!(":{}", &self.text[1..self.text.len()])
+		};
 		self.clock = None;
 	}
 
-	/// Checks if the input is enabled.
-	pub fn is_input_enabled(&self) -> bool {
-		!self.text.is_empty() && self.clock.is_none()
+	/// Checks if the command input is enabled.
+	pub fn is_command_input_enabled(&self) -> bool {
+		self.text.starts_with(':')
 	}
 
 	/// Enables the search.
 	pub fn enable_search(&mut self) {
-		self.text = String::from("/");
+		self.text = if self.text.is_empty() {
+			String::from("/")
+		} else {
+			format!("/{}", &self.text[1..self.text.len()])
+		};
 		self.clock = None;
 	}
 
@@ -57,13 +70,15 @@ mod tests {
 	#[test]
 	fn test_app_prompt() {
 		let mut prompt = Prompt::default();
-		prompt.enable_input();
-		assert!(prompt.is_input_enabled());
+		prompt.enable_command_input();
+		assert!(prompt.is_command_input_enabled());
 		prompt.enable_search();
 		assert!(prompt.is_search_enabled());
+		assert!(prompt.is_enabled());
 		prompt.set_output("test");
 		assert_eq!(String::from("test"), prompt.text);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
+		assert!(!prompt.is_enabled());
 		prompt.clear();
 		assert_eq!(String::new(), prompt.text);
 		assert_eq!(None, prompt.clock);

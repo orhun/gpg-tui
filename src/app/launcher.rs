@@ -8,7 +8,7 @@ use crate::gpg::key::{GpgKey, KeyType};
 use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
-use copypasta_ext::prelude::*;
+use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::convert::TryInto;
@@ -210,7 +210,7 @@ impl<'a> App<'a> {
 			.wrap(Wrap { trim: false }),
 			rect,
 		);
-		if self.prompt.is_input_enabled() {
+		if self.prompt.is_enabled() {
 			frame.set_cursor(
 				rect.x + self.prompt.text.width() as u16,
 				rect.y + 1,
