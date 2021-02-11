@@ -17,6 +17,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Set the value of an option.
 	Set(String, String),
+	/// Get the value of an option.
+	Get(String),
 	/// Switch the application mode.
 	SwitchMode(Mode),
 	/// Copy a property to clipboard.
@@ -40,6 +42,7 @@ impl Display for Command {
 				Self::ListKeys(key_type) => format!("list {}", key_type),
 				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
 				Self::Set(option, value) => format!("set {} {}", option, value),
+				Self::Get(option) => format!("get {}", option),
 				Self::SwitchMode(mode) => mode.to_string(),
 				Self::Copy(copy_type) => format!("copy: {}", copy_type),
 				Self::Search(_) => String::from("search"),
@@ -83,6 +86,9 @@ impl FromStr for Command {
 				args.get(0).cloned().unwrap_or_default(),
 				args.get(1).cloned().unwrap_or_default(),
 			)),
+			"get" | "g" => {
+				Ok(Command::Get(args.get(0).cloned().unwrap_or_default()))
+			}
 			"mode" | "m" => Ok(Self::SwitchMode(Mode::from_str(
 				&args.first().cloned().ok_or(())?,
 			)?)),
@@ -161,6 +167,11 @@ mod tests {
 				command
 			);
 			assert_eq!("set armor true", &command.to_string())
+		}
+		for cmd in &[":get armor", ":g armor"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::Get(String::from("armor")), command);
+			assert_eq!("get armor", &command.to_string())
 		}
 		assert_eq!(
 			Command::Set(String::from("test"), String::from("_")),

@@ -108,31 +108,47 @@ impl<'a> App<'a> {
 					},
 				);
 			}
-			Command::Set(option, value) => match option.as_str() {
-				"armor" => {
-					if let Ok(value) = FromStr::from_str(&value) {
-						self.gpgme.config.armor = value;
-						self.gpgme.apply_config();
-						self.prompt.set_output(format!("armor: {}", value))
-					} else {
-						self.prompt.set_output("Usage: set armor <true/false>")
+			Command::Set(option, value) => {
+				self.prompt.set_output(match option.as_str() {
+					"armor" => {
+						if let Ok(value) = FromStr::from_str(&value) {
+							self.gpgme.config.armor = value;
+							self.gpgme.apply_config();
+							format!("armor: {}", value)
+						} else {
+							String::from("Usage: set armor <true/false>")
+						}
 					}
-				}
-				"minimize" => {
-					self.state.minimize_threshold =
-						value.parse().unwrap_or_default();
-					self.prompt
-						.set_output(format!("minimize threshold: {}", value))
-				}
-				_ => {
-					if !option.is_empty() {
-						self.prompt
-							.set_output(format!("Invalid option: {}", option));
-					} else {
-						self.prompt.set_output("Usage: set <option> <value>");
+					"minimize" => {
+						self.state.minimize_threshold =
+							value.parse().unwrap_or_default();
+						format!("minimize threshold: {}", value)
 					}
-				}
-			},
+					_ => {
+						if !option.is_empty() {
+							format!("Unknown option: {}", option)
+						} else {
+							String::from("Usage: set <option> <value>")
+						}
+					}
+				})
+			}
+			Command::Get(option) => {
+				self.prompt.set_output(match option.as_str() {
+					"armor" => format!("armor: {}", self.gpgme.config.armor),
+					"minimize" => format!(
+						"minimize threshold: {}",
+						self.state.minimize_threshold
+					),
+					_ => {
+						if !option.is_empty() {
+							format!("Unknown option: {}", option)
+						} else {
+							String::from("Usage: get <option>")
+						}
+					}
+				})
+			}
 			Command::SwitchMode(mode) => {
 				self.mode = mode;
 				self.prompt.set_output(mode.to_string())
