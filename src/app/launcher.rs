@@ -151,6 +151,10 @@ impl<'a> App<'a> {
 					.set_output(format!("{} copied to clipboard", copy_type));
 				self.state.mode = AppMode::Normal;
 			}
+			Command::Search(query) => {
+				self.prompt.text = format!("/{}", query.unwrap_or_default());
+				self.key_list.items = self.key_list.default_items.clone();
+			}
 			Command::Quit => self.state.running = false,
 		}
 		Ok(())

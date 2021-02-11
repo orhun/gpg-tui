@@ -21,6 +21,8 @@ pub enum Command {
 	SwitchMode(AppMode),
 	/// Copy a property to clipboard.
 	Copy(CopyType),
+	/// Search for a value.
+	Search(Option<String>),
 	/// Quit the application.
 	Quit,
 }
@@ -42,6 +44,7 @@ impl Display for Command {
 				Self::Set(option, value) => format!("set {} {}", option, value),
 				Self::SwitchMode(mode) => mode.to_string(),
 				Self::Copy(copy_type) => format!("copy: {}", copy_type),
+				Self::Search(_) => String::from("search"),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -92,6 +95,7 @@ impl FromStr for Command {
 					Ok(Self::SwitchMode(AppMode::Copy))
 				}
 			}
+			"search" => Ok(Self::Search(args.first().cloned())),
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			_ => Err(()),
 		}
@@ -161,11 +165,6 @@ mod tests {
 			Command::Set(String::from("test"), String::from("_")),
 			Command::from_str(":set test _").unwrap()
 		);
-		for cmd in &[":quit", ":q", ":q!"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::Quit, command);
-			assert_eq!("quit", &command.to_string())
-		}
 		for cmd in &[":normal", ":n"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::SwitchMode(AppMode::Normal), command);
@@ -180,6 +179,14 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::SwitchMode(AppMode::Copy), command);
 			assert_eq!("-- COPY --", &command.to_string())
+		}
+		let command = Command::from_str(":search q").unwrap();
+		assert_eq!(Command::Search(Some(String::from("q"))), command);
+		assert_eq!("search", &command.to_string());
+		for cmd in &[":quit", ":q", ":q!"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::Quit, command);
+			assert_eq!("quit", &command.to_string())
 		}
 		assert!(Command::from_str("test").is_err());
 	}
