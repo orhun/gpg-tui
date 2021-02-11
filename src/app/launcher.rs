@@ -21,8 +21,6 @@ use tui::text::{Span, Text};
 use tui::widgets::{Paragraph, Row, Table, Wrap};
 use unicode_width::UnicodeWidthStr;
 
-/// Threshold value (width) for minimizing.
-const MINIMIZE_THRESHOLD: u16 = 90;
 /// Lengths of keys row in minimized/maximized mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 /// Max duration of prompt messages (in seconds).
@@ -120,6 +118,12 @@ impl<'a> App<'a> {
 						self.prompt.set_output("Usage: set armor <true/false>")
 					}
 				}
+				"minimize" => {
+					self.state.minimize_threshold =
+						value.parse().unwrap_or_default();
+					self.prompt
+						.set_output(format!("minimize threshold: {}", value))
+				}
 				_ => {
 					if !option.is_empty() {
 						self.prompt
@@ -163,6 +167,11 @@ impl<'a> App<'a> {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
 				self.keys_table.items = self.keys_table.default_items.clone();
 			}
+			Command::Minimize | Command::Maximize => {
+				self.state.minimize_threshold = 0;
+				self.state.minimized = command == Command::Minimize;
+				self.prompt.set_output(command.to_string());
+			}
 			Command::Quit => self.state.running = false,
 		}
 		Ok(())
@@ -171,7 +180,9 @@ impl<'a> App<'a> {
 	/// Renders all the widgets thus the user interface.
 	pub fn render<B: Backend>(&mut self, frame: &mut Frame<'_, B>) {
 		let rect = frame.size();
-		self.state.minimized = rect.width < MINIMIZE_THRESHOLD;
+		if self.state.minimize_threshold != 0 {
+			self.state.minimized = rect.width < self.state.minimize_threshold;
+		}
 		let chunks = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(

@@ -222,6 +222,13 @@ pub fn handle_key_input<B: Backend>(
 					app.run_command(Command::Copy(CopyType::KeyUserId))?;
 				}
 			}
+			Key::Char('m') | Key::Char('M') => {
+				app.run_command(if app.state.minimized {
+					Command::Maximize
+				} else {
+					Command::Minimize
+				})?;
+			}
 			Key::Char(':') => app.prompt.enable_command_input(),
 			Key::Char('/') => {
 				app.prompt.enable_search();

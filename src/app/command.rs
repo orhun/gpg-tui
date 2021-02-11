@@ -23,6 +23,10 @@ pub enum Command {
 	Copy(CopyType),
 	/// Search for a value.
 	Search(Option<String>),
+	/// Minimize the application.
+	Minimize,
+	/// Maximize the application.
+	Maximize,
 	/// Quit the application.
 	Quit,
 }
@@ -39,6 +43,8 @@ impl Display for Command {
 				Self::SwitchMode(mode) => mode.to_string(),
 				Self::Copy(copy_type) => format!("copy: {}", copy_type),
 				Self::Search(_) => String::from("search"),
+				Self::Minimize => String::from("minimize"),
+				Self::Maximize => String::from("maximize"),
 				Self::Quit => String::from("quit"),
 			}
 		)
@@ -90,6 +96,8 @@ impl FromStr for Command {
 				}
 			}
 			"search" => Ok(Self::Search(args.first().cloned())),
+			"minimize" | "min" => Ok(Self::Minimize),
+			"maximize" | "max" => Ok(Self::Maximize),
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			_ => Err(()),
 		}
@@ -176,6 +184,16 @@ mod tests {
 		let command = Command::from_str(":search q").unwrap();
 		assert_eq!(Command::Search(Some(String::from("q"))), command);
 		assert_eq!("search", &command.to_string());
+		for cmd in &[":minimize", ":min"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::Minimize, command);
+			assert_eq!("minimize", &command.to_string())
+		}
+		for cmd in &[":maximize", ":max"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(Command::Maximize, command);
+			assert_eq!("maximize", &command.to_string())
+		}
 		for cmd in &[":quit", ":q", ":q!"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Quit, command);

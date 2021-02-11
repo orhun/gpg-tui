@@ -5,6 +5,8 @@ pub struct State {
 	pub running: bool,
 	/// Is app minimized?
 	pub minimized: bool,
+	/// Threshold value (width) for minimizing.
+	pub minimize_threshold: u16,
 }
 
 impl Default for State {
@@ -12,6 +14,7 @@ impl Default for State {
 		Self {
 			running: true,
 			minimized: false,
+			minimize_threshold: 90,
 		}
 	}
 }
