@@ -1,10 +1,10 @@
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
-use crate::app::mode::AppMode;
+use crate::app::mode::Mode;
 use crate::app::prompt::Prompt;
-use crate::app::state::AppState;
+use crate::app::state::State;
 use crate::gpg::context::GpgContext;
-use crate::gpg::key::{GpgKey, KeyType};
+use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::row::RowItem;
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
@@ -34,13 +34,17 @@ const MESSAGE_DURATION: u64 = 1;
 /// and updating the application state.
 pub struct App<'a> {
 	/// Application state.
-	pub state: AppState,
-	/// Application prompt.
+	pub state: State,
+	/// Application mode.
+	pub mode: Mode,
+	/// Prompt manager.
 	pub prompt: Prompt,
-	/// Application command.
+	/// Current command.
 	pub command: Command,
-	/// List of public keys.
-	pub key_list: StatefulTable<GpgKey>,
+	/// Table of public/secret keys.
+	pub keys_table: StatefulTable<GpgKey>,
+	/// Level of detail to show for keys table.
+	pub keys_table_detail: KeyDetail,
 	/// Clipboard context.
 	pub clipboard: ClipboardContext,
 	/// GPGME context.
@@ -51,12 +55,14 @@ impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
 	pub fn new(gpgme: &'a mut GpgContext) -> Result<Self> {
 		Ok(Self {
-			state: AppState::default(),
+			state: State::default(),
+			mode: Mode::Normal,
 			prompt: Prompt::default(),
-			command: Command::default(),
-			key_list: StatefulTable::with_items(
+			command: Command::ListKeys(KeyType::Public),
+			keys_table: StatefulTable::with_items(
 				gpgme.get_keys(KeyType::Public, None)?,
 			),
+			keys_table_detail: KeyDetail::Minimum,
 			clipboard: ClipboardContext::new()
 				.expect("failed to initialize clipboard"),
 			gpgme,
@@ -65,9 +71,11 @@ impl<'a> App<'a> {
 
 	/// Resets the application state.
 	pub fn refresh(&mut self) -> Result<()> {
-		self.state = AppState::default();
+		self.state = State::default();
+		self.mode = Mode::Normal;
 		self.prompt = Prompt::default();
-		self.run_command(Command::default())
+		self.keys_table_detail = KeyDetail::Minimum;
+		self.run_command(Command::ListKeys(KeyType::Public))
 	}
 
 	/// Handles the tick event of the application.
@@ -86,7 +94,7 @@ impl<'a> App<'a> {
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
 		match command {
 			Command::ListKeys(key_type) => {
-				self.key_list = StatefulTable::with_items(
+				self.keys_table = StatefulTable::with_items(
 					self.gpgme.get_keys(key_type, None)?,
 				);
 				self.command = command;
@@ -122,12 +130,12 @@ impl<'a> App<'a> {
 				}
 			},
 			Command::SwitchMode(mode) => {
-				self.state.mode = mode;
+				self.mode = mode;
 				self.prompt.set_output(mode.to_string())
 			}
 			Command::Copy(copy_type) => {
-				let selected_key = &self.key_list.items[self
-					.key_list
+				let selected_key = &self.keys_table.items[self
+					.keys_table
 					.state
 					.selected()
 					.expect("invalid selection")];
@@ -149,11 +157,11 @@ impl<'a> App<'a> {
 					.expect("failed to set clipboard contents");
 				self.prompt
 					.set_output(format!("{} copied to clipboard", copy_type));
-				self.state.mode = AppMode::Normal;
+				self.mode = Mode::Normal;
 			}
 			Command::Search(query) => {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
-				self.key_list.items = self.key_list.default_items.clone();
+				self.keys_table.items = self.keys_table.default_items.clone();
 			}
 			Command::Quit => self.state.running = false,
 		}
@@ -188,15 +196,15 @@ impl<'a> App<'a> {
 			} else {
 				match self.command {
 					Command::ListKeys(_) => {
-						if !self.key_list.items.is_empty() {
+						if !self.keys_table.items.is_empty() {
 							format!(
 								"{} ({}/{})",
 								self.command.to_string(),
-								self.key_list
+								self.keys_table
 									.state
 									.selected()
 									.unwrap_or_default() + 1,
-								self.key_list.items.len()
+								self.keys_table.items.len()
 							)
 						} else {
 							self.command.to_string()
@@ -255,7 +263,7 @@ impl<'a> App<'a> {
 			])
 			.column_spacing(1),
 			rect,
-			&mut self.key_list.state,
+			&mut self.keys_table.state,
 		);
 	}
 
@@ -266,8 +274,8 @@ impl<'a> App<'a> {
 		max_height: u16,
 	) -> Vec<Row<'a>> {
 		let mut rows = Vec::new();
-		self.key_list.items = self
-			.key_list
+		self.keys_table.items = self
+			.keys_table
 			.items
 			.clone()
 			.into_iter()
@@ -292,13 +300,13 @@ impl<'a> App<'a> {
 					subkey_info,
 					None,
 					max_height,
-					self.key_list.scroll,
+					self.keys_table.scroll,
 				);
 				let users_row = RowItem::new(
 					user_info,
 					Some(max_width),
 					max_height,
-					self.key_list.scroll,
+					self.keys_table.scroll,
 				);
 				rows.push(
 					Row::new(vec![

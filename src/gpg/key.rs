@@ -39,7 +39,7 @@ impl FromStr for KeyType {
 
 /// Level of detail to show for key.
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum KeyDetailLevel {
+pub enum KeyDetail {
 	/// Show only the primary key and user ID.
 	Minimum = 0,
 	/// Show all subkeys and user IDs.
@@ -48,13 +48,13 @@ pub enum KeyDetailLevel {
 	Full = 2,
 }
 
-impl KeyDetailLevel {
+impl KeyDetail {
 	/// Increases the level of detail.
 	pub fn increase(&mut self) {
 		*self = match *self as i8 + 1 {
-			1 => KeyDetailLevel::Standard,
-			2 => KeyDetailLevel::Full,
-			_ => KeyDetailLevel::Minimum,
+			1 => KeyDetail::Standard,
+			2 => KeyDetail::Full,
+			_ => KeyDetail::Minimum,
 		}
 	}
 }
@@ -65,14 +65,14 @@ pub struct GpgKey {
 	/// GPGME Key type.
 	inner: Key,
 	/// Level of detail to show about key information.
-	pub detail: KeyDetailLevel,
+	pub detail: KeyDetail,
 }
 
 impl From<Key> for GpgKey {
 	fn from(key: Key) -> Self {
 		Self {
 			inner: key,
-			detail: KeyDetailLevel::Minimum,
+			detail: KeyDetail::Minimum,
 		}
 	}
 }
@@ -120,7 +120,7 @@ impl GpgKey {
 				}
 				.unwrap_or("[?]"),
 			));
-			if self.detail == KeyDetailLevel::Minimum {
+			if self.detail == KeyDetail::Minimum {
 				break;
 			}
 			key_info.push(format!(
@@ -153,10 +153,10 @@ impl GpgKey {
 				if truncate { user.email() } else { user.id() }
 					.unwrap_or("[?]")
 			));
-			if self.detail == KeyDetailLevel::Minimum {
+			if self.detail == KeyDetail::Minimum {
 				break;
 			}
-			if self.detail == KeyDetailLevel::Full {
+			if self.detail == KeyDetail::Full {
 				user_info.extend(self.get_user_signatures(
 					user,
 					user_ids.len(),
@@ -242,9 +242,9 @@ mod tests {
 			{
 				let date = Utc::now().format("%F").to_string();
 				key.detail.increase();
-				assert_eq!(KeyDetailLevel::Standard, key.detail);
+				assert_eq!(KeyDetail::Standard, key.detail);
 				key.detail.increase();
-				assert_eq!(KeyDetailLevel::Full, key.detail);
+				assert_eq!(KeyDetail::Full, key.detail);
 				assert!(key.get_subkey_info(false).join("\n").contains(&date));
 				assert!(key
 					.get_subkey_info(true)

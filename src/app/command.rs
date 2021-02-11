@@ -1,5 +1,5 @@
 use crate::app::clipboard::CopyType;
-use crate::app::mode::AppMode;
+use crate::app::mode::Mode;
 use crate::gpg::key::KeyType;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
@@ -18,19 +18,13 @@ pub enum Command {
 	/// Set the value of an option.
 	Set(String, String),
 	/// Switch the application mode.
-	SwitchMode(AppMode),
+	SwitchMode(Mode),
 	/// Copy a property to clipboard.
 	Copy(CopyType),
 	/// Search for a value.
 	Search(Option<String>),
 	/// Quit the application.
 	Quit,
-}
-
-impl Default for Command {
-	fn default() -> Self {
-		Self::ListKeys(KeyType::Public)
-	}
 }
 
 impl Display for Command {
@@ -83,16 +77,16 @@ impl FromStr for Command {
 				args.get(0).cloned().unwrap_or_default(),
 				args.get(1).cloned().unwrap_or_default(),
 			)),
-			"mode" | "m" => Ok(Self::SwitchMode(AppMode::from_str(
+			"mode" | "m" => Ok(Self::SwitchMode(Mode::from_str(
 				&args.first().cloned().ok_or(())?,
 			)?)),
-			"normal" | "n" => Ok(Self::SwitchMode(AppMode::Normal)),
-			"visual" | "v" => Ok(Self::SwitchMode(AppMode::Visual)),
+			"normal" | "n" => Ok(Self::SwitchMode(Mode::Normal)),
+			"visual" | "v" => Ok(Self::SwitchMode(Mode::Visual)),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
 					Ok(Self::Copy(CopyType::from_str(&arg)?))
 				} else {
-					Ok(Self::SwitchMode(AppMode::Copy))
+					Ok(Self::SwitchMode(Mode::Copy))
 				}
 			}
 			"search" => Ok(Self::Search(args.first().cloned())),
@@ -108,7 +102,6 @@ mod tests {
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_command() {
-		assert_eq!(Command::ListKeys(KeyType::Public), Command::default());
 		for cmd in &[":list", ":list pub", ":ls", ":ls pub"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ListKeys(KeyType::Public), command);
@@ -167,17 +160,17 @@ mod tests {
 		);
 		for cmd in &[":normal", ":n"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::SwitchMode(AppMode::Normal), command);
+			assert_eq!(Command::SwitchMode(Mode::Normal), command);
 			assert_eq!("-- NORMAL --", &command.to_string())
 		}
 		for cmd in &[":visual", ":v"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::SwitchMode(AppMode::Visual), command);
+			assert_eq!(Command::SwitchMode(Mode::Visual), command);
 			assert_eq!("-- VISUAL --", &command.to_string())
 		}
 		for cmd in &[":copy", ":c"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::SwitchMode(AppMode::Copy), command);
+			assert_eq!(Command::SwitchMode(Mode::Copy), command);
 			assert_eq!("-- COPY --", &command.to_string())
 		}
 		let command = Command::from_str(":search q").unwrap();

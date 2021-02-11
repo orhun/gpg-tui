@@ -1,7 +1,7 @@
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::launcher::App;
-use crate::app::mode::AppMode;
+use crate::app::mode::Mode;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -24,25 +24,25 @@ pub fn handle_key_input<B: Backend>(
 					app.prompt.enable_search();
 				} else if app.prompt.is_search_enabled() {
 					app.prompt.enable_command_input();
-					app.key_list.items = app.key_list.default_items.clone();
+					app.keys_table.items = app.keys_table.default_items.clone();
 				}
 			}
 			Key::Char(c) => {
 				app.prompt.text.push(c);
 				if app.prompt.is_search_enabled() {
-					app.key_list.reset_state();
+					app.keys_table.reset_state();
 				}
 			}
 			Key::Backspace => {
 				app.prompt.text.pop();
 				if app.prompt.is_search_enabled() {
-					app.key_list.reset_state();
+					app.keys_table.reset_state();
 				}
 			}
 			Key::Esc => {
 				app.prompt.clear();
 				if app.prompt.is_search_enabled() {
-					app.key_list.reset_state();
+					app.keys_table.reset_state();
 				}
 			}
 			Key::Enter => {
@@ -57,8 +57,8 @@ pub fn handle_key_input<B: Backend>(
 						tui.toggle_pause()?;
 					} else if let Command::SwitchMode(mode) = command {
 						match mode {
-							AppMode::Normal => tui.enable_mouse_capture()?,
-							AppMode::Visual => tui.disable_mouse_capture()?,
+							Mode::Normal => tui.enable_mouse_capture()?,
+							Mode::Visual => tui.disable_mouse_capture()?,
 							_ => {}
 						}
 						app.run_command(command)?;
@@ -87,10 +87,10 @@ pub fn handle_key_input<B: Backend>(
 			Key::Char('c') | Key::Char('C') => {
 				if key_event.modifiers == Modifiers::CONTROL {
 					app.state.running = false;
-				} else if app.state.mode == AppMode::Copy {
+				} else if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
 				} else {
-					app.run_command(Command::SwitchMode(AppMode::Copy))?;
+					app.run_command(Command::SwitchMode(Mode::Copy))?;
 				}
 			}
 			Key::Char('v') | Key::Char('V') => {
@@ -103,7 +103,7 @@ pub fn handle_key_input<B: Backend>(
 					);
 				} else {
 					tui.disable_mouse_capture()?;
-					app.run_command(Command::SwitchMode(AppMode::Visual))?;
+					app.run_command(Command::SwitchMode(Mode::Visual))?;
 				}
 			}
 			Key::Char('r') | Key::Char('R') | Key::F(5) => {
@@ -112,47 +112,47 @@ pub fn handle_key_input<B: Backend>(
 			}
 			Key::Up | Key::Char('k') | Key::Char('K') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.key_list.scroll(ScrollDirection::Up(1))
+					app.keys_table.scroll(ScrollDirection::Up(1))
 				} else {
-					app.key_list.previous();
+					app.keys_table.previous();
 				}
 			}
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.key_list.scroll(ScrollDirection::Right(1))
+					app.keys_table.scroll(ScrollDirection::Right(1))
 				}
 			}
 			Key::Down | Key::Char('j') | Key::Char('J') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.key_list.scroll(ScrollDirection::Down(1))
+					app.keys_table.scroll(ScrollDirection::Down(1))
 				} else {
-					app.key_list.next();
+					app.keys_table.next();
 				}
 			}
 			Key::Left | Key::Char('h') | Key::Char('H') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.key_list.scroll(ScrollDirection::Left(1))
+					app.keys_table.scroll(ScrollDirection::Left(1))
 				}
 			}
 			Key::Char('t') | Key::Char('T') => {
-				app.state.table_detail.increase();
-				for key in app.key_list.items.iter_mut() {
-					key.detail = app.state.table_detail;
+				app.keys_table_detail.increase();
+				for key in app.keys_table.items.iter_mut() {
+					key.detail = app.keys_table_detail;
 				}
-				for key in app.key_list.default_items.iter_mut() {
-					key.detail = app.state.table_detail;
+				for key in app.keys_table.default_items.iter_mut() {
+					key.detail = app.keys_table_detail;
 				}
 			}
 			Key::Tab => {
-				if let Some(index) = app.key_list.state.selected() {
-					if let Some(key) = app.key_list.items.get_mut(index) {
+				if let Some(index) = app.keys_table.state.selected() {
+					if let Some(key) = app.keys_table.items.get_mut(index) {
 						key.detail.increase()
 					}
-					if app.key_list.items.len()
-						== app.key_list.default_items.len()
+					if app.keys_table.items.len()
+						== app.keys_table.default_items.len()
 					{
 						if let Some(key) =
-							app.key_list.default_items.get_mut(index)
+							app.keys_table.default_items.get_mut(index)
 						{
 							key.detail.increase()
 						}
@@ -178,8 +178,8 @@ pub fn handle_key_input<B: Backend>(
 						Command::ListKeys(key_type) => key_type,
 						_ => KeyType::Public,
 					},
-					vec![app.key_list.items[app
-						.key_list
+					vec![app.keys_table.items[app
+						.keys_table
 						.state
 						.selected()
 						.expect("invalid selection")]
@@ -195,37 +195,37 @@ pub fn handle_key_input<B: Backend>(
 			}
 			Key::Char('n') | Key::Char('N') => {
 				tui.enable_mouse_capture()?;
-				app.run_command(Command::SwitchMode(AppMode::Normal))?;
+				app.run_command(Command::SwitchMode(Mode::Normal))?;
 			}
 			Key::Char('1') => {
-				if app.state.mode == AppMode::Copy {
+				if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::TableRow(1)))?;
 				}
 			}
 			Key::Char('2') => {
-				if app.state.mode == AppMode::Copy {
+				if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::TableRow(2)))?;
 				}
 			}
 			Key::Char('i') | Key::Char('I') => {
-				if app.state.mode == AppMode::Copy {
+				if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::KeyId))?;
 				}
 			}
 			Key::Char('f') | Key::Char('F') => {
-				if app.state.mode == AppMode::Copy {
+				if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
 				}
 			}
 			Key::Char('u') | Key::Char('U') => {
-				if app.state.mode == AppMode::Copy {
+				if app.mode == Mode::Copy {
 					app.run_command(Command::Copy(CopyType::KeyUserId))?;
 				}
 			}
 			Key::Char(':') => app.prompt.enable_command_input(),
 			Key::Char('/') => {
 				app.prompt.enable_search();
-				app.key_list.items = app.key_list.default_items.clone();
+				app.keys_table.items = app.keys_table.default_items.clone();
 			}
 			_ => {}
 		}

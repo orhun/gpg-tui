@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 /// Application mode.
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum AppMode {
+pub enum Mode {
 	/// Normal mode.
 	Normal,
 	/// Visual mode.
@@ -14,7 +14,7 @@ pub enum AppMode {
 	Copy,
 }
 
-impl Display for AppMode {
+impl Display for Mode {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 		write!(
 			f,
@@ -28,7 +28,7 @@ impl Display for AppMode {
 	}
 }
 
-impl FromStr for AppMode {
+impl FromStr for Mode {
 	type Err = ();
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		match s.to_lowercase().as_str() {
@@ -46,14 +46,14 @@ mod tests {
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_mode() {
-		let mode = AppMode::from_str("normal").unwrap();
-		assert_eq!(AppMode::Normal, mode);
+		let mode = Mode::from_str("normal").unwrap();
+		assert_eq!(Mode::Normal, mode);
 		assert_eq!(String::from("-- NORMAL --"), mode.to_string());
-		let mode = AppMode::from_str("visual").unwrap();
-		assert_eq!(AppMode::Visual, mode);
+		let mode = Mode::from_str("visual").unwrap();
+		assert_eq!(Mode::Visual, mode);
 		assert_eq!(String::from("-- VISUAL --"), mode.to_string());
-		let mode = AppMode::from_str("copy").unwrap();
-		assert_eq!(AppMode::Copy, mode);
+		let mode = Mode::from_str("copy").unwrap();
+		assert_eq!(Mode::Copy, mode);
 		assert_eq!(String::from("-- COPY --"), mode.to_string());
 	}
 }
