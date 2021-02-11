@@ -76,8 +76,14 @@ pub fn handle_key_input<B: Backend>(
 		}
 	} else {
 		match key_event.code {
-			Key::Char('q') | Key::Char('Q') | Key::Esc => {
-				app.state.running = false
+			Key::Char('q') | Key::Char('Q') => app.state.running = false,
+			Key::Esc => {
+				if app.mode != Mode::Normal {
+					tui.enable_mouse_capture()?;
+					app.run_command(Command::SwitchMode(Mode::Normal))?;
+				} else {
+					app.state.running = false;
+				}
 			}
 			Key::Char('d') | Key::Char('D') => {
 				if key_event.modifiers == Modifiers::CONTROL {
