@@ -108,6 +108,34 @@ impl<'a> App<'a> {
 					},
 				);
 			}
+			Command::ToggleDetail(true) => {
+				self.keys_table_detail.increase();
+				for key in self.keys_table.items.iter_mut() {
+					key.detail = self.keys_table_detail;
+				}
+				for key in self.keys_table.default_items.iter_mut() {
+					key.detail = self.keys_table_detail;
+				}
+			}
+			Command::ToggleDetail(false) => {
+				if let Some(index) = self.keys_table.state.selected() {
+					if let Some(key) = self.keys_table.items.get_mut(index) {
+						key.detail.increase()
+					}
+					if self.keys_table.items.len()
+						== self.keys_table.default_items.len()
+					{
+						if let Some(key) =
+							self.keys_table.default_items.get_mut(index)
+						{
+							key.detail.increase()
+						}
+					}
+				}
+			}
+			Command::Scroll(direction) => {
+				self.keys_table.scroll(direction);
+			}
 			Command::Set(option, value) => {
 				self.prompt.set_output(match option.as_str() {
 					"armor" => {
@@ -179,16 +207,29 @@ impl<'a> App<'a> {
 					.set_output(format!("{} copied to clipboard", copy_type));
 				self.mode = Mode::Normal;
 			}
+			Command::Paste => {
+				self.prompt.text = format!(
+					":{}",
+					self.clipboard
+						.get_contents()
+						.expect("failed to get clipboard contents")
+				);
+			}
+			Command::EnableInput => self.prompt.enable_command_input(),
 			Command::Search(query) => {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
 				self.keys_table.items = self.keys_table.default_items.clone();
 			}
+			Command::Next => self.keys_table.next(),
+			Command::Previous => self.keys_table.previous(),
 			Command::Minimize | Command::Maximize => {
 				self.state.minimize_threshold = 0;
 				self.state.minimized = command == Command::Minimize;
 				self.prompt.set_output(command.to_string());
 			}
+			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,
+			Command::None => {}
 		}
 		Ok(())
 	}

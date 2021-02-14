@@ -1,7 +1,8 @@
 use std::convert::TryInto;
+use std::str::FromStr;
 
 /// Scrolling direction and offset.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScrollDirection {
 	/// Scroll up.
 	Up(u16),
@@ -11,6 +12,22 @@ pub enum ScrollDirection {
 	Down(u16),
 	/// Scroll left.
 	Left(u16),
+}
+
+impl FromStr for ScrollDirection {
+	type Err = ();
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		let s = s.split_whitespace().collect::<Vec<&str>>();
+		let value = s.get(1).cloned().unwrap_or_default().parse().unwrap_or(1);
+		match s.first().cloned() {
+			Some("up") | Some("u") => Ok(Self::Up(value)),
+			Some("right") | Some("r") => Ok(Self::Right(value)),
+			Some("down") | Some("d") => Ok(Self::Down(value)),
+			Some("left") | Some("l") => Ok(Self::Left(value)),
+			Some("") => Ok(Self::Up(value)),
+			_ => Err(()),
+		}
+	}
 }
 
 /// Vertical/horizontal scroll values.

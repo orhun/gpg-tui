@@ -6,7 +6,6 @@ use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
-use copypasta_ext::prelude::ClipboardProvider;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 use std::str::FromStr;
 use tui::backend::Backend;
@@ -17,6 +16,7 @@ pub fn handle_key_input<B: Backend>(
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
+	let mut toggle_pause = false;
 	if app.prompt.is_enabled() {
 		match key_event.code {
 			Key::Tab => {
@@ -53,18 +53,17 @@ pub fn handle_key_input<B: Backend>(
 					app.prompt.clear();
 					if let Command::ExportKeys(_, _) = command {
 						tui.toggle_pause()?;
-						app.run_command(command)?;
-						tui.toggle_pause()?;
+						toggle_pause = true;
 					} else if let Command::SwitchMode(mode) = command {
 						match mode {
 							Mode::Normal => tui.enable_mouse_capture()?,
 							Mode::Visual => tui.disable_mouse_capture()?,
 							_ => {}
 						}
-						app.run_command(command)?;
-					} else {
-						app.run_command(command)?;
+					} else if let Command::Refresh = command {
+						tui.enable_mouse_capture()?;
 					}
+					app.run_command(command)?;
 				} else {
 					app.prompt.set_output(format!(
 						"Invalid command: {}",
@@ -75,111 +74,90 @@ pub fn handle_key_input<B: Backend>(
 			_ => {}
 		}
 	} else {
-		match key_event.code {
-			Key::Char('q') | Key::Char('Q') => app.state.running = false,
+		app.run_command(match key_event.code {
+			Key::Char('q') | Key::Char('Q') => Command::Quit,
 			Key::Esc => {
 				if app.mode != Mode::Normal {
 					tui.enable_mouse_capture()?;
-					app.run_command(Command::SwitchMode(Mode::Normal))?;
+					Command::SwitchMode(Mode::Normal)
 				} else {
-					app.state.running = false;
+					Command::Quit
 				}
 			}
 			Key::Char('d') | Key::Char('D') => {
 				if key_event.modifiers == Modifiers::CONTROL {
-					app.state.running = false;
+					Command::Quit
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('c') | Key::Char('C') => {
 				if key_event.modifiers == Modifiers::CONTROL {
-					app.state.running = false;
+					Command::Quit
 				} else if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
+					Command::Copy(CopyType::KeyFingerprint)
 				} else {
-					app.run_command(Command::SwitchMode(Mode::Copy))?;
+					Command::SwitchMode(Mode::Copy)
 				}
 			}
 			Key::Char('v') | Key::Char('V') => {
 				if key_event.modifiers == Modifiers::CONTROL {
-					app.prompt.text = format!(
-						":{}",
-						app.clipboard
-							.get_contents()
-							.expect("failed to get clipboard contents")
-					);
+					Command::Paste
 				} else {
 					tui.disable_mouse_capture()?;
-					app.run_command(Command::SwitchMode(Mode::Visual))?;
+					Command::SwitchMode(Mode::Visual)
 				}
 			}
 			Key::Char('r') | Key::Char('R') | Key::F(5) => {
-				app.refresh()?;
 				tui.enable_mouse_capture()?;
+				Command::Refresh
 			}
 			Key::Up | Key::Char('k') | Key::Char('K') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.keys_table.scroll(ScrollDirection::Up(1))
+					Command::Scroll(ScrollDirection::Up(1))
 				} else {
-					app.keys_table.previous();
+					Command::Previous
 				}
 			}
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.keys_table.scroll(ScrollDirection::Right(1))
+					Command::Scroll(ScrollDirection::Right(1))
+				} else {
+					Command::None
 				}
 			}
 			Key::Down | Key::Char('j') | Key::Char('J') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.keys_table.scroll(ScrollDirection::Down(1))
+					Command::Scroll(ScrollDirection::Down(1))
 				} else {
-					app.keys_table.next();
+					Command::Next
 				}
 			}
 			Key::Left | Key::Char('h') | Key::Char('H') => {
 				if key_event.modifiers == Modifiers::ALT {
-					app.keys_table.scroll(ScrollDirection::Left(1))
+					Command::Scroll(ScrollDirection::Left(1))
+				} else {
+					Command::None
 				}
 			}
-			Key::Char('t') | Key::Char('T') => {
-				app.keys_table_detail.increase();
-				for key in app.keys_table.items.iter_mut() {
-					key.detail = app.keys_table_detail;
-				}
-				for key in app.keys_table.default_items.iter_mut() {
-					key.detail = app.keys_table_detail;
-				}
-			}
-			Key::Tab => {
-				if let Some(index) = app.keys_table.state.selected() {
-					if let Some(key) = app.keys_table.items.get_mut(index) {
-						key.detail.increase()
-					}
-					if app.keys_table.items.len()
-						== app.keys_table.default_items.len()
-					{
-						if let Some(key) =
-							app.keys_table.default_items.get_mut(index)
-						{
-							key.detail.increase()
-						}
-					}
-				}
-			}
-			Key::Char('`') => app.run_command(match app.command {
+			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
+			Key::Tab => Command::ToggleDetail(false),
+			Key::Char('`') => match app.command {
 				Command::ListKeys(KeyType::Public) => {
 					Command::ListKeys(KeyType::Secret)
 				}
 				_ => Command::ListKeys(KeyType::Public),
-			})?,
+			},
 			Key::Char('p') | Key::Char('P') => {
-				app.run_command(Command::ListKeys(KeyType::Public))?
+				Command::ListKeys(KeyType::Public)
 			}
 			Key::Char('s') | Key::Char('S') => {
-				app.run_command(Command::ListKeys(KeyType::Secret))?
+				Command::ListKeys(KeyType::Secret)
 			}
 			Key::Char('e') | Key::Char('E') => {
 				tui.toggle_pause()?;
-				app.run_command(Command::ExportKeys(
+				toggle_pause = true;
+				Command::ExportKeys(
 					match app.command {
 						Command::ListKeys(key_type) => key_type,
 						_ => KeyType::Public,
@@ -190,58 +168,65 @@ pub fn handle_key_input<B: Backend>(
 						.selected()
 						.expect("invalid selection")]
 					.get_id()],
-				))?;
-				tui.toggle_pause()?;
+				)
 			}
-			Key::Char('a') | Key::Char('A') => {
-				app.run_command(Command::Set(
-					String::from("armor"),
-					(!app.gpgme.config.armor).to_string(),
-				))?;
-			}
+			Key::Char('a') | Key::Char('A') => Command::Set(
+				String::from("armor"),
+				(!app.gpgme.config.armor).to_string(),
+			),
 			Key::Char('n') | Key::Char('N') => {
 				tui.enable_mouse_capture()?;
-				app.run_command(Command::SwitchMode(Mode::Normal))?;
+				Command::SwitchMode(Mode::Normal)
 			}
 			Key::Char('1') => {
 				if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::TableRow(1)))?;
+					Command::Copy(CopyType::TableRow(1))
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('2') => {
 				if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::TableRow(2)))?;
+					Command::Copy(CopyType::TableRow(2))
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('i') | Key::Char('I') => {
 				if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::KeyId))?;
+					Command::Copy(CopyType::KeyId)
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('f') | Key::Char('F') => {
 				if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::KeyFingerprint))?;
+					Command::Copy(CopyType::KeyFingerprint)
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('u') | Key::Char('U') => {
 				if app.mode == Mode::Copy {
-					app.run_command(Command::Copy(CopyType::KeyUserId))?;
+					Command::Copy(CopyType::KeyUserId)
+				} else {
+					Command::None
 				}
 			}
 			Key::Char('m') | Key::Char('M') => {
-				app.run_command(if app.state.minimized {
+				if app.state.minimized {
 					Command::Maximize
 				} else {
 					Command::Minimize
-				})?;
+				}
 			}
-			Key::Char(':') => app.prompt.enable_command_input(),
-			Key::Char('/') => {
-				app.prompt.enable_search();
-				app.keys_table.items = app.keys_table.default_items.clone();
-			}
-			_ => {}
-		}
+			Key::Char(':') => Command::EnableInput,
+			Key::Char('/') => Command::Search(None),
+			_ => Command::None,
+		})?;
+	}
+	if toggle_pause {
+		tui.toggle_pause()?;
 	}
 	Ok(())
 }
