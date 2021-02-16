@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::time::Instant;
 
 /// Application prompt which is responsible for
@@ -12,6 +13,10 @@ pub struct Prompt {
 	pub text: String,
 	/// Clock for tracking the duration of output messages.
 	pub clock: Option<Instant>,
+	/// Command history.
+	pub history: Vec<String>,
+	/// Index of the selected command from history.
+	history_index: usize,
 }
 
 impl Prompt {
@@ -28,6 +33,7 @@ impl Prompt {
 			format!(":{}", &self.text[1..self.text.len()])
 		};
 		self.clock = None;
+		self.history_index = 0;
 	}
 
 	/// Checks if the command input is enabled.
@@ -43,6 +49,7 @@ impl Prompt {
 			format!("/{}", &self.text[1..self.text.len()])
 		};
 		self.clock = None;
+		self.history_index = 0;
 	}
 
 	/// Checks if the search is enabled.
@@ -56,10 +63,38 @@ impl Prompt {
 		self.clock = Some(Instant::now());
 	}
 
+	/// Select the next command.
+	pub fn next(&mut self) {
+		match self.history_index.cmp(&1) {
+			Ordering::Greater => {
+				self.history_index -= 1;
+				self.text = self.history
+					[self.history.len() - self.history_index]
+					.to_string();
+			}
+			Ordering::Equal => {
+				self.text = String::from(":");
+				self.history_index = 0;
+			}
+			Ordering::Less => {}
+		}
+	}
+
+	/// Select the previous command.
+	pub fn previous(&mut self) {
+		if self.history.len() > self.history_index {
+			self.text = self.history
+				[self.history.len() - (self.history_index + 1)]
+				.to_string();
+			self.history_index += 1;
+		}
+	}
+
 	/// Clears the prompt.
 	pub fn clear(&mut self) {
 		self.text.clear();
 		self.clock = None;
+		self.history_index = 0;
 	}
 }
 

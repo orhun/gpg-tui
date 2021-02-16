@@ -19,18 +19,20 @@ pub fn handle_key_input<B: Backend>(
 	let mut toggle_pause = false;
 	if app.prompt.is_enabled() {
 		match key_event.code {
+			Key::Char(c) => {
+				app.prompt.text.push(c);
+				if app.prompt.is_search_enabled() {
+					app.keys_table.reset_state();
+				}
+			}
+			Key::Up => app.prompt.previous(),
+			Key::Down => app.prompt.next(),
 			Key::Tab => {
 				if app.prompt.is_command_input_enabled() {
 					app.prompt.enable_search();
 				} else if app.prompt.is_search_enabled() {
 					app.prompt.enable_command_input();
 					app.keys_table.items = app.keys_table.default_items.clone();
-				}
-			}
-			Key::Char(c) => {
-				app.prompt.text.push(c);
-				if app.prompt.is_search_enabled() {
-					app.keys_table.reset_state();
 				}
 			}
 			Key::Backspace => {
@@ -50,6 +52,7 @@ pub fn handle_key_input<B: Backend>(
 					app.prompt.clear();
 				} else if let Ok(command) = Command::from_str(&app.prompt.text)
 				{
+					app.prompt.history.push(app.prompt.text.clone());
 					app.prompt.clear();
 					if let Command::ExportKeys(_, _) = command {
 						tui.toggle_pause()?;
