@@ -117,5 +117,15 @@ mod tests {
 		prompt.clear();
 		assert_eq!(String::new(), prompt.text);
 		assert_eq!(None, prompt.clock);
+		prompt.history =
+			vec![String::from("0"), String::from("1"), String::from("2")];
+		for i in 0..prompt.history.len() {
+			prompt.previous();
+			assert_eq!((prompt.history.len() - i - 1).to_string(), prompt.text);
+		}
+		for i in 1..prompt.history.len() {
+			prompt.next();
+			assert_eq!(i.to_string(), prompt.text);
+		}
 	}
 }
