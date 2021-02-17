@@ -225,7 +225,6 @@ impl<'a> App<'a> {
 			Command::Minimize | Command::Maximize => {
 				self.state.minimize_threshold = 0;
 				self.state.minimized = command == Command::Minimize;
-				self.prompt.set_output(command.to_string());
 			}
 			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,
