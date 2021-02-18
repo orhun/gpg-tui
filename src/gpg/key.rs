@@ -48,6 +48,24 @@ pub enum KeyDetail {
 	Full = 2,
 }
 
+impl Display for KeyDetail {
+	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+		write!(f, "{}", format!("{:?}", self).to_lowercase())
+	}
+}
+
+impl FromStr for KeyDetail {
+	type Err = ();
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		match s.to_lowercase().as_str() {
+			"1" | "min" | "minimum" => Ok(KeyDetail::Minimum),
+			"2" | "standard" => Ok(KeyDetail::Standard),
+			"3" | "full" => Ok(KeyDetail::Full),
+			_ => Err(()),
+		}
+	}
+}
+
 impl KeyDetail {
 	/// Increases the level of detail.
 	pub fn increase(&mut self) {

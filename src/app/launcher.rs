@@ -136,31 +136,54 @@ impl<'a> App<'a> {
 			Command::Scroll(direction) => {
 				self.keys_table.scroll(direction);
 			}
-			Command::Set(option, value) => {
-				self.prompt.set_output(match option.as_str() {
-					"armor" => {
-						if let Ok(value) = FromStr::from_str(&value) {
-							self.gpgme.config.armor = value;
-							self.gpgme.apply_config();
-							format!("armor: {}", value)
-						} else {
-							String::from("Usage: set armor <true/false>")
+			Command::Set(option, value) => self.prompt.set_output(match option
+				.as_str()
+			{
+				"armor" => {
+					if let Ok(value) = FromStr::from_str(&value) {
+						self.gpgme.config.armor = value;
+						self.gpgme.apply_config();
+						format!("armor: {}", value)
+					} else {
+						String::from("Usage: set armor <true/false>")
+					}
+				}
+				"minimize" => {
+					self.state.minimize_threshold =
+						value.parse().unwrap_or_default();
+					format!("minimize threshold: {}", value)
+				}
+				"detail" => {
+					if let Ok(detail_level) = KeyDetail::from_str(&value) {
+						if let Some(index) = self.keys_table.state.selected() {
+							if let Some(key) =
+								self.keys_table.items.get_mut(index)
+							{
+								key.detail = detail_level;
+							}
+							if self.keys_table.items.len()
+								== self.keys_table.default_items.len()
+							{
+								if let Some(key) =
+									self.keys_table.default_items.get_mut(index)
+								{
+									key.detail = detail_level;
+								}
+							}
 						}
+						format!("detail = {}", detail_level)
+					} else {
+						String::from("Usage: set detail <level>")
 					}
-					"minimize" => {
-						self.state.minimize_threshold =
-							value.parse().unwrap_or_default();
-						format!("minimize threshold: {}", value)
+				}
+				_ => {
+					if !option.is_empty() {
+						format!("Unknown option: {}", option)
+					} else {
+						String::from("Usage: set <option> <value>")
 					}
-					_ => {
-						if !option.is_empty() {
-							format!("Unknown option: {}", option)
-						} else {
-							String::from("Usage: set <option> <value>")
-						}
-					}
-				})
-			}
+				}
+			}),
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
 					"armor" => format!("armor: {}", self.gpgme.config.armor),
@@ -168,6 +191,18 @@ impl<'a> App<'a> {
 						"minimize threshold: {}",
 						self.state.minimize_threshold
 					),
+					"detail" => {
+						if let Some(index) = self.keys_table.state.selected() {
+							if let Some(key) = self.keys_table.items.get(index)
+							{
+								format!("detail: {}", key.detail)
+							} else {
+								String::from("Invalid selection")
+							}
+						} else {
+							String::from("Unknown selection")
+						}
+					}
 					_ => {
 						if !option.is_empty() {
 							format!("Unknown option: {}", option)

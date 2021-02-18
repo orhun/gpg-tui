@@ -185,15 +185,24 @@ pub fn handle_key_input<B: Backend>(
 				if app.mode == Mode::Copy {
 					Command::Copy(CopyType::TableRow(1))
 				} else {
-					Command::None
+					Command::Set(
+						String::from("detail"),
+						String::from("minimum"),
+					)
 				}
 			}
 			Key::Char('2') => {
 				if app.mode == Mode::Copy {
 					Command::Copy(CopyType::TableRow(2))
 				} else {
-					Command::None
+					Command::Set(
+						String::from("detail"),
+						String::from("standard"),
+					)
 				}
+			}
+			Key::Char('3') => {
+				Command::Set(String::from("detail"), String::from("full"))
 			}
 			Key::Char('i') | Key::Char('I') => {
 				if app.mode == Mode::Copy {
