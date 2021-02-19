@@ -1,6 +1,25 @@
 use std::cmp::Ordering;
 use std::time::Instant;
 
+/// Output type of the prompt.
+#[derive(Clone, Debug, PartialEq)]
+pub enum OutputType {
+	/// No output.
+	None,
+	/// Successful execution.
+	Success,
+	/// Failed execution.
+	Error,
+	/// Performed an action (such as changing the mode).
+	Action,
+}
+
+impl Default for OutputType {
+	fn default() -> Self {
+		Self::None
+	}
+}
+
 /// Application prompt which is responsible for
 /// handling user input ([`text`]) and showing the
 /// output of [`commands`] (for a while).
@@ -11,6 +30,8 @@ use std::time::Instant;
 pub struct Prompt {
 	/// Input/output text.
 	pub text: String,
+	/// Output type.
+	pub output_type: OutputType,
 	/// Clock for tracking the duration of output messages.
 	pub clock: Option<Instant>,
 	/// Command history.
@@ -32,6 +53,7 @@ impl Prompt {
 		} else {
 			format!(":{}", &self.text[1..self.text.len()])
 		};
+		self.output_type = OutputType::None;
 		self.clock = None;
 		self.history_index = 0;
 	}
@@ -48,6 +70,7 @@ impl Prompt {
 		} else {
 			format!("/{}", &self.text[1..self.text.len()])
 		};
+		self.output_type = OutputType::None;
 		self.clock = None;
 		self.history_index = 0;
 	}
@@ -58,7 +81,9 @@ impl Prompt {
 	}
 
 	/// Sets the output message.
-	pub fn set_output<S: AsRef<str>>(&mut self, message: S) {
+	pub fn set_output<S: AsRef<str>>(&mut self, output: (OutputType, S)) {
+		let (output_type, message) = output;
+		self.output_type = output_type;
 		self.text = message.as_ref().to_string();
 		self.clock = Some(Instant::now());
 	}
@@ -93,6 +118,7 @@ impl Prompt {
 	/// Clears the prompt.
 	pub fn clear(&mut self) {
 		self.text.clear();
+		self.output_type = OutputType::None;
 		self.clock = None;
 		self.history_index = 0;
 	}
@@ -110,8 +136,9 @@ mod tests {
 		prompt.enable_search();
 		assert!(prompt.is_search_enabled());
 		assert!(prompt.is_enabled());
-		prompt.set_output("test");
+		prompt.set_output((OutputType::Success, "test"));
 		assert_eq!(String::from("test"), prompt.text);
+		assert_eq!(OutputType::Success, prompt.output_type);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
 		assert!(!prompt.is_enabled());
 		prompt.clear();

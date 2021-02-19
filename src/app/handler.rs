@@ -2,6 +2,7 @@ use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::launcher::App;
 use crate::app::mode::Mode;
+use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -68,9 +69,12 @@ pub fn handle_key_input<B: Backend>(
 					}
 					app.run_command(command)?;
 				} else {
-					app.prompt.set_output(format!(
-						"Invalid command: {}",
-						app.prompt.text.replacen(":", "", 1)
+					app.prompt.set_output((
+						OutputType::Error,
+						format!(
+							"invalid command: {}",
+							app.prompt.text.replacen(":", "", 1)
+						),
 					));
 				}
 			}

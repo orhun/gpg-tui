@@ -1,7 +1,7 @@
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::mode::Mode;
-use crate::app::prompt::Prompt;
+use crate::app::prompt::{OutputType, Prompt};
 use crate::app::state::State;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
@@ -15,7 +15,7 @@ use std::convert::TryInto;
 use std::str::FromStr;
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::style::{Modifier, Style};
+use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
 use tui::text::{Span, Text};
 use tui::widgets::{Paragraph, Row, Table, Wrap};
@@ -103,8 +103,12 @@ impl<'a> App<'a> {
 						.gpgme
 						.export_keys(key_type, Some(patterns.to_vec()))
 					{
-						Ok(path) => format!("Export: {}", path),
-						Err(e) => format!("Error: {}", e),
+						Ok(path) => {
+							(OutputType::Success, format!("export: {}", path))
+						}
+						Err(e) => {
+							(OutputType::Error, format!("export error: {}", e))
+						}
 					},
 				);
 			}
@@ -143,15 +147,21 @@ impl<'a> App<'a> {
 					if let Ok(value) = FromStr::from_str(&value) {
 						self.gpgme.config.armor = value;
 						self.gpgme.apply_config();
-						format!("armor: {}", value)
+						(OutputType::Success, format!("armor: {}", value))
 					} else {
-						String::from("Usage: set armor <true/false>")
+						(
+							OutputType::Error,
+							String::from("usage: set armor <true/false>"),
+						)
 					}
 				}
 				"minimize" => {
 					self.state.minimize_threshold =
 						value.parse().unwrap_or_default();
-					format!("minimize threshold: {}", value)
+					(
+						OutputType::Success,
+						format!("minimize threshold: {}", value),
+					)
 				}
 				"detail" => {
 					if let Ok(detail_level) = KeyDetail::from_str(&value) {
@@ -171,50 +181,74 @@ impl<'a> App<'a> {
 								}
 							}
 						}
-						format!("detail = {}", detail_level)
+						(
+							OutputType::Success,
+							format!("detail: {}", detail_level),
+						)
 					} else {
-						String::from("Usage: set detail <level>")
+						(
+							OutputType::Error,
+							String::from("usage: set detail <level>"),
+						)
 					}
 				}
-				_ => {
+				_ => (
+					OutputType::Error,
 					if !option.is_empty() {
-						format!("Unknown option: {}", option)
+						format!("unknown option: {}", option)
 					} else {
 						String::from("Usage: set <option> <value>")
-					}
-				}
+					},
+				),
 			}),
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
-					"armor" => format!("armor: {}", self.gpgme.config.armor),
-					"minimize" => format!(
-						"minimize threshold: {}",
-						self.state.minimize_threshold
+					"armor" => (
+						OutputType::Success,
+						format!("armor: {}", self.gpgme.config.armor),
+					),
+					"minimize" => (
+						OutputType::Success,
+						format!(
+							"minimize threshold: {}",
+							self.state.minimize_threshold
+						),
 					),
 					"detail" => {
 						if let Some(index) = self.keys_table.state.selected() {
 							if let Some(key) = self.keys_table.items.get(index)
 							{
-								format!("detail: {}", key.detail)
+								(
+									OutputType::Success,
+									format!("detail: {}", key.detail),
+								)
 							} else {
-								String::from("Invalid selection")
+								(
+									OutputType::Error,
+									String::from("invalid selection"),
+								)
 							}
 						} else {
-							String::from("Unknown selection")
+							(
+								OutputType::Error,
+								String::from("unknown selection"),
+							)
 						}
 					}
-					_ => {
+					_ => (
+						OutputType::Error,
 						if !option.is_empty() {
-							format!("Unknown option: {}", option)
+							format!("unknown option: {}", option)
 						} else {
-							String::from("Usage: get <option>")
-						}
-					}
+							String::from("usage: get <option>")
+						},
+					),
 				})
 			}
 			Command::SwitchMode(mode) => {
 				self.mode = mode;
-				self.prompt.set_output(mode.to_string())
+				self.prompt
+					.set_output((OutputType::Action, mode.to_string()))
 			}
 			Command::Copy(copy_type) => {
 				let selected_key = &self.keys_table.items[self
@@ -238,8 +272,10 @@ impl<'a> App<'a> {
 						_ => String::new(),
 					})
 					.expect("failed to set clipboard contents");
-				self.prompt
-					.set_output(format!("{} copied to clipboard", copy_type));
+				self.prompt.set_output((
+					OutputType::Success,
+					format!("{} copied to clipboard", copy_type),
+				));
 				self.mode = Mode::Normal;
 			}
 			Command::Paste => {
@@ -315,7 +351,14 @@ impl<'a> App<'a> {
 					_ => self.command.to_string(),
 				}
 			}))
-			.style(Style::default())
+			.style(match self.prompt.output_type {
+				OutputType::Success => Style::default().fg(Color::LightGreen),
+				OutputType::Error => Style::default().fg(Color::LightRed),
+				OutputType::Action => {
+					Style::default().add_modifier(Modifier::BOLD)
+				}
+				_ => Style::default(),
+			})
 			.alignment(if !self.prompt.text.is_empty() {
 				Alignment::Left
 			} else {
