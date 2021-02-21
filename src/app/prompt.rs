@@ -8,6 +8,8 @@ pub enum OutputType {
 	None,
 	/// Successful execution.
 	Success,
+	/// Warning about execution.
+	Warning,
 	/// Failed execution.
 	Error,
 	/// Performed an action (such as changing the mode).
@@ -17,6 +19,18 @@ pub enum OutputType {
 impl Default for OutputType {
 	fn default() -> Self {
 		Self::None
+	}
+}
+
+impl From<String> for OutputType {
+	fn from(s: String) -> Self {
+		match s.to_lowercase().as_str() {
+			"success" => Self::Success,
+			"warning" => Self::Warning,
+			"error" => Self::Error,
+			"action" => Self::Action,
+			_ => Self::None,
+		}
 	}
 }
 

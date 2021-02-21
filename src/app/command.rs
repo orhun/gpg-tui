@@ -1,5 +1,6 @@
 use crate::app::clipboard::CopyType;
 use crate::app::mode::Mode;
+use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -12,6 +13,8 @@ use std::str::FromStr;
 /// [`App`]: crate::app::launcher::App
 #[derive(Clone, Debug, PartialEq)]
 pub enum Command {
+	/// Show application output.
+	ShowOutput(OutputType, String),
 	/// List the public/secret keys.
 	ListKeys(KeyType),
 	/// Export the public/secret keys.
@@ -56,6 +59,8 @@ impl Display for Command {
 			f,
 			"{}",
 			match self {
+				Self::ShowOutput(output_type, message) =>
+					format!("{:?}: {}", output_type, message),
 				Self::ListKeys(key_type) => format!("list {}", key_type),
 				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
 				Self::ToggleDetail(all) =>
@@ -92,6 +97,10 @@ impl FromStr for Command {
 		let command = values.first().cloned().unwrap_or_default();
 		let args = values.drain(1..).collect::<Vec<String>>();
 		match command.as_str() {
+			"output" | "out" => Ok(Self::ShowOutput(
+				OutputType::from(args.first().cloned().unwrap_or_default()),
+				args[1..].join(" "),
+			)),
 			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
 			)?)),
@@ -154,6 +163,13 @@ mod tests {
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_command() {
+		assert_eq!(
+			Command::ShowOutput(
+				OutputType::Success,
+				String::from("operation successful"),
+			),
+			Command::from_str(":out success operation successful").unwrap()
+		);
 		for cmd in &[":list", ":list pub", ":ls", ":ls pub"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ListKeys(KeyType::Public), command);

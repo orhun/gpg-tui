@@ -65,21 +65,16 @@ impl GpgContext {
 			.collect())
 	}
 
-	/// Exports the public/secret keys matching
-	/// on or more of the specified patterns.
-	///
-	/// It saves the output to the specified/default path.
-	/// See [`save_exported_keys`].
-	///
-	/// [`save_exported_keys`]: GpgContext::save_exported_keys
-	pub fn export_keys(
+	/// Returns the exported public/secret keys
+	/// matching one or more of the specified patterns.
+	pub fn get_exported_keys(
 		&mut self,
 		key_type: KeyType,
 		patterns: Option<Vec<String>>,
-	) -> Result<String> {
+	) -> Result<Vec<u8>> {
 		let mut output = Vec::new();
 		let keys = self
-			.get_keys_iter(key_type, patterns.clone())?
+			.get_keys_iter(key_type, patterns)?
 			.filter_map(|key| key.ok())
 			.collect::<Vec<Key>>();
 		self.inner.export_keys(
@@ -94,26 +89,23 @@ impl GpgContext {
 		if output.is_empty() {
 			Err(anyhow!("failed to export keys"))
 		} else {
-			self.save_exported_keys(
-				output,
-				key_type,
-				patterns.unwrap_or_default(),
-			)
+			Ok(output)
 		}
 	}
 
-	/// Saves the exported key to the specified/default path.
+	/// Exports keys and saves them to the specified/default path.
 	///
 	/// File name is determined via given patterns.
 	/// [`output_dir`] is used for output directory.
 	///
 	/// [`output_dir`]: GpgConfig::output_dir
-	fn save_exported_keys(
-		&self,
-		output: Vec<u8>,
+	pub fn export_keys(
+		&mut self,
 		key_type: KeyType,
-		patterns: Vec<String>,
+		patterns: Option<Vec<String>>,
 	) -> Result<String> {
+		let output = self.get_exported_keys(key_type, patterns.clone())?;
+		let patterns = patterns.unwrap_or_default();
 		let path = self.config.output_dir.join(format!(
 			"{}_{}.{}",
 			key_type,

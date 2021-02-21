@@ -51,7 +51,8 @@ pub fn handle_key_input<B: Backend>(
 			Key::Enter => {
 				if app.prompt.is_search_enabled() || app.prompt.text.len() < 2 {
 					app.prompt.clear();
-				} else if let Ok(command) = Command::from_str(&app.prompt.text)
+				} else if let Ok(mut command) =
+					Command::from_str(&app.prompt.text)
 				{
 					app.prompt.history.push(app.prompt.text.clone());
 					app.prompt.clear();
@@ -63,6 +64,16 @@ pub fn handle_key_input<B: Backend>(
 							Mode::Normal => tui.enable_mouse_capture()?,
 							Mode::Visual => tui.disable_mouse_capture()?,
 							_ => {}
+						}
+					} else if let Command::Copy(CopyType::Key) = command {
+						if app.gpgme.config.armor {
+							tui.toggle_pause()?;
+							toggle_pause = true;
+						} else {
+							command = Command::ShowOutput(
+								OutputType::Warning,
+								String::from("enable armored output for copying the exported key(s)"),
+							);
 						}
 					} else if let Command::Refresh = command {
 						tui.enable_mouse_capture()?;
@@ -162,20 +173,33 @@ pub fn handle_key_input<B: Backend>(
 				Command::ListKeys(KeyType::Secret)
 			}
 			Key::Char('e') | Key::Char('E') => {
-				tui.toggle_pause()?;
-				toggle_pause = true;
-				Command::ExportKeys(
-					match app.command {
-						Command::ListKeys(key_type) => key_type,
-						_ => KeyType::Public,
-					},
-					vec![app.keys_table.items[app
-						.keys_table
-						.state
-						.selected()
-						.expect("invalid selection")]
-					.get_id()],
-				)
+				if app.mode == Mode::Copy {
+					if app.gpgme.config.armor {
+						tui.toggle_pause()?;
+						toggle_pause = true;
+						Command::Copy(CopyType::Key)
+					} else {
+						Command::ShowOutput(
+							OutputType::Warning,
+							String::from("enable armored output for copying the exported key(s)"),
+						)
+					}
+				} else {
+					tui.toggle_pause()?;
+					toggle_pause = true;
+					Command::ExportKeys(
+						match app.command {
+							Command::ListKeys(key_type) => key_type,
+							_ => KeyType::Public,
+						},
+						vec![app.keys_table.items[app
+							.keys_table
+							.state
+							.selected()
+							.expect("invalid selection")]
+						.get_id()],
+					)
+				}
 			}
 			Key::Char('a') | Key::Char('A') => Command::Set(
 				String::from("armor"),

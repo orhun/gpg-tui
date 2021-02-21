@@ -12,6 +12,7 @@ use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::convert::TryInto;
+use std::str;
 use std::str::FromStr;
 use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
@@ -91,6 +92,9 @@ impl<'a> App<'a> {
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
 		match command {
+			Command::ShowOutput(output_type, message) => {
+				self.prompt.set_output((output_type, message))
+			}
 			Command::ListKeys(key_type) => {
 				self.keys_table = StatefulTable::with_items(
 					self.gpgme.get_keys(key_type, None)?,
@@ -264,12 +268,22 @@ impl<'a> App<'a> {
 						CopyType::TableRow(2) => selected_key
 							.get_user_info(self.state.minimized)
 							.join("\n"),
+						CopyType::TableRow(_) => String::new(),
+						CopyType::Key => {
+							str::from_utf8(&self.gpgme.get_exported_keys(
+								match self.command {
+									Command::ListKeys(key_type) => key_type,
+									_ => KeyType::Public,
+								},
+								Some(vec![selected_key.get_id()]),
+							)?)?
+							.to_string()
+						}
 						CopyType::KeyId => selected_key.get_id(),
 						CopyType::KeyFingerprint => {
 							selected_key.get_fingerprint()
 						}
 						CopyType::KeyUserId => selected_key.get_user_id(),
-						_ => String::new(),
 					})
 					.expect("failed to set clipboard contents");
 				self.prompt.set_output((
@@ -353,6 +367,7 @@ impl<'a> App<'a> {
 			}))
 			.style(match self.prompt.output_type {
 				OutputType::Success => Style::default().fg(Color::LightGreen),
+				OutputType::Warning => Style::default().fg(Color::LightYellow),
 				OutputType::Error => Style::default().fg(Color::LightRed),
 				OutputType::Action => {
 					Style::default().add_modifier(Modifier::BOLD)

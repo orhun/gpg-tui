@@ -6,6 +6,8 @@ use std::str::FromStr;
 pub enum CopyType {
 	/// Selected row of the keys table.
 	TableRow(usize),
+	/// Exported key.
+	Key,
 	/// ID of the selected key.
 	KeyId,
 	/// Fingerprint of the selected key.
@@ -21,6 +23,7 @@ impl Display for CopyType {
 			"{}",
 			match self {
 				Self::TableRow(i) => format!("Table row ({})", i),
+				Self::Key => String::from("Key"),
 				Self::KeyId => String::from("Key ID"),
 				Self::KeyFingerprint => String::from("Key fingerprint"),
 				Self::KeyUserId => String::from("User ID"),
@@ -35,10 +38,9 @@ impl FromStr for CopyType {
 		match s {
 			"row1" | "1" => Ok(Self::TableRow(1)),
 			"row2" | "2" => Ok(Self::TableRow(2)),
+			"key" => Ok(Self::Key),
 			"key_id" | "id" => Ok(Self::KeyId),
-			"key" | "key_fingerprint" | "fingerprint" => {
-				Ok(Self::KeyFingerprint)
-			}
+			"key_fingerprint" | "fingerprint" => Ok(Self::KeyFingerprint),
 			"key_user_id" | "user" => Ok(Self::KeyUserId),
 			_ => Err(()),
 		}
@@ -54,6 +56,9 @@ mod tests {
 		let copy_type = CopyType::from_str("row1").unwrap();
 		assert_eq!(CopyType::TableRow(1), copy_type);
 		assert_eq!(String::from("Table row (1)"), copy_type.to_string());
+		let copy_type = CopyType::from_str("key").unwrap();
+		assert_eq!(CopyType::Key, copy_type);
+		assert_eq!(String::from("Key"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key_id").unwrap();
 		assert_eq!(CopyType::KeyId, copy_type);
 		assert_eq!(String::from("Key ID"), copy_type.to_string());
