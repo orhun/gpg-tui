@@ -112,8 +112,6 @@ pub fn handle_key_input<B: Backend>(
 			Key::Char('c') | Key::Char('C') => {
 				if key_event.modifiers == Modifiers::CONTROL {
 					Command::Quit
-				} else if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyFingerprint)
 				} else {
 					Command::SwitchMode(Mode::Copy)
 				}
