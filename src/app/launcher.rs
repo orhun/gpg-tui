@@ -147,6 +147,20 @@ impl<'a> App<'a> {
 			Command::Set(option, value) => self.prompt.set_output(match option
 				.as_str()
 			{
+				"mode" => {
+					if let Ok(mode) = Mode::from_str(&value) {
+						self.mode = mode;
+						(
+							OutputType::Success,
+							format!(
+								"mode: {}",
+								format!("{:?}", mode).to_lowercase()
+							),
+						)
+					} else {
+						(OutputType::Error, String::from("invalid mode"))
+					}
+				}
 				"armor" => {
 					if let Ok(value) = FromStr::from_str(&value) {
 						self.gpgme.config.armor = value;
@@ -207,6 +221,13 @@ impl<'a> App<'a> {
 			}),
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
+					"mode" => (
+						OutputType::Success,
+						format!(
+							"mode: {}",
+							format!("{:?}", self.mode).to_lowercase()
+						),
+					),
 					"armor" => (
 						OutputType::Success,
 						format!("armor: {}", self.gpgme.config.armor),
