@@ -11,7 +11,7 @@ pub enum OutputType {
 	/// Warning about execution.
 	Warning,
 	/// Failed execution.
-	Error,
+	Failure,
 	/// Performed an action (such as changing the mode).
 	Action,
 }
@@ -27,7 +27,7 @@ impl From<String> for OutputType {
 		match s.to_lowercase().as_str() {
 			"success" => Self::Success,
 			"warning" => Self::Warning,
-			"error" => Self::Error,
+			"failure" => Self::Failure,
 			"action" => Self::Action,
 			_ => Self::None,
 		}

@@ -110,9 +110,10 @@ impl<'a> App<'a> {
 						Ok(path) => {
 							(OutputType::Success, format!("export: {}", path))
 						}
-						Err(e) => {
-							(OutputType::Error, format!("export error: {}", e))
-						}
+						Err(e) => (
+							OutputType::Failure,
+							format!("export error: {}", e),
+						),
 					},
 				);
 			}
@@ -158,7 +159,7 @@ impl<'a> App<'a> {
 							),
 						)
 					} else {
-						(OutputType::Error, String::from("invalid mode"))
+						(OutputType::Failure, String::from("invalid mode"))
 					}
 				}
 				"armor" => {
@@ -168,7 +169,7 @@ impl<'a> App<'a> {
 						(OutputType::Success, format!("armor: {}", value))
 					} else {
 						(
-							OutputType::Error,
+							OutputType::Failure,
 							String::from("usage: set armor <true/false>"),
 						)
 					}
@@ -205,13 +206,13 @@ impl<'a> App<'a> {
 						)
 					} else {
 						(
-							OutputType::Error,
+							OutputType::Failure,
 							String::from("usage: set detail <level>"),
 						)
 					}
 				}
 				_ => (
-					OutputType::Error,
+					OutputType::Failure,
 					if !option.is_empty() {
 						format!("unknown option: {}", option)
 					} else {
@@ -249,19 +250,19 @@ impl<'a> App<'a> {
 								)
 							} else {
 								(
-									OutputType::Error,
+									OutputType::Failure,
 									String::from("invalid selection"),
 								)
 							}
 						} else {
 							(
-								OutputType::Error,
+								OutputType::Failure,
 								String::from("unknown selection"),
 							)
 						}
 					}
 					_ => (
-						OutputType::Error,
+						OutputType::Failure,
 						if !option.is_empty() {
 							format!("unknown option: {}", option)
 						} else {
@@ -389,7 +390,7 @@ impl<'a> App<'a> {
 			.style(match self.prompt.output_type {
 				OutputType::Success => Style::default().fg(Color::LightGreen),
 				OutputType::Warning => Style::default().fg(Color::LightYellow),
-				OutputType::Error => Style::default().fg(Color::LightRed),
+				OutputType::Failure => Style::default().fg(Color::LightRed),
 				OutputType::Action => {
 					Style::default().add_modifier(Modifier::BOLD)
 				}

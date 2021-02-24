@@ -81,7 +81,7 @@ pub fn handle_key_input<B: Backend>(
 					app.run_command(command)?;
 				} else {
 					app.prompt.set_output((
-						OutputType::Error,
+						OutputType::Failure,
 						format!(
 							"invalid command: {}",
 							app.prompt.text.replacen(":", "", 1)
