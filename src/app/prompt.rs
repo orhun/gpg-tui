@@ -150,7 +150,7 @@ mod tests {
 		prompt.enable_search();
 		assert!(prompt.is_search_enabled());
 		assert!(prompt.is_enabled());
-		prompt.set_output((OutputType::Success, "test"));
+		prompt.set_output((OutputType::from(String::from("success")), "test"));
 		assert_eq!(String::from("test"), prompt.text);
 		assert_eq!(OutputType::Success, prompt.output_type);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
