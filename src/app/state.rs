@@ -18,3 +18,16 @@ impl Default for State {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::assert_eq;
+	#[test]
+	fn test_app_state() {
+		let state = State::default();
+		assert_eq!(true, state.running);
+		assert_eq!(false, state.minimized);
+		assert_eq!(90, state.minimize_threshold);
+	}
+}
