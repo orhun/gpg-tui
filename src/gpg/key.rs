@@ -255,14 +255,14 @@ mod tests {
 		let mut keys = context.get_keys(KeyType::Public, None)?;
 		if keys.len() == 1 {
 			let key = &mut keys[0];
-			if key.inner.user_ids().collect::<Vec<UserId>>()[0].id()
-				== Ok(TEST_USER)
-			{
+			if key.get_user_id() == TEST_USER {
 				let date = Utc::now().format("%F").to_string();
 				key.detail.increase();
 				assert_eq!(KeyDetail::Standard, key.detail);
+				assert_eq!(Ok(key.detail), KeyDetail::from_str("standard"));
 				key.detail.increase();
 				assert_eq!(KeyDetail::Full, key.detail);
+				assert_eq!("full", key.detail.to_string());
 				assert!(key.get_subkey_info(false).join("\n").contains(&date));
 				assert!(key
 					.get_subkey_info(true)
