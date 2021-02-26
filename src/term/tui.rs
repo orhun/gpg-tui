@@ -109,7 +109,7 @@ mod tests {
 	use tui::backend::TestBackend;
 	#[test]
 	#[ignore]
-	fn test_tui() -> Result<()> {
+	fn test_term_tui() -> Result<()> {
 		let backend = TestBackend::new(10, 10);
 		let terminal = Terminal::new(backend)?;
 		let mut tui = Tui::new(terminal, EventHandler::new(10));

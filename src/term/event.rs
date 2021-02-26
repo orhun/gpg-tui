@@ -112,8 +112,7 @@ mod tests {
 	use crossterm::event::{KeyCode, KeyModifiers};
 	use pretty_assertions::assert_eq;
 	#[test]
-	#[ignore]
-	fn test_event() -> Result<()> {
+	fn test_term_event() -> Result<()> {
 		let events = EventHandler::new(100);
 		for step in 0..2 {
 			if step == 1 {
