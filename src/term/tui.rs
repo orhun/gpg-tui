@@ -3,7 +3,7 @@ use crate::term::event::EventHandler;
 use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
-use std::io::{self, Write};
+use std::io;
 use std::sync::atomic::Ordering;
 use tui::backend::Backend;
 use tui::Terminal;
