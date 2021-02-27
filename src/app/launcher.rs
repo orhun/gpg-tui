@@ -19,7 +19,7 @@ use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
 use tui::text::{Span, Text};
-use tui::widgets::{Paragraph, Row, Table, Wrap};
+use tui::widgets::{Block, Borders, Paragraph, Row, Table, Wrap};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/maximized mode.
@@ -427,14 +427,19 @@ impl<'a> App<'a> {
 								KEYS_ROW_LENGTH.0
 							} else {
 								KEYS_ROW_LENGTH.1
-							} + 3,
+							} + 5,
 						)
 						.unwrap_or(rect.width),
-					rect.height,
+					rect.height.checked_sub(2).unwrap_or(rect.height),
 				),
 			)
 			.style(Style::default())
 			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+			.block(
+				Block::default()
+					.borders(Borders::ALL)
+					.border_style(Style::default().fg(Color::DarkGray)),
+			)
 			.widths(&[
 				Constraint::Min(if self.state.minimized {
 					KEYS_ROW_LENGTH.0
