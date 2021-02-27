@@ -433,8 +433,12 @@ impl<'a> App<'a> {
 					rect.height.checked_sub(2).unwrap_or(rect.height),
 				),
 			)
-			.style(Style::default())
-			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+			.style(Style::default().fg(Color::Gray))
+			.highlight_style(
+				Style::default()
+					.fg(Color::Reset)
+					.add_modifier(Modifier::BOLD),
+			)
 			.block(
 				Block::default()
 					.borders(Borders::ALL)
