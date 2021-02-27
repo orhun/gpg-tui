@@ -427,7 +427,7 @@ impl<'a> App<'a> {
 								KEYS_ROW_LENGTH.0
 							} else {
 								KEYS_ROW_LENGTH.1
-							} + 5,
+							} + 7,
 						)
 						.unwrap_or(rect.width),
 					rect.height.checked_sub(2).unwrap_or(rect.height),
@@ -439,6 +439,7 @@ impl<'a> App<'a> {
 					.fg(Color::Reset)
 					.add_modifier(Modifier::BOLD),
 			)
+			.highlight_symbol("> ")
 			.block(
 				Block::default()
 					.borders(Borders::ALL)
