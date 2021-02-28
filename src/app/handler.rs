@@ -258,6 +258,14 @@ pub fn handle_key_input<B: Backend>(
 					Command::Minimize
 				}
 			}
+			Key::Char(';') => Command::Set(
+				String::from("margin"),
+				String::from(if app.keys_table_margin == 1 {
+					"0"
+				} else {
+					"1"
+				}),
+			),
 			Key::Char(':') => Command::EnableInput,
 			Key::Char('/') => Command::Search(None),
 			_ => Command::None,

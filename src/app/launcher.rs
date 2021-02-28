@@ -44,6 +44,8 @@ pub struct App<'a> {
 	pub keys_table: StatefulTable<GpgKey>,
 	/// Level of detail to show for keys table.
 	pub keys_table_detail: KeyDetail,
+	/// Bottom margin value of the keys table.
+	pub keys_table_margin: u16,
 	/// Clipboard context.
 	pub clipboard: ClipboardContext,
 	/// GPGME context.
@@ -62,6 +64,7 @@ impl<'a> App<'a> {
 				gpgme.get_keys(KeyType::Public, None)?,
 			),
 			keys_table_detail: KeyDetail::Minimum,
+			keys_table_margin: 1,
 			clipboard: ClipboardContext::new()
 				.expect("failed to initialize clipboard"),
 			gpgme,
@@ -211,6 +214,13 @@ impl<'a> App<'a> {
 						)
 					}
 				}
+				"margin" => {
+					self.keys_table_margin = value.parse().unwrap_or_default();
+					(
+						OutputType::Success,
+						format!("table margin: {}", self.keys_table_margin),
+					)
+				}
 				_ => (
 					OutputType::Failure,
 					if !option.is_empty() {
@@ -261,6 +271,10 @@ impl<'a> App<'a> {
 							)
 						}
 					}
+					"margin" => (
+						OutputType::Success,
+						format!("table margin: {}", self.keys_table_margin),
+					),
 					_ => (
 						OutputType::Failure,
 						if !option.is_empty() {
@@ -510,7 +524,7 @@ impl<'a> App<'a> {
 							.try_into()
 							.unwrap_or(1),
 					)
-					.bottom_margin(1)
+					.bottom_margin(self.keys_table_margin)
 					.style(Style::default()),
 				);
 				true
