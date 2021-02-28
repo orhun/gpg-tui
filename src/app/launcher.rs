@@ -329,6 +329,7 @@ impl<'a> App<'a> {
 			Command::EnableInput => self.prompt.enable_command_input(),
 			Command::Search(query) => {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
+				self.prompt.enable_search();
 				self.keys_table.items = self.keys_table.default_items.clone();
 			}
 			Command::Next => self.keys_table.next(),
