@@ -98,7 +98,7 @@ impl Prompt {
 	pub fn set_output<S: AsRef<str>>(&mut self, output: (OutputType, S)) {
 		let (output_type, message) = output;
 		self.output_type = output_type;
-		self.text = message.as_ref().to_string();
+		self.text = message.as_ref().to_string().to_lowercase();
 		self.clock = Some(Instant::now());
 	}
 
