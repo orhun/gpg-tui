@@ -392,9 +392,15 @@ impl<'a> App<'a> {
 				}
 			}))
 			.style(match self.prompt.output_type {
-				OutputType::Success => Style::default().fg(Color::LightGreen),
-				OutputType::Warning => Style::default().fg(Color::LightYellow),
-				OutputType::Failure => Style::default().fg(Color::LightRed),
+				OutputType::Success => Style::default()
+					.fg(Color::LightGreen)
+					.add_modifier(Modifier::BOLD),
+				OutputType::Warning => Style::default()
+					.fg(Color::LightYellow)
+					.add_modifier(Modifier::BOLD),
+				OutputType::Failure => Style::default()
+					.fg(Color::LightRed)
+					.add_modifier(Modifier::BOLD),
 				OutputType::Action => {
 					Style::default().add_modifier(Modifier::BOLD)
 				}
