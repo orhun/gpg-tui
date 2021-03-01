@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::time::Instant;
 
 /// Output type of the prompt.
@@ -19,6 +20,21 @@ pub enum OutputType {
 impl Default for OutputType {
 	fn default() -> Self {
 		Self::None
+	}
+}
+
+impl Display for OutputType {
+	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+		write!(
+			f,
+			"{}",
+			match self {
+				Self::Success => "[i] ",
+				Self::Warning => "[w] ",
+				Self::Failure => "[e] ",
+				_ => "",
+			}
+		)
 	}
 }
 

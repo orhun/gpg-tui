@@ -371,7 +371,7 @@ impl<'a> App<'a> {
 	) {
 		frame.render_widget(
 			Paragraph::new(Span::raw(if !self.prompt.text.is_empty() {
-				self.prompt.text.clone()
+				format!("{}{}", self.prompt.output_type, self.prompt.text)
 			} else {
 				match self.command {
 					Command::ListKeys(_) => {
