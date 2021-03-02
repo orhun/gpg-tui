@@ -6,7 +6,7 @@ use crate::app::state::State;
 use crate::app::tab::Tab;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
-use crate::widget::row::RowItem;
+use crate::widget::row::{RowItem, ScrollDirection};
 use crate::widget::table::StatefulTable;
 use anyhow::Result;
 use copypasta_ext::prelude::ClipboardProvider;
@@ -146,7 +146,12 @@ impl<'a> App<'a> {
 					}
 				}
 			}
-			Command::Scroll(direction) => {
+			Command::ScrollTable(false, direction) => match direction {
+				ScrollDirection::Down(_) => self.keys_table.next(),
+				ScrollDirection::Up(_) => self.keys_table.previous(),
+				_ => {}
+			},
+			Command::ScrollTable(true, direction) => {
 				self.keys_table.scroll(direction);
 			}
 			Command::Set(option, value) => self.prompt.set_output(match option
@@ -332,8 +337,14 @@ impl<'a> App<'a> {
 				self.prompt.enable_search();
 				self.keys_table.items = self.keys_table.default_items.clone();
 			}
-			Command::Next => self.keys_table.next(),
-			Command::Previous => self.keys_table.previous(),
+			Command::NextTab => {
+				self.tab.next();
+				self.run_command(self.tab.get_command())?
+			}
+			Command::PreviousTab => {
+				self.tab.previous();
+				self.run_command(self.tab.get_command())?
+			}
 			Command::Minimize | Command::Maximize => {
 				self.state.minimize_threshold = 0;
 				self.state.minimized = command == Command::Minimize;
@@ -375,19 +386,22 @@ impl<'a> App<'a> {
 			} else {
 				match self.tab {
 					Tab::Keys(key_type) => {
-						if !self.keys_table.items.is_empty() {
-							format!(
-								"list {} ({}/{})",
-								key_type,
-								self.keys_table
-									.state
-									.selected()
-									.unwrap_or_default() + 1,
-								self.keys_table.items.len()
-							)
-						} else {
-							format!("list {}", key_type)
-						}
+						format!(
+							"< list {}{} >",
+							key_type,
+							if !self.keys_table.items.is_empty() {
+								format!(
+									" ({}/{})",
+									self.keys_table
+										.state
+										.selected()
+										.unwrap_or_default() + 1,
+									self.keys_table.items.len()
+								)
+							} else {
+								String::new()
+							}
+						)
 					}
 				}
 			}))

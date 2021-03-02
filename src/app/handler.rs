@@ -129,42 +129,40 @@ pub fn handle_key_input<B: Backend>(
 				tui.enable_mouse_capture()?;
 				Command::Refresh
 			}
-			Key::Up | Key::Char('k') | Key::Char('K') => {
-				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Up(1))
-				} else {
-					Command::Previous
-				}
-			}
+			Key::Up | Key::Char('k') | Key::Char('K') => Command::ScrollTable(
+				key_event.modifiers == Modifiers::ALT,
+				ScrollDirection::Up(1),
+			),
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Right(1))
+					Command::ScrollTable(true, ScrollDirection::Right(1))
 				} else {
-					Command::None
+					Command::NextTab
 				}
 			}
 			Key::Down | Key::Char('j') | Key::Char('J') => {
-				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Down(1))
-				} else {
-					Command::Next
-				}
+				Command::ScrollTable(
+					key_event.modifiers == Modifiers::ALT,
+					ScrollDirection::Down(1),
+				)
 			}
 			Key::Left | Key::Char('h') | Key::Char('H') => {
 				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Left(1))
+					Command::ScrollTable(true, ScrollDirection::Left(1))
 				} else {
-					Command::None
+					Command::PreviousTab
 				}
 			}
 			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
 			Key::Tab => Command::ToggleDetail(false),
-			Key::Char('`') => match app.tab {
-				Tab::Keys(KeyType::Public) => {
-					Command::ListKeys(KeyType::Secret)
-				}
-				_ => Command::ListKeys(KeyType::Public),
-			},
+			Key::Char('`') => Command::Set(
+				String::from("margin"),
+				String::from(if app.keys_table_margin == 1 {
+					"0"
+				} else {
+					"1"
+				}),
+			),
 			Key::Char('p') | Key::Char('P') => {
 				Command::ListKeys(KeyType::Public)
 			}
@@ -258,14 +256,6 @@ pub fn handle_key_input<B: Backend>(
 					Command::Minimize
 				}
 			}
-			Key::Char(';') => Command::Set(
-				String::from("margin"),
-				String::from(if app.keys_table_margin == 1 {
-					"0"
-				} else {
-					"1"
-				}),
-			),
 			Key::Char(':') => Command::EnableInput,
 			Key::Char('/') => Command::Search(None),
 			_ => Command::None,

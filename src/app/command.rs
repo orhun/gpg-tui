@@ -20,8 +20,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Toggle the detail level.
 	ToggleDetail(bool),
-	/// Scroll the widget.
-	Scroll(ScrollDirection),
+	/// Scroll the table widget or table rows.
+	ScrollTable(bool, ScrollDirection),
 	/// Set the value of an option.
 	Set(String, String),
 	/// Get the value of an option.
@@ -36,10 +36,10 @@ pub enum Command {
 	EnableInput,
 	/// Search for a value.
 	Search(Option<String>),
-	/// Select the next value.
-	Next,
-	/// Select the previous value.
-	Previous,
+	/// Select the next tab.
+	NextTab,
+	/// Select the previous tab.
+	PreviousTab,
 	/// Minimize the application.
 	Minimize,
 	/// Maximize the application.
@@ -87,10 +87,18 @@ impl FromStr for Command {
 			"toggle" | "t" => Ok(Command::ToggleDetail(
 				args.first() == Some(&String::from("all")),
 			)),
-			"scroll" => Ok(Command::Scroll(
-				ScrollDirection::from_str(&args.join(" "))
+			"scroll" => {
+				let scroll_row = args.first() == Some(&String::from("row"));
+				Ok(Command::ScrollTable(
+					scroll_row,
+					ScrollDirection::from_str(&if scroll_row {
+						args[1..].join(" ")
+					} else {
+						args.join(" ")
+					})
 					.unwrap_or(ScrollDirection::Down(1)),
-			)),
+				))
+			}
 			"set" | "s" => Ok(Command::Set(
 				args.get(0).cloned().unwrap_or_default(),
 				args.get(1).cloned().unwrap_or_default(),
@@ -113,8 +121,8 @@ impl FromStr for Command {
 			"paste" | "p" => Ok(Self::Paste),
 			"input" => Ok(Self::EnableInput),
 			"search" => Ok(Self::Search(args.first().cloned())),
-			"next" => Ok(Self::Next),
-			"previous" | "prev" => Ok(Self::Previous),
+			"next" => Ok(Self::NextTab),
+			"previous" | "prev" => Ok(Self::PreviousTab),
 			"minimize" | "min" => Ok(Self::Minimize),
 			"maximize" | "max" => Ok(Self::Maximize),
 			"refresh" | "r" => Ok(Self::Refresh),
@@ -183,7 +191,10 @@ mod tests {
 		}
 		for cmd in &[":scroll up 1", ":scroll u 1"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::Scroll(ScrollDirection::Up(1)), command);
+			assert_eq!(
+				Command::ScrollTable(false, ScrollDirection::Up(1)),
+				command
+			);
 		}
 		for cmd in &[":set armor true", ":s armor true"] {
 			let command = Command::from_str(cmd).unwrap();
@@ -221,9 +232,9 @@ mod tests {
 		let command = Command::from_str(":input").unwrap();
 		assert_eq!(Command::EnableInput, command);
 		let command = Command::from_str(":next").unwrap();
-		assert_eq!(Command::Next, command);
+		assert_eq!(Command::NextTab, command);
 		let command = Command::from_str(":prev").unwrap();
-		assert_eq!(Command::Previous, command);
+		assert_eq!(Command::PreviousTab, command);
 		for cmd in &[":minimize", ":min"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Minimize, command);
