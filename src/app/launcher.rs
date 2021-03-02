@@ -3,6 +3,7 @@ use crate::app::command::Command;
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt};
 use crate::app::state::State;
+use crate::app::tab::Tab;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::row::RowItem;
@@ -38,8 +39,8 @@ pub struct App<'a> {
 	pub mode: Mode,
 	/// Prompt manager.
 	pub prompt: Prompt,
-	/// Current command.
-	pub command: Command,
+	/// Current tab.
+	pub tab: Tab,
 	/// Table of public/secret keys.
 	pub keys_table: StatefulTable<GpgKey>,
 	/// Level of detail to show for keys table.
@@ -59,7 +60,7 @@ impl<'a> App<'a> {
 			state: State::default(),
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
-			command: Command::ListKeys(KeyType::Public),
+			tab: Tab::Keys(KeyType::Public),
 			keys_table: StatefulTable::with_items(
 				gpgme.get_keys(KeyType::Public, None)?,
 			),
@@ -102,7 +103,7 @@ impl<'a> App<'a> {
 				self.keys_table = StatefulTable::with_items(
 					self.gpgme.get_keys(key_type, None)?,
 				);
-				self.command = command;
+				self.tab = Tab::Keys(key_type);
 			}
 			Command::ExportKeys(key_type, ref patterns) => {
 				self.prompt.set_output(
@@ -297,9 +298,8 @@ impl<'a> App<'a> {
 						CopyType::TableRow(_) => String::new(),
 						CopyType::Key => {
 							str::from_utf8(&self.gpgme.get_exported_keys(
-								match self.command {
-									Command::ListKeys(key_type) => key_type,
-									_ => KeyType::Public,
+								match self.tab {
+									Tab::Keys(key_type) => key_type,
 								},
 								Some(vec![selected_key.get_id()]),
 							)?)?
@@ -358,8 +358,8 @@ impl<'a> App<'a> {
 			)
 			.split(rect);
 		self.render_command_prompt(frame, chunks[1]);
-		if let Command::ListKeys(_) = self.command {
-			self.render_keys_table(frame, chunks[0])
+		match self.tab {
+			Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
 		}
 	}
 
@@ -373,12 +373,12 @@ impl<'a> App<'a> {
 			Paragraph::new(Span::raw(if !self.prompt.text.is_empty() {
 				format!("{}{}", self.prompt.output_type, self.prompt.text)
 			} else {
-				match self.command {
-					Command::ListKeys(_) => {
+				match self.tab {
+					Tab::Keys(key_type) => {
 						if !self.keys_table.items.is_empty() {
 							format!(
-								"{} ({}/{})",
-								self.command.to_string(),
+								"list {} ({}/{})",
+								key_type,
 								self.keys_table
 									.state
 									.selected()
@@ -386,10 +386,9 @@ impl<'a> App<'a> {
 								self.keys_table.items.len()
 							)
 						} else {
-							self.command.to_string()
+							format!("list {}", key_type)
 						}
 					}
-					_ => self.command.to_string(),
 				}
 			}))
 			.style(match self.prompt.output_type {

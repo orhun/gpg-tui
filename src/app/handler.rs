@@ -3,6 +3,7 @@ use crate::app::command::Command;
 use crate::app::launcher::App;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
+use crate::app::tab::Tab;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -158,8 +159,8 @@ pub fn handle_key_input<B: Backend>(
 			}
 			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
 			Key::Tab => Command::ToggleDetail(false),
-			Key::Char('`') => match app.command {
-				Command::ListKeys(KeyType::Public) => {
+			Key::Char('`') => match app.tab {
+				Tab::Keys(KeyType::Public) => {
 					Command::ListKeys(KeyType::Secret)
 				}
 				_ => Command::ListKeys(KeyType::Public),
@@ -186,9 +187,8 @@ pub fn handle_key_input<B: Backend>(
 					tui.toggle_pause()?;
 					toggle_pause = true;
 					Command::ExportKeys(
-						match app.command {
-							Command::ListKeys(key_type) => key_type,
-							_ => KeyType::Public,
+						match app.tab {
+							Tab::Keys(key_type) => key_type,
 						},
 						vec![app.keys_table.items[app
 							.keys_table

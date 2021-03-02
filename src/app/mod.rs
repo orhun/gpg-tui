@@ -15,6 +15,9 @@ pub mod prompt;
 /// Application commands.
 pub mod command;
 
+/// Application tabs.
+pub mod tab;
+
 /// Handler methods.
 pub mod handler;
 

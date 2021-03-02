@@ -3,7 +3,6 @@ use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
-use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
 /// Command to run on rendering process.
@@ -51,38 +50,6 @@ pub enum Command {
 	Quit,
 	/// Do nothing.
 	None,
-}
-
-impl Display for Command {
-	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-		write!(
-			f,
-			"{}",
-			match self {
-				Self::ShowOutput(output_type, message) =>
-					format!("{:?}: {}", output_type, message),
-				Self::ListKeys(key_type) => format!("list {}", key_type),
-				Self::ExportKeys(key_type, _) => format!("export {}", key_type),
-				Self::ToggleDetail(all) =>
-					format!("toggle{}", if *all { " all" } else { "" }),
-				Self::Scroll(_) => String::from("scroll"),
-				Self::Set(option, value) => format!("set {} {}", option, value),
-				Self::Get(option) => format!("get {}", option),
-				Self::SwitchMode(mode) => mode.to_string(),
-				Self::Copy(copy_type) => format!("copy: {}", copy_type),
-				Self::Paste => String::from("paste"),
-				Self::EnableInput => String::from("input"),
-				Self::Search(_) => String::from("search"),
-				Self::Next => String::from("next"),
-				Self::Previous => String::from("previous"),
-				Self::Minimize => String::from("minimize"),
-				Self::Maximize => String::from("maximize"),
-				Self::Refresh => String::from("refresh"),
-				Self::Quit => String::from("quit"),
-				Self::None => String::new(),
-			}
-		)
-	}
 }
 
 impl FromStr for Command {
@@ -173,12 +140,10 @@ mod tests {
 		for cmd in &[":list", ":list pub", ":ls", ":ls pub"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ListKeys(KeyType::Public), command);
-			assert_eq!("list pub", &command.to_string())
 		}
 		for cmd in &[":list sec", ":ls sec"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ListKeys(KeyType::Secret), command);
-			assert_eq!("list sec", &command.to_string())
 		}
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
 			let command = Command::from_str(cmd).unwrap();
@@ -186,7 +151,6 @@ mod tests {
 				Command::ExportKeys(KeyType::Public, Vec::new()),
 				command
 			);
-			assert_eq!("export pub", &command.to_string())
 		}
 		assert_eq!(
 			Command::ExportKeys(
@@ -201,7 +165,6 @@ mod tests {
 				Command::ExportKeys(KeyType::Secret, Vec::new()),
 				command
 			);
-			assert_eq!("export sec", &command.to_string())
 		}
 		assert_eq!(
 			Command::ExportKeys(
@@ -217,12 +180,10 @@ mod tests {
 		for cmd in &[":toggle all", ":t all"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ToggleDetail(true), command);
-			assert_eq!("toggle all", &command.to_string())
 		}
 		for cmd in &[":scroll up 1", ":scroll u 1"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Scroll(ScrollDirection::Up(1)), command);
-			assert_eq!("scroll", &command.to_string())
 		}
 		for cmd in &[":set armor true", ":s armor true"] {
 			let command = Command::from_str(cmd).unwrap();
@@ -230,12 +191,10 @@ mod tests {
 				Command::Set(String::from("armor"), String::from("true")),
 				command
 			);
-			assert_eq!("set armor true", &command.to_string())
 		}
 		for cmd in &[":get armor", ":g armor"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Get(String::from("armor")), command);
-			assert_eq!("get armor", &command.to_string())
 		}
 		assert_eq!(
 			Command::Set(String::from("test"), String::from("_")),
@@ -244,54 +203,42 @@ mod tests {
 		for cmd in &[":normal", ":n"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::SwitchMode(Mode::Normal), command);
-			assert_eq!("-- NORMAL --", &command.to_string())
 		}
 		for cmd in &[":visual", ":v"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::SwitchMode(Mode::Visual), command);
-			assert_eq!("-- VISUAL --", &command.to_string())
 		}
 		for cmd in &[":copy", ":c"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::SwitchMode(Mode::Copy), command);
-			assert_eq!("-- COPY --", &command.to_string())
 		}
 		for cmd in &[":paste", ":p"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Paste, command);
-			assert_eq!("paste", &command.to_string())
 		}
 		let command = Command::from_str(":search q").unwrap();
 		assert_eq!(Command::Search(Some(String::from("q"))), command);
-		assert_eq!("search", &command.to_string());
 		let command = Command::from_str(":input").unwrap();
 		assert_eq!(Command::EnableInput, command);
-		assert_eq!("input", &command.to_string());
 		let command = Command::from_str(":next").unwrap();
 		assert_eq!(Command::Next, command);
-		assert_eq!("next", &command.to_string());
 		let command = Command::from_str(":prev").unwrap();
 		assert_eq!(Command::Previous, command);
-		assert_eq!("previous", &command.to_string());
 		for cmd in &[":minimize", ":min"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Minimize, command);
-			assert_eq!("minimize", &command.to_string())
 		}
 		for cmd in &[":maximize", ":max"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Maximize, command);
-			assert_eq!("maximize", &command.to_string())
 		}
 		for cmd in &[":refresh", ":r"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Refresh, command);
-			assert_eq!("refresh", &command.to_string())
 		}
 		for cmd in &[":quit", ":q", ":q!"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Quit, command);
-			assert_eq!("quit", &command.to_string())
 		}
 		assert!(Command::from_str("test").is_err());
 	}
