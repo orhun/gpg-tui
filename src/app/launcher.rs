@@ -19,7 +19,7 @@ use tui::backend::Backend;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
-use tui::text::{Span, Text};
+use tui::text::{Span, Spans, Text};
 use tui::widgets::{Block, Borders, Paragraph, Row, Table, Wrap};
 use unicode_width::UnicodeWidthStr;
 
@@ -381,13 +381,20 @@ impl<'a> App<'a> {
 		rect: Rect,
 	) {
 		frame.render_widget(
-			Paragraph::new(Span::raw(if !self.prompt.text.is_empty() {
-				format!("{}{}", self.prompt.output_type, self.prompt.text)
+			Paragraph::new(Spans::from(if !self.prompt.text.is_empty() {
+				vec![Span::raw(format!(
+					"{}{}",
+					self.prompt.output_type, self.prompt.text
+				))]
 			} else {
 				match self.tab {
-					Tab::Keys(key_type) => {
-						format!(
-							"< list {}{} >",
+					Tab::Keys(key_type) => vec![
+						Span::styled(
+							"< ",
+							Style::default().fg(Color::DarkGray),
+						),
+						Span::raw(format!(
+							"list {}{}",
 							key_type,
 							if !self.keys_table.items.is_empty() {
 								format!(
@@ -401,8 +408,12 @@ impl<'a> App<'a> {
 							} else {
 								String::new()
 							}
-						)
-					}
+						)),
+						Span::styled(
+							" >",
+							Style::default().fg(Color::DarkGray),
+						),
+					],
 				}
 			}))
 			.style(match self.prompt.output_type {
