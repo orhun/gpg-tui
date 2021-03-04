@@ -133,7 +133,7 @@ impl<'a> App<'a> {
 				}
 			}
 			Command::ToggleDetail(false) => {
-				if let Some(index) = self.keys_table.state.selected() {
+				if let Some(index) = self.keys_table.state.tui.selected() {
 					if let Some(key) = self.keys_table.items.get_mut(index) {
 						key.detail.increase()
 					}
@@ -189,7 +189,9 @@ impl<'a> App<'a> {
 				}
 				"detail" => {
 					if let Ok(detail_level) = KeyDetail::from_str(&value) {
-						if let Some(index) = self.keys_table.state.selected() {
+						if let Some(index) =
+							self.keys_table.state.tui.selected()
+						{
 							if let Some(key) =
 								self.keys_table.items.get_mut(index)
 							{
@@ -249,7 +251,9 @@ impl<'a> App<'a> {
 						),
 					),
 					"detail" => {
-						if let Some(index) = self.keys_table.state.selected() {
+						if let Some(index) =
+							self.keys_table.state.tui.selected()
+						{
 							if let Some(key) = self.keys_table.items.get(index)
 							{
 								(
@@ -292,6 +296,7 @@ impl<'a> App<'a> {
 				let selected_key = &self.keys_table.items[self
 					.keys_table
 					.state
+					.tui
 					.selected()
 					.expect("invalid selection")];
 				self.clipboard
@@ -403,6 +408,7 @@ impl<'a> App<'a> {
 									" ({}/{})",
 									self.keys_table
 										.state
+										.tui
 										.selected()
 										.unwrap_or_default() + 1,
 									self.keys_table.items.len()
@@ -492,7 +498,7 @@ impl<'a> App<'a> {
 			])
 			.column_spacing(1),
 			rect,
-			&mut self.keys_table.state,
+			&mut self.keys_table.state.tui,
 		);
 	}
 
@@ -529,13 +535,13 @@ impl<'a> App<'a> {
 					subkey_info,
 					None,
 					max_height,
-					self.keys_table.scroll,
+					self.keys_table.state.scroll,
 				);
 				let users_row = RowItem::new(
 					user_info,
 					Some(max_width),
 					max_height,
-					self.keys_table.scroll,
+					self.keys_table.state.scroll,
 				);
 				rows.push(
 					Row::new(vec![

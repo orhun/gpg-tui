@@ -191,6 +191,7 @@ pub fn handle_key_input<B: Backend>(
 						vec![app.keys_table.items[app
 							.keys_table
 							.state
+							.tui
 							.selected()
 							.expect("invalid selection")]
 						.get_id()],
