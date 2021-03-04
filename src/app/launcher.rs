@@ -82,9 +82,12 @@ impl<'a> App<'a> {
 		self.mode = Mode::Normal;
 		self.prompt = Prompt::default();
 		self.keys_table_detail = KeyDetail::Minimum;
+		self.keys_table_margin = 1;
 		self.run_command(match self.tab {
 			Tab::Keys(key_type) => Command::ListKeys(key_type),
-		})
+		})?;
+		self.keys_table_states.clear();
+		Ok(())
 	}
 
 	/// Handles the tick event of the application.
