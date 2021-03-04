@@ -3,6 +3,7 @@ use crate::gpg::key::{GpgKey, KeyType};
 use anyhow::{anyhow, Result};
 use gpgme::context::Keys;
 use gpgme::{Context, ExportMode, Key, KeyListMode, PinentryMode, Protocol};
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Write;
 
@@ -63,6 +64,14 @@ impl GpgContext {
 			.filter_map(|key| key.ok())
 			.map(GpgKey::from)
 			.collect())
+	}
+
+	/// Returns the all available keys and their types in a HashMap.
+	pub fn get_all_keys(&mut self) -> Result<HashMap<KeyType, Vec<GpgKey>>> {
+		let mut keys = HashMap::new();
+		keys.insert(KeyType::Public, self.get_keys(KeyType::Public, None)?);
+		keys.insert(KeyType::Secret, self.get_keys(KeyType::Secret, None)?);
+		Ok(keys)
 	}
 
 	/// Returns the exported public/secret keys

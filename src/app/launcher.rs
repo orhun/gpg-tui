@@ -42,6 +42,8 @@ pub struct App<'a> {
 	pub prompt: Prompt,
 	/// Current tab.
 	pub tab: Tab,
+	/// Public/secret keys.
+	pub keys: HashMap<KeyType, Vec<GpgKey>>,
 	/// Table of public/secret keys.
 	pub keys_table: StatefulTable<GpgKey>,
 	/// States of the keys table.
@@ -59,14 +61,18 @@ pub struct App<'a> {
 impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
 	pub fn new(gpgme: &'a mut GpgContext) -> Result<Self> {
+		let keys = gpgme.get_all_keys()?;
 		Ok(Self {
 			state: State::default(),
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
 			keys_table: StatefulTable::with_items(
-				gpgme.get_keys(KeyType::Public, None)?,
+				keys.get(&KeyType::Public)
+					.expect("failed to get public keys")
+					.to_vec(),
 			),
+			keys,
 			keys_table_states: HashMap::new(),
 			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
@@ -81,12 +87,22 @@ impl<'a> App<'a> {
 		self.state = State::default();
 		self.mode = Mode::Normal;
 		self.prompt = Prompt::default();
+		self.keys = self.gpgme.get_all_keys()?;
+		self.keys_table_states.clear();
 		self.keys_table_detail = KeyDetail::Minimum;
 		self.keys_table_margin = 1;
-		self.run_command(match self.tab {
-			Tab::Keys(key_type) => Command::ListKeys(key_type),
-		})?;
-		self.keys_table_states.clear();
+		match self.tab {
+			Tab::Keys(key_type) => {
+				self.keys_table = StatefulTable::with_items(
+					self.keys
+						.get(&key_type)
+						.unwrap_or_else(|| {
+							panic!("failed to get {} keys", key_type)
+						})
+						.to_vec(),
+				)
+			}
+		};
 		Ok(())
 	}
 
@@ -109,15 +125,23 @@ impl<'a> App<'a> {
 				self.prompt.set_output((output_type, message))
 			}
 			Command::ListKeys(key_type) => {
-				self.keys_table_states.insert(
-					match key_type {
-						KeyType::Public => KeyType::Secret,
-						KeyType::Secret => KeyType::Public,
-					},
-					self.keys_table.state.clone(),
+				let previous_key_type = match key_type {
+					KeyType::Public => KeyType::Secret,
+					KeyType::Secret => KeyType::Public,
+				};
+				self.keys_table_states
+					.insert(previous_key_type, self.keys_table.state.clone());
+				self.keys.insert(
+					previous_key_type,
+					self.keys_table.default_items.clone(),
 				);
 				self.keys_table = StatefulTable::with_items(
-					self.gpgme.get_keys(key_type, None)?,
+					self.keys
+						.get(&key_type)
+						.unwrap_or_else(|| {
+							panic!("failed to get {} keys", key_type)
+						})
+						.to_vec(),
 				);
 				if let Some(state) = self.keys_table_states.get(&key_type) {
 					self.keys_table.state = state.clone();
