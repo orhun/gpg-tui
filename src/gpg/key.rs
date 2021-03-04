@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
 /// Type of the key.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum KeyType {
 	/// Public key.
 	Public,

@@ -7,11 +7,12 @@ use crate::app::tab::Tab;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::row::{RowItem, ScrollDirection};
-use crate::widget::table::StatefulTable;
+use crate::widget::table::{StatefulTable, TableState};
 use anyhow::Result;
 use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
+use std::collections::HashMap;
 use std::convert::TryInto;
 use std::str;
 use std::str::FromStr;
@@ -43,6 +44,8 @@ pub struct App<'a> {
 	pub tab: Tab,
 	/// Table of public/secret keys.
 	pub keys_table: StatefulTable<GpgKey>,
+	/// States of the keys table.
+	pub keys_table_states: HashMap<KeyType, TableState>,
 	/// Level of detail to show for keys table.
 	pub keys_table_detail: KeyDetail,
 	/// Bottom margin value of the keys table.
@@ -64,6 +67,7 @@ impl<'a> App<'a> {
 			keys_table: StatefulTable::with_items(
 				gpgme.get_keys(KeyType::Public, None)?,
 			),
+			keys_table_states: HashMap::new(),
 			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
 			clipboard: ClipboardContext::new()
@@ -102,9 +106,19 @@ impl<'a> App<'a> {
 				self.prompt.set_output((output_type, message))
 			}
 			Command::ListKeys(key_type) => {
+				self.keys_table_states.insert(
+					match key_type {
+						KeyType::Public => KeyType::Secret,
+						KeyType::Secret => KeyType::Public,
+					},
+					self.keys_table.state.clone(),
+				);
 				self.keys_table = StatefulTable::with_items(
 					self.gpgme.get_keys(key_type, None)?,
 				);
+				if let Some(state) = self.keys_table_states.get(&key_type) {
+					self.keys_table.state = state.clone();
+				}
 				self.tab = Tab::Keys(key_type);
 			}
 			Command::ExportKeys(key_type, ref patterns) => {
