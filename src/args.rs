@@ -22,14 +22,17 @@ pub struct Args {
 	#[structopt(short, long)]
 	pub armor: bool,
 	/// Sets the GnuPG home directory.
-	#[structopt(long, value_name = "DIR")]
+	#[structopt(long, value_name = "dir")]
 	pub homedir: Option<String>,
 	/// Sets the output directory.
-	#[structopt(short, long, value_name = "DIR")]
+	#[structopt(short, long, value_name = "dir")]
 	pub output: Option<PathBuf>,
 	/// Sets the tick rate of the terminal.
-	#[structopt(short, long, value_name = "MS", default_value = "250")]
+	#[structopt(short, long, value_name = "ms", default_value = "250")]
 	pub tick_rate: u64,
+	/// Sets the style of the terminal.
+	#[structopt(short, long, possible_values = &["plain", "colored"], default_value = "plain")]
+	pub style: String,
 }
 
 impl Args {

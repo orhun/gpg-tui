@@ -4,6 +4,7 @@ use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt};
 use crate::app::state::State;
 use crate::app::tab::Tab;
+use crate::args::Args;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::row::{RowItem, ScrollDirection};
@@ -56,11 +57,13 @@ pub struct App<'a> {
 	pub clipboard: ClipboardContext,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
+	/// Parsed command-line arguments.
+	args: &'a Args,
 }
 
 impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
-	pub fn new(gpgme: &'a mut GpgContext) -> Result<Self> {
+	pub fn new(gpgme: &'a mut GpgContext, args: &'a Args) -> Result<Self> {
 		let keys = gpgme.get_all_keys()?;
 		Ok(Self {
 			state: State::default(),
@@ -79,6 +82,7 @@ impl<'a> App<'a> {
 			clipboard: ClipboardContext::new()
 				.expect("failed to initialize clipboard"),
 			gpgme,
+			args,
 		})
 	}
 
@@ -465,20 +469,26 @@ impl<'a> App<'a> {
 					],
 				}
 			}))
-			.style(match self.prompt.output_type {
-				OutputType::Success => Style::default()
-					.fg(Color::LightGreen)
-					.add_modifier(Modifier::BOLD),
-				OutputType::Warning => Style::default()
-					.fg(Color::LightYellow)
-					.add_modifier(Modifier::BOLD),
-				OutputType::Failure => Style::default()
-					.fg(Color::LightRed)
-					.add_modifier(Modifier::BOLD),
-				OutputType::Action => {
-					Style::default().add_modifier(Modifier::BOLD)
+			.style(if self.args.style == *"colored" {
+				match self.prompt.output_type {
+					OutputType::Success => Style::default()
+						.fg(Color::LightGreen)
+						.add_modifier(Modifier::BOLD),
+					OutputType::Warning => Style::default()
+						.fg(Color::LightYellow)
+						.add_modifier(Modifier::BOLD),
+					OutputType::Failure => Style::default()
+						.fg(Color::LightRed)
+						.add_modifier(Modifier::BOLD),
+					OutputType::Action => {
+						Style::default().add_modifier(Modifier::BOLD)
+					}
+					OutputType::None => Style::default(),
 				}
-				_ => Style::default(),
+			} else if self.prompt.output_type != OutputType::None {
+				Style::default().add_modifier(Modifier::BOLD)
+			} else {
+				Style::default()
 			})
 			.alignment(if !self.prompt.text.is_empty() {
 				Alignment::Left

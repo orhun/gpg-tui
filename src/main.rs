@@ -27,7 +27,7 @@ fn main() -> Result<()> {
 	config.check_gpgme_version("1.7.0");
 	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.
-	let mut app = App::new(&mut gpgme)?;
+	let mut app = App::new(&mut gpgme, &args)?;
 	// Initialize the text-based user interface.
 	let backend = CrosstermBackend::new(io::stdout());
 	let terminal = Terminal::new(backend)?;
