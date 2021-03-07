@@ -3,6 +3,7 @@ use crate::app::command::Command;
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt};
 use crate::app::state::State;
+use crate::app::style;
 use crate::app::tab::Tab;
 use crate::args::Args;
 use crate::gpg::context::GpgContext;
@@ -440,33 +441,40 @@ impl<'a> App<'a> {
 				))]
 			} else {
 				match self.tab {
-					Tab::Keys(key_type) => vec![
-						Span::styled(
-							"< ",
-							Style::default().fg(Color::DarkGray),
-						),
-						Span::raw(format!(
-							"list {}{}",
-							key_type,
-							if !self.keys_table.items.is_empty() {
-								format!(
-									" ({}/{})",
-									self.keys_table
-										.state
-										.tui
-										.selected()
-										.unwrap_or_default() + 1,
-									self.keys_table.items.len()
-								)
-							} else {
-								String::new()
-							}
-						)),
-						Span::styled(
-							" >",
-							Style::default().fg(Color::DarkGray),
-						),
-					],
+					Tab::Keys(key_type) => {
+						let arrow_color = if self.args.style == *"colored" {
+							Color::Magenta
+						} else {
+							Color::DarkGray
+						};
+						vec![
+							Span::styled(
+								"< ",
+								Style::default().fg(arrow_color),
+							),
+							Span::raw(format!(
+								"list {}{}",
+								key_type,
+								if !self.keys_table.items.is_empty() {
+									format!(
+										" ({}/{})",
+										self.keys_table
+											.state
+											.tui
+											.selected()
+											.unwrap_or_default() + 1,
+										self.keys_table.items.len()
+									)
+								} else {
+									String::new()
+								}
+							)),
+							Span::styled(
+								" >",
+								Style::default().fg(arrow_color),
+							),
+						]
+					}
 				}
 			}))
 			.style(if self.args.style == *"colored" {
@@ -481,7 +489,13 @@ impl<'a> App<'a> {
 						.fg(Color::LightRed)
 						.add_modifier(Modifier::BOLD),
 					OutputType::Action => {
-						Style::default().add_modifier(Modifier::BOLD)
+						if self.args.style == *"colored" {
+							Style::default()
+								.fg(Color::LightBlue)
+								.add_modifier(Modifier::BOLD)
+						} else {
+							Style::default().add_modifier(Modifier::BOLD)
+						}
 					}
 					OutputType::None => Style::default(),
 				}
@@ -528,11 +542,13 @@ impl<'a> App<'a> {
 				),
 			)
 			.style(Style::default().fg(Color::Gray))
-			.highlight_style(
+			.highlight_style(if self.args.style == *"colored" {
+				Style::default().add_modifier(Modifier::BOLD)
+			} else {
 				Style::default()
 					.fg(Color::Reset)
-					.add_modifier(Modifier::BOLD),
-			)
+					.add_modifier(Modifier::BOLD)
+			})
 			.highlight_symbol("> ")
 			.block(
 				Block::default()
@@ -595,10 +611,17 @@ impl<'a> App<'a> {
 					self.keys_table.state.scroll,
 				);
 				rows.push(
-					Row::new(vec![
-						Text::from(keys_row.data.join("\n")),
-						Text::from(users_row.data.join("\n")),
-					])
+					Row::new(if self.args.style == *"colored" {
+						vec![
+							style::get_colored_table_row(&keys_row.data),
+							style::get_colored_table_row(&users_row.data),
+						]
+					} else {
+						vec![
+							Text::from(keys_row.data.join("\n")),
+							Text::from(users_row.data.join("\n")),
+						]
+					})
 					.height(
 						cmp::max(keys_row.data.len(), users_row.data.len())
 							.try_into()

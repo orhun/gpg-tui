@@ -23,3 +23,6 @@ pub mod handler;
 
 /// Clipboard helper.
 pub mod clipboard;
+
+/// Style helper.
+pub mod style;
