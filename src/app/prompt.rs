@@ -29,9 +29,9 @@ impl Display for OutputType {
 			f,
 			"{}",
 			match self {
-				Self::Success => "[i] ",
-				Self::Warning => "[w] ",
-				Self::Failure => "[e] ",
+				Self::Success => "(i) ",
+				Self::Warning => "(w) ",
+				Self::Failure => "(e) ",
 				_ => "",
 			}
 		)
