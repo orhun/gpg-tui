@@ -443,7 +443,7 @@ impl<'a> App<'a> {
 				match self.tab {
 					Tab::Keys(key_type) => {
 						let arrow_color = if self.args.style == *"colored" {
-							Color::Magenta
+							Color::LightBlue
 						} else {
 							Color::DarkGray
 						};
