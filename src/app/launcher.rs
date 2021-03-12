@@ -8,6 +8,7 @@ use crate::app::tab::Tab;
 use crate::args::Args;
 use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
+use crate::widget::list::StatefulList;
 use crate::widget::row::{RowItem, ScrollDirection};
 use crate::widget::table::{StatefulTable, TableState};
 use anyhow::Result;
@@ -23,7 +24,9 @@ use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
 use tui::text::{Span, Spans, Text};
-use tui::widgets::{Block, Borders, Clear, Paragraph, Row, Table, Wrap};
+use tui::widgets::{
+	Block, Borders, Clear, List, ListItem, Paragraph, Row, Table, Wrap,
+};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/maximized mode.
@@ -44,6 +47,8 @@ pub struct App<'a> {
 	pub prompt: Prompt,
 	/// Current tab.
 	pub tab: Tab,
+	/// Content of the options menu.
+	pub options: StatefulList<String>,
 	/// Public/secret keys.
 	pub keys: HashMap<KeyType, Vec<GpgKey>>,
 	/// Table of public/secret keys.
@@ -71,6 +76,10 @@ impl<'a> App<'a> {
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
+			options: StatefulList::with_items(vec![
+				String::from("test"),
+				String::from("test2"),
+			]),
 			keys_table: StatefulTable::with_items(
 				keys.get(&KeyType::Public)
 					.expect("failed to get public keys")
@@ -125,13 +134,13 @@ impl<'a> App<'a> {
 	/// Runs the given command which is used to specify
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
-		self.state.show_options = false;
+		let mut show_options = false;
 		match command {
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
 			}
 			Command::ShowOptions => {
-				self.state.show_options = true;
+				show_options = true;
 			}
 			Command::ListKeys(key_type) => {
 				let previous_key_type = match key_type {
@@ -198,12 +207,26 @@ impl<'a> App<'a> {
 					}
 				}
 			}
-			Command::ScrollTable(false, direction) => match direction {
-				ScrollDirection::Down(_) => self.keys_table.next(),
-				ScrollDirection::Up(_) => self.keys_table.previous(),
+			Command::Scroll(direction, false) => match direction {
+				ScrollDirection::Down(_) => {
+					if self.state.show_options {
+						self.options.next();
+						show_options = true;
+					} else {
+						self.keys_table.next();
+					}
+				}
+				ScrollDirection::Up(_) => {
+					if self.state.show_options {
+						self.options.previous();
+						show_options = true;
+					} else {
+						self.keys_table.previous();
+					}
+				}
 				_ => {}
 			},
-			Command::ScrollTable(true, direction) => {
+			Command::Scroll(direction, true) => {
 				self.keys_table.scroll(direction);
 			}
 			Command::Set(option, value) => self.prompt.set_output(match option
@@ -410,6 +433,7 @@ impl<'a> App<'a> {
 			Command::Quit => self.state.running = false,
 			Command::None => {}
 		}
+		self.state.show_options = show_options;
 		Ok(())
 	}
 
@@ -557,9 +581,19 @@ impl<'a> App<'a> {
 			)
 			.split(popup_layout[1])[1];
 		frame.render_widget(Clear, area);
-		frame.render_widget(
-			Block::default().title("Popup").borders(Borders::ALL),
+		frame.render_stateful_widget(
+			List::new(
+				self.options
+					.items
+					.iter()
+					.map(|v| ListItem::new(Span::raw(v)))
+					.collect::<Vec<ListItem>>(),
+			)
+			.block(Block::default().title("Options").borders(Borders::ALL))
+			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+			.highlight_symbol("> "),
 			area,
+			&mut self.options.state,
 		);
 	}
 

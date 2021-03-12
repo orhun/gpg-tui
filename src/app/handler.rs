@@ -129,26 +129,24 @@ pub fn handle_key_input<B: Backend>(
 				tui.enable_mouse_capture()?;
 				Command::Refresh
 			}
-			Key::Up | Key::Char('k') | Key::Char('K') => Command::ScrollTable(
-				key_event.modifiers == Modifiers::ALT,
+			Key::Up | Key::Char('k') | Key::Char('K') => Command::Scroll(
 				ScrollDirection::Up(1),
+				key_event.modifiers == Modifiers::ALT,
 			),
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
-					Command::ScrollTable(true, ScrollDirection::Right(1))
+					Command::Scroll(ScrollDirection::Right(1), true)
 				} else {
 					Command::NextTab
 				}
 			}
-			Key::Down | Key::Char('j') | Key::Char('J') => {
-				Command::ScrollTable(
-					key_event.modifiers == Modifiers::ALT,
-					ScrollDirection::Down(1),
-				)
-			}
+			Key::Down | Key::Char('j') | Key::Char('J') => Command::Scroll(
+				ScrollDirection::Down(1),
+				key_event.modifiers == Modifiers::ALT,
+			),
 			Key::Left | Key::Char('h') | Key::Char('H') => {
 				if key_event.modifiers == Modifiers::ALT {
-					Command::ScrollTable(true, ScrollDirection::Left(1))
+					Command::Scroll(ScrollDirection::Left(1), true)
 				} else {
 					Command::PreviousTab
 				}

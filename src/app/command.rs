@@ -22,8 +22,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Toggle the detail level.
 	ToggleDetail(bool),
-	/// Scroll the table widget or table rows.
-	ScrollTable(bool, ScrollDirection),
+	/// Scroll the currrent widget.
+	Scroll(ScrollDirection, bool),
 	/// Set the value of an option.
 	Set(String, String),
 	/// Get the value of an option.
@@ -92,14 +92,14 @@ impl FromStr for Command {
 			)),
 			"scroll" => {
 				let scroll_row = args.first() == Some(&String::from("row"));
-				Ok(Command::ScrollTable(
-					scroll_row,
+				Ok(Command::Scroll(
 					ScrollDirection::from_str(&if scroll_row {
 						args[1..].join(" ")
 					} else {
 						args.join(" ")
 					})
 					.unwrap_or(ScrollDirection::Down(1)),
+					scroll_row,
 				))
 			}
 			"set" | "s" => Ok(Command::Set(
@@ -198,10 +198,7 @@ mod tests {
 		}
 		for cmd in &[":scroll up 1", ":scroll u 1"] {
 			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(
-				Command::ScrollTable(false, ScrollDirection::Up(1)),
-				command
-			);
+			assert_eq!(Command::Scroll(ScrollDirection::Up(1), false), command);
 		}
 		for cmd in &[":set armor true", ":s armor true"] {
 			let command = Command::from_str(cmd).unwrap();
