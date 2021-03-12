@@ -7,6 +7,8 @@ pub struct State {
 	pub minimized: bool,
 	/// Threshold value (width) for minimizing.
 	pub minimize_threshold: u16,
+	/// Is the options menu (popup) showing?
+	pub show_options: bool,
 }
 
 impl Default for State {
@@ -15,6 +17,7 @@ impl Default for State {
 			running: true,
 			minimized: false,
 			minimize_threshold: 90,
+			show_options: false,
 		}
 	}
 }
@@ -29,5 +32,6 @@ mod tests {
 		assert_eq!(true, state.running);
 		assert_eq!(false, state.minimized);
 		assert_eq!(90, state.minimize_threshold);
+		assert_eq!(false, state.show_options);
 	}
 }

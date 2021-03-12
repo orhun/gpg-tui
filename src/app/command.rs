@@ -14,6 +14,8 @@ use std::str::FromStr;
 pub enum Command {
 	/// Show application output.
 	ShowOutput(OutputType, String),
+	/// Show popup for options menu.
+	ShowOptions,
 	/// List the public/secret keys.
 	ListKeys(KeyType),
 	/// Export the public/secret keys.
@@ -68,6 +70,7 @@ impl FromStr for Command {
 				OutputType::from(args.first().cloned().unwrap_or_default()),
 				args[1..].join(" "),
 			)),
+			"options" | "opt" => Ok(Command::ShowOptions),
 			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
 			)?)),
@@ -144,6 +147,10 @@ mod tests {
 				String::from("operation successful"),
 			),
 			Command::from_str(":out success operation successful").unwrap()
+		);
+		assert_eq!(
+			Command::ShowOptions,
+			Command::from_str(":options").unwrap()
 		);
 		for cmd in &[":list", ":list pub", ":ls", ":ls pub"] {
 			let command = Command::from_str(cmd).unwrap();

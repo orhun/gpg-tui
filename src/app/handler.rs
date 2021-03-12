@@ -257,6 +257,7 @@ pub fn handle_key_input<B: Backend>(
 					Command::Minimize
 				}
 			}
+			Key::Char('o') | Key::Enter => Command::ShowOptions,
 			Key::Char(':') => Command::EnableInput,
 			Key::Char('/') => Command::Search(None),
 			_ => Command::None,

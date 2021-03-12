@@ -23,7 +23,7 @@ use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
 use tui::text::{Span, Spans, Text};
-use tui::widgets::{Block, Borders, Paragraph, Row, Table, Wrap};
+use tui::widgets::{Block, Borders, Clear, Paragraph, Row, Table, Wrap};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/maximized mode.
@@ -125,9 +125,13 @@ impl<'a> App<'a> {
 	/// Runs the given command which is used to specify
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
+		self.state.show_options = false;
 		match command {
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
+			}
+			Command::ShowOptions => {
+				self.state.show_options = true;
 			}
 			Command::ListKeys(key_type) => {
 				let previous_key_type = match key_type {
@@ -425,6 +429,9 @@ impl<'a> App<'a> {
 		match self.tab {
 			Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
 		}
+		if self.state.show_options {
+			self.render_options_menu(frame, rect);
+		}
 	}
 
 	/// Renders the command prompt. (widget)
@@ -518,6 +525,42 @@ impl<'a> App<'a> {
 				rect.y + 1,
 			);
 		}
+	}
+
+	/// Renders the options menu. (widget)
+	fn render_options_menu<B: Backend>(
+		&mut self,
+		frame: &mut Frame<'_, B>,
+		rect: Rect,
+	) {
+		let (percent_x, percent_y) = (25, 50);
+		let popup_layout = Layout::default()
+			.direction(Direction::Vertical)
+			.constraints(
+				[
+					Constraint::Percentage((100 - percent_y) / 2),
+					Constraint::Percentage(percent_y),
+					Constraint::Percentage((100 - percent_y) / 2),
+				]
+				.as_ref(),
+			)
+			.split(rect);
+		let area = Layout::default()
+			.direction(Direction::Horizontal)
+			.constraints(
+				[
+					Constraint::Percentage((100 - percent_x) / 2),
+					Constraint::Percentage(percent_x),
+					Constraint::Percentage((100 - percent_x) / 2),
+				]
+				.as_ref(),
+			)
+			.split(popup_layout[1])[1];
+		frame.render_widget(Clear, area);
+		frame.render_widget(
+			Block::default().title("Popup").borders(Borders::ALL),
+			area,
+		);
 	}
 
 	/// Renders the table of keys. (widget)
