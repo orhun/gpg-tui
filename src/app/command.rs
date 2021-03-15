@@ -3,6 +3,7 @@ use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
 /// Command to run on rendering process.
@@ -20,6 +21,8 @@ pub enum Command {
 	ListKeys(KeyType),
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>),
+	/// Copy a property to clipboard.
+	Copy(CopyType),
 	/// Toggle the detail level.
 	ToggleDetail(bool),
 	/// Scroll the currrent widget.
@@ -30,8 +33,6 @@ pub enum Command {
 	Get(String),
 	/// Switch the application mode.
 	SwitchMode(Mode),
-	/// Copy a property to clipboard.
-	Copy(CopyType),
 	/// Paste the clipboard contents.
 	Paste,
 	/// Enable command input.
@@ -52,6 +53,42 @@ pub enum Command {
 	Quit,
 	/// Do nothing.
 	None,
+}
+
+impl Display for Command {
+	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+		write!(
+			f,
+			"{}",
+			match self {
+				Command::None => String::from("close"),
+				Command::Refresh => String::from("refresh"),
+				Command::ExportKeys(key_type, patterns) => {
+					if patterns.is_empty() {
+						format!("export all the keys ({})", key_type)
+					} else {
+						format!("export {} ({})", patterns[0], key_type)
+					}
+				}
+				Command::Copy(copy_type) =>
+					format!("copy {}", copy_type.to_string().to_lowercase()),
+				Command::Paste => String::from("paste from clipboard"),
+				Command::ToggleDetail(all) => format!(
+					"toggle detail ({})",
+					if *all { "all" } else { "selected" }
+				),
+				Command::Set(option, value) =>
+					format!("set {} to {}", option, value),
+				Command::Minimize => String::from("minimize the table"),
+				Command::Maximize => String::from("maximize the table"),
+				Command::SwitchMode(mode) => format!(
+					"switch to {} mode",
+					format!("{:?}", mode).to_lowercase()
+				),
+				_ => format!("{:?}", self),
+			}
+		)
+	}
 }
 
 impl FromStr for Command {
@@ -87,6 +124,13 @@ impl FromStr for Command {
 					Vec::new()
 				},
 			)),
+			"copy" | "c" => {
+				if let Some(arg) = args.first().cloned() {
+					Ok(Self::Copy(CopyType::from_str(&arg)?))
+				} else {
+					Ok(Self::SwitchMode(Mode::Copy))
+				}
+			}
 			"toggle" | "t" => Ok(Command::ToggleDetail(
 				args.first() == Some(&String::from("all")),
 			)),
@@ -114,13 +158,6 @@ impl FromStr for Command {
 			)?)),
 			"normal" | "n" => Ok(Self::SwitchMode(Mode::Normal)),
 			"visual" | "v" => Ok(Self::SwitchMode(Mode::Visual)),
-			"copy" | "c" => {
-				if let Some(arg) = args.first().cloned() {
-					Ok(Self::Copy(CopyType::from_str(&arg)?))
-				} else {
-					Ok(Self::SwitchMode(Mode::Copy))
-				}
-			}
 			"paste" | "p" => Ok(Self::Paste),
 			"input" => Ok(Self::EnableInput),
 			"search" => Ok(Self::Search(args.first().cloned())),

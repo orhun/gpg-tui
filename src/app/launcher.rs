@@ -48,7 +48,7 @@ pub struct App<'a> {
 	/// Current tab.
 	pub tab: Tab,
 	/// Content of the options menu.
-	pub options: StatefulList<String>,
+	pub options: StatefulList<Command>,
 	/// Public/secret keys.
 	pub keys: HashMap<KeyType, Vec<GpgKey>>,
 	/// Table of public/secret keys.
@@ -76,10 +76,7 @@ impl<'a> App<'a> {
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
-			options: StatefulList::with_items(vec![
-				String::from("test"),
-				String::from("test2"),
-			]),
+			options: StatefulList::with_items(Vec::new()),
 			keys_table: StatefulTable::with_items(
 				keys.get(&KeyType::Public)
 					.expect("failed to get public keys")
@@ -140,6 +137,66 @@ impl<'a> App<'a> {
 				self.prompt.set_output((output_type, message))
 			}
 			Command::ShowOptions => {
+				self.options = StatefulList::with_items(match self.tab {
+					Tab::Keys(key_type) => vec![
+						Command::None,
+						Command::Refresh,
+						Command::ExportKeys(
+							key_type,
+							vec![self.keys_table.items[self
+								.keys_table
+								.state
+								.tui
+								.selected()
+								.expect("invalid selection")]
+							.get_id()],
+						),
+						Command::ExportKeys(key_type, Vec::new()),
+						Command::Copy(CopyType::Key),
+						Command::Copy(CopyType::KeyId),
+						Command::Copy(CopyType::KeyFingerprint),
+						Command::Copy(CopyType::KeyUserId),
+						Command::Copy(CopyType::TableRow(1)),
+						Command::Copy(CopyType::TableRow(2)),
+						Command::Paste,
+						Command::ToggleDetail(false),
+						Command::ToggleDetail(true),
+						Command::Set(
+							String::from("detail"),
+							String::from("minimum"),
+						),
+						Command::Set(
+							String::from("detail"),
+							String::from("standard"),
+						),
+						Command::Set(
+							String::from("detail"),
+							String::from("full"),
+						),
+						Command::Set(
+							String::from("armor"),
+							(!self.gpgme.config.armor).to_string(),
+						),
+						Command::Set(
+							String::from("margin"),
+							String::from(if self.keys_table_margin == 1 {
+								"0"
+							} else {
+								"1"
+							}),
+						),
+						if self.state.minimized {
+							Command::Maximize
+						} else {
+							Command::Minimize
+						},
+						if self.mode == Mode::Visual {
+							Command::SwitchMode(Mode::Normal)
+						} else {
+							Command::SwitchMode(Mode::Visual)
+						},
+					],
+				});
 				show_options = true;
 			}
 			Command::ListKeys(key_type) => {
@@ -557,7 +614,7 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let (percent_x, percent_y) = (25, 50);
+		let (length_x, percent_y) = (40, 50);
 		let popup_layout = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
@@ -573,9 +630,15 @@ impl<'a> App<'a> {
 			.direction(Direction::Horizontal)
 			.constraints(
 				[
-					Constraint::Percentage((100 - percent_x) / 2),
-					Constraint::Percentage(percent_x),
-					Constraint::Percentage((100 - percent_x) / 2),
+					Constraint::Length(
+						(popup_layout[1].width.checked_sub(length_x))
+							.unwrap_or_default() / 2,
+					),
+					Constraint::Min(length_x),
+					Constraint::Length(
+						(popup_layout[1].width.checked_sub(length_x))
+							.unwrap_or_default() / 2,
+					),
 				]
 				.as_ref(),
 			)
@@ -586,11 +649,16 @@ impl<'a> App<'a> {
 				self.options
 					.items
 					.iter()
-					.map(|v| ListItem::new(Span::raw(v)))
+					.map(|v| ListItem::new(Span::raw(v.to_string())))
 					.collect::<Vec<ListItem>>(),
 			)
 			.block(Block::default().title("Options").borders(Borders::ALL))
-			.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+			.style(Style::default().fg(Color::Gray))
+			.highlight_style(
+				Style::default()
+					.fg(Color::Reset)
+					.add_modifier(Modifier::BOLD),
+			)
 			.highlight_symbol("> "),
 			area,
 			&mut self.options.state,
