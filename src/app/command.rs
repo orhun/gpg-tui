@@ -67,7 +67,7 @@ impl Display for Command {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
 					} else {
-						format!("export {} ({})", patterns[0], key_type)
+						format!("export the selected key ({})", key_type)
 					}
 				}
 				Command::Copy(copy_type) =>

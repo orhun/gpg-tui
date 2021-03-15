@@ -614,7 +614,7 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let (length_x, percent_y) = (40, 50);
+		let (length_x, percent_y) = (38, 50);
 		let popup_layout = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
