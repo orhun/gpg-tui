@@ -99,6 +99,8 @@ pub fn handle_key_input<B: Backend>(
 				if app.mode != Mode::Normal {
 					tui.enable_mouse_capture()?;
 					Command::SwitchMode(Mode::Normal)
+				} else if app.state.show_options {
+					Command::None
 				} else {
 					Command::Quit
 				}
