@@ -418,9 +418,11 @@ impl<'a> App<'a> {
 				})
 			}
 			Command::SwitchMode(mode) => {
-				self.mode = mode;
-				self.prompt
-					.set_output((OutputType::Action, mode.to_string()))
+				if !(mode == Mode::Copy && self.keys_table.items.is_empty()) {
+					self.mode = mode;
+					self.prompt
+						.set_output((OutputType::Action, mode.to_string()))
+				}
 			}
 			Command::Copy(copy_type) => {
 				let selected_key = &self.keys_table.items[self

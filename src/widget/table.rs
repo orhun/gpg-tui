@@ -41,7 +41,7 @@ impl<T: Clone> StatefulTable<T> {
 	pub fn next(&mut self) {
 		let i = match self.state.tui.selected() {
 			Some(i) => {
-				if i >= self.items.len() - 1 {
+				if i >= self.items.len().checked_sub(1).unwrap_or(i) {
 					0
 				} else {
 					i + 1
@@ -58,7 +58,7 @@ impl<T: Clone> StatefulTable<T> {
 		let i = match self.state.tui.selected() {
 			Some(i) => {
 				if i == 0 {
-					self.items.len() - 1
+					self.items.len().checked_sub(1).unwrap_or(i)
 				} else {
 					i - 1
 				}

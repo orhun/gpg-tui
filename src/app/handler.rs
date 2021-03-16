@@ -180,20 +180,28 @@ pub fn handle_key_input<B: Backend>(
 						)
 					}
 				} else {
-					tui.toggle_pause()?;
-					toggle_pause = true;
-					Command::ExportKeys(
-						match app.tab {
-							Tab::Keys(key_type) => key_type,
-						},
-						vec![app.keys_table.items[app
-							.keys_table
+					match app.keys_table.items.get(
+						app.keys_table
 							.state
 							.tui
 							.selected()
-							.expect("invalid selection")]
-						.get_id()],
-					)
+							.expect("invalid selection"),
+					) {
+						Some(selected_key) => {
+							tui.toggle_pause()?;
+							toggle_pause = true;
+							Command::ExportKeys(
+								match app.tab {
+									Tab::Keys(key_type) => key_type,
+								},
+								vec![selected_key.get_id()],
+							)
+						}
+						None => Command::ShowOutput(
+							OutputType::Failure,
+							String::from("invalid selection"),
+						),
+					}
 				}
 			}
 			Key::Char('a') | Key::Char('A') => Command::Set(
@@ -271,8 +279,10 @@ pub fn handle_key_input<B: Backend>(
 						Some(command) => command,
 						None => Command::None,
 					}
-				} else {
+				} else if !app.keys_table.items.is_empty() {
 					Command::ShowOptions
+				} else {
+					Command::None
 				}
 			}
 			Key::Char(':') => Command::EnableInput,
