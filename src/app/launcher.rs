@@ -652,7 +652,16 @@ impl<'a> App<'a> {
 					.map(|v| ListItem::new(Span::raw(v.to_string())))
 					.collect::<Vec<ListItem>>(),
 			)
-			.block(Block::default().title("Options").borders(Borders::ALL))
+			.block(
+				Block::default()
+					.title("Options")
+					.style(if self.args.style == *"colored" {
+						Style::default().fg(Color::LightBlue)
+					} else {
+						Style::default()
+					})
+					.borders(Borders::ALL),
+			)
 			.style(Style::default().fg(Color::Gray))
 			.highlight_style(
 				Style::default()
