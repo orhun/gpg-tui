@@ -726,7 +726,8 @@ impl<'a> App<'a> {
 			.items
 			.clone()
 			.into_iter()
-			.filter(|key| {
+			.enumerate()
+			.filter(|(i, key)| {
 				let subkey_info = key.get_subkey_info(self.state.minimized);
 				let user_info = key.get_user_info(self.state.minimized);
 				if self.prompt.is_search_enabled() {
@@ -757,9 +758,17 @@ impl<'a> App<'a> {
 				);
 				rows.push(
 					Row::new(if self.args.style == *"colored" {
+						let highlighted =
+							self.keys_table.state.tui.selected() == Some(*i);
 						vec![
-							style::get_colored_table_row(&keys_row.data),
-							style::get_colored_table_row(&users_row.data),
+							style::get_colored_table_row(
+								&keys_row.data,
+								highlighted,
+							),
+							style::get_colored_table_row(
+								&users_row.data,
+								highlighted,
+							),
 						]
 					} else {
 						vec![
@@ -777,6 +786,7 @@ impl<'a> App<'a> {
 				);
 				true
 			})
+			.map(|(_, v)| v)
 			.collect();
 		rows
 	}

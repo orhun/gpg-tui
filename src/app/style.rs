@@ -7,7 +7,15 @@ use tui::text::{Span, Spans, Text};
 /// * flags in bracket characters. (e.g. `[?]`)
 /// * parts separated by slash character. (e.g. `rsa2048/abc123`)
 /// * values in arrow characters (e.g. `<test@example.com>`)
-pub fn get_colored_table_row<'a>(row_data: &[String]) -> Text<'a> {
+pub fn get_colored_table_row<'a>(
+	row_data: &[String],
+	highlighted: bool,
+) -> Text<'a> {
+	let highlight_style = if highlighted {
+		Style::default().fg(Color::Reset)
+	} else {
+		Style::default()
+	};
 	let mut row = Vec::new();
 	for line in row_data.iter() {
 		row.push(
@@ -17,8 +25,10 @@ pub fn get_colored_table_row<'a>(row_data: &[String]) -> Text<'a> {
 			{
 				let data = line[first_bracket + 1..second_bracket].to_string();
 				let mut colored_line = Vec::new();
-				colored_line
-					.push(Span::raw(line[..first_bracket + 1].to_string()));
+				colored_line.push(Span::styled(
+					line[..first_bracket + 1].to_string(),
+					highlight_style,
+				));
 				if vec![
 					// expired
 					String::from("exp"),
@@ -79,8 +89,9 @@ pub fn get_colored_table_row<'a>(row_data: &[String]) -> Text<'a> {
 				let data = line[second_bracket..].to_string();
 				// Colorize the separate parts using slash character.
 				if data.find('/') == Some(9) {
-					colored_line.push(Span::raw(
+					colored_line.push(Span::styled(
 						data.chars().next().unwrap_or_default().to_string(),
+						highlight_style,
 					));
 					colored_line.push(Span::styled(
 						data[1..9].to_string(),
@@ -90,13 +101,18 @@ pub fn get_colored_table_row<'a>(row_data: &[String]) -> Text<'a> {
 						"/",
 						Style::default().fg(Color::DarkGray),
 					));
-					colored_line.push(Span::raw(data[10..].to_string()));
+					colored_line.push(Span::styled(
+						data[10..].to_string(),
+						highlight_style,
+					));
 				// Colorize inside the arrows.
 				} else if let (Some(first_arrow), Some(second_arrow)) =
 					(data.rfind('<'), data.rfind('>'))
 				{
-					colored_line
-						.push(Span::raw(data[..first_arrow].to_string()));
+					colored_line.push(Span::styled(
+						data[..first_arrow].to_string(),
+						highlight_style,
+					));
 					colored_line.push(Span::styled(
 						"<",
 						Style::default().fg(Color::DarkGray),
@@ -109,16 +125,21 @@ pub fn get_colored_table_row<'a>(row_data: &[String]) -> Text<'a> {
 						">",
 						Style::default().fg(Color::DarkGray),
 					));
-					colored_line
-						.push(Span::raw(data[second_arrow + 1..].to_string()));
+					colored_line.push(Span::styled(
+						data[second_arrow + 1..].to_string(),
+						highlight_style,
+					));
 				// Use the rest of the data as raw.
 				} else {
-					colored_line.push(Span::raw(data));
+					colored_line.push(Span::styled(data, highlight_style));
 				}
 				Spans::from(colored_line)
 			// Use the unfit data as is.
 			} else {
-				Spans::from(line.to_string())
+				Spans::from(vec![Span::styled(
+					line.to_string(),
+					highlight_style,
+				)])
 			},
 		)
 	}
