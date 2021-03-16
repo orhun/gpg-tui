@@ -265,7 +265,7 @@ pub fn handle_key_input<B: Backend>(
 					Command::Minimize
 				}
 			}
-			Key::Char('o') | Key::Enter => {
+			Key::Char('o') | Key::Char(' ') | Key::Enter => {
 				if app.state.show_options {
 					match app
 						.options
