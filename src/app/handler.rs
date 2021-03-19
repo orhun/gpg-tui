@@ -178,7 +178,7 @@ pub fn handle_key_input<B: Backend>(
 					} else {
 						Command::ShowOutput(
 							OutputType::Warning,
-							String::from("enable armored output for copying the exported key(s)"),
+							String::from("enable armored output for copying the exported key"),
 						)
 					}
 				} else {
@@ -278,6 +278,18 @@ pub fn handle_key_input<B: Backend>(
 						)
 						.cloned()
 					{
+						Some(Command::Copy(CopyType::Key)) => {
+							if app.gpgme.config.armor {
+								tui.toggle_pause()?;
+								toggle_pause = true;
+								Command::Copy(CopyType::Key)
+							} else {
+								Command::ShowOutput(
+									OutputType::Warning,
+									String::from("enable armored output for copying the exported key"),
+								)
+							}
+						}
 						Some(command) => command,
 						None => Command::None,
 					}
