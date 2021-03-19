@@ -131,10 +131,16 @@ pub fn handle_key_input<B: Backend>(
 				tui.enable_mouse_capture()?;
 				Command::Refresh
 			}
-			Key::Up | Key::Char('k') | Key::Char('K') => Command::Scroll(
-				ScrollDirection::Up(1),
-				key_event.modifiers == Modifiers::ALT,
-			),
+			Key::Up | Key::Char('k') | Key::Char('K') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Scroll(ScrollDirection::Top, false)
+				} else {
+					Command::Scroll(
+						ScrollDirection::Up(1),
+						key_event.modifiers == Modifiers::ALT,
+					)
+				}
+			}
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
 					Command::Scroll(ScrollDirection::Right(1), true)
@@ -142,10 +148,16 @@ pub fn handle_key_input<B: Backend>(
 					Command::NextTab
 				}
 			}
-			Key::Down | Key::Char('j') | Key::Char('J') => Command::Scroll(
-				ScrollDirection::Down(1),
-				key_event.modifiers == Modifiers::ALT,
-			),
+			Key::Down | Key::Char('j') | Key::Char('J') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Scroll(ScrollDirection::Bottom, false)
+				} else {
+					Command::Scroll(
+						ScrollDirection::Down(1),
+						key_event.modifiers == Modifiers::ALT,
+					)
+				}
+			}
 			Key::Left | Key::Char('h') | Key::Char('H') => {
 				if key_event.modifiers == Modifiers::ALT {
 					Command::Scroll(ScrollDirection::Left(1), true)

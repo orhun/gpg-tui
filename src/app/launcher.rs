@@ -289,10 +289,22 @@ impl<'a> App<'a> {
 						self.keys_table.previous();
 					}
 				}
+				ScrollDirection::Top => {
+					self.keys_table.state.tui.select(Some(0));
+				}
+				ScrollDirection::Bottom => {
+					self.keys_table.state.tui.select(Some(
+						self.keys_table
+							.items
+							.len()
+							.checked_sub(1)
+							.unwrap_or_default(),
+					));
+				}
 				_ => {}
 			},
 			Command::Scroll(direction, true) => {
-				self.keys_table.scroll(direction);
+				self.keys_table.scroll_row(direction);
 			}
 			Command::Set(option, value) => self.prompt.set_output(match option
 				.as_str()

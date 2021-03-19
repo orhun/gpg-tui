@@ -12,6 +12,10 @@ pub enum ScrollDirection {
 	Down(u16),
 	/// Scroll left.
 	Left(u16),
+	/// Scroll to top.
+	Top,
+	/// Scroll to bottom.
+	Bottom,
 }
 
 impl FromStr for ScrollDirection {
@@ -24,6 +28,8 @@ impl FromStr for ScrollDirection {
 			Some("right") | Some("r") => Ok(Self::Right(value)),
 			Some("down") | Some("d") => Ok(Self::Down(value)),
 			Some("left") | Some("l") => Ok(Self::Left(value)),
+			Some("top") | Some("t") => Ok(Self::Top),
+			Some("bottom") | Some("b") => Ok(Self::Bottom),
 			Some("") => Ok(Self::Up(value)),
 			_ => Err(()),
 		}

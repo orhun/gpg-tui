@@ -69,9 +69,9 @@ impl<T: Clone> StatefulTable<T> {
 		self.reset_scroll();
 	}
 
-	/// Sets the scrolling state of the table
+	/// Sets the scrolling state of the table row
 	/// depending on the given direction and offset.
-	pub fn scroll(&mut self, direction: ScrollDirection) {
+	pub fn scroll_row(&mut self, direction: ScrollDirection) {
 		match direction {
 			ScrollDirection::Up(value) => {
 				self.state.scroll.vertical = self
@@ -105,6 +105,7 @@ impl<T: Clone> StatefulTable<T> {
 					.checked_sub(value)
 					.unwrap_or_default();
 			}
+			_ => {}
 		}
 	}
 
@@ -139,14 +140,14 @@ mod tests {
 			"ScrollAmount { vertical: 0, horizontal: 0 }",
 			&format!("{:?}", table.state.scroll)
 		);
-		table.scroll(ScrollDirection::Down(3));
-		table.scroll(ScrollDirection::Right(2));
+		table.scroll_row(ScrollDirection::Down(3));
+		table.scroll_row(ScrollDirection::Right(2));
 		assert_eq!(
 			"ScrollAmount { vertical: 3, horizontal: 2 }",
 			&format!("{:?}", table.state.scroll)
 		);
-		table.scroll(ScrollDirection::Up(1));
-		table.scroll(ScrollDirection::Left(1));
+		table.scroll_row(ScrollDirection::Up(1));
+		table.scroll_row(ScrollDirection::Left(1));
 		assert_eq!(
 			"ScrollAmount { vertical: 2, horizontal: 1 }",
 			&format!("{:?}", table.state.scroll)
