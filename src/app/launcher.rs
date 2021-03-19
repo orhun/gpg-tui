@@ -98,6 +98,7 @@ impl<'a> App<'a> {
 		self.state = State::default();
 		self.mode = Mode::Normal;
 		self.prompt = Prompt::default();
+		self.options.state.select(Some(0));
 		self.keys = self.gpgme.get_all_keys()?;
 		self.keys_table_states.clear();
 		self.keys_table_detail = KeyDetail::Minimum;
@@ -137,6 +138,8 @@ impl<'a> App<'a> {
 				self.prompt.set_output((output_type, message))
 			}
 			Command::ShowOptions => {
+				let prev_selection = self.options.state.selected();
+				let prev_item_count = self.options.items.len();
 				self.options = StatefulList::with_items(match self.tab {
 					Tab::Keys(key_type) => vec![
 						Command::None,
@@ -197,6 +200,11 @@ impl<'a> App<'a> {
 						},
 					],
 				});
+				if prev_item_count == 0
+					|| self.options.items.len() == prev_item_count
+				{
+					self.options.state.select(prev_selection.or(Some(0)));
+				}
 				show_options = true;
 			}
 			Command::ListKeys(key_type) => {

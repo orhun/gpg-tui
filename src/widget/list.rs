@@ -10,8 +10,7 @@ pub struct StatefulList<T> {
 
 impl<T> StatefulList<T> {
 	/// Constructs a new instance of `StatefulList`.
-	pub fn new(items: Vec<T>, mut state: State) -> StatefulList<T> {
-		state.select(Some(0));
+	pub fn new(items: Vec<T>, state: State) -> StatefulList<T> {
 		Self { items, state }
 	}
 
