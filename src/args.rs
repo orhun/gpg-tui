@@ -18,7 +18,7 @@ use structopt::StructOpt;
     ])
 )]
 pub struct Args {
-	/// Creates ASCII armored output.
+	/// Enables ASCII armored output.
 	#[structopt(short, long)]
 	pub armor: bool,
 	/// Sets the GnuPG home directory.
