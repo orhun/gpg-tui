@@ -66,6 +66,19 @@ pub fn handle_key_input<B: Backend>(
 							Mode::Visual => tui.disable_mouse_capture()?,
 							_ => {}
 						}
+					} else if let Command::Set(ref option, ref value) = command
+					{
+						if option == "mode" {
+							match Mode::from_str(value) {
+								Ok(Mode::Normal) => {
+									tui.enable_mouse_capture()?
+								}
+								Ok(Mode::Visual) => {
+									tui.disable_mouse_capture()?
+								}
+								_ => {}
+							}
+						}
 					} else if let Command::Copy(CopyType::Key) = command {
 						if app.gpgme.config.armor {
 							tui.toggle_pause()?;
