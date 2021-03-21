@@ -508,6 +508,7 @@ impl<'a> App<'a> {
 				self.mode = Mode::Normal;
 			}
 			Command::Paste => {
+				self.prompt.clear();
 				self.prompt.text = format!(
 					":{}",
 					self.clipboard
