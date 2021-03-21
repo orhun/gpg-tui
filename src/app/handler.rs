@@ -12,13 +12,13 @@ use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 use std::str::FromStr;
 use tui::backend::Backend;
 
-/// Handle key events.
+/// Handles the key events and
+/// runs an application command if necessary.
 pub fn handle_key_input<B: Backend>(
 	key_event: KeyEvent,
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
-	let mut toggle_pause = false;
 	if app.prompt.is_enabled() {
 		match key_event.code {
 			Key::Char(c) => {
@@ -52,47 +52,11 @@ pub fn handle_key_input<B: Backend>(
 			Key::Enter => {
 				if app.prompt.is_search_enabled() || app.prompt.text.len() < 2 {
 					app.prompt.clear();
-				} else if let Ok(mut command) =
-					Command::from_str(&app.prompt.text)
+				} else if let Ok(command) = Command::from_str(&app.prompt.text)
 				{
 					app.prompt.history.push(app.prompt.text.clone());
 					app.prompt.clear();
-					if let Command::ExportKeys(_, _) = command {
-						tui.toggle_pause()?;
-						toggle_pause = true;
-					} else if let Command::SwitchMode(mode) = command {
-						match mode {
-							Mode::Normal => tui.enable_mouse_capture()?,
-							Mode::Visual => tui.disable_mouse_capture()?,
-							_ => {}
-						}
-					} else if let Command::Set(ref option, ref value) = command
-					{
-						if option == "mode" {
-							match Mode::from_str(value) {
-								Ok(Mode::Normal) => {
-									tui.enable_mouse_capture()?
-								}
-								Ok(Mode::Visual) => {
-									tui.disable_mouse_capture()?
-								}
-								_ => {}
-							}
-						}
-					} else if let Command::Copy(CopyType::Key) = command {
-						if app.gpgme.config.armor {
-							tui.toggle_pause()?;
-							toggle_pause = true;
-						} else {
-							command = Command::ShowOutput(
-								OutputType::Warning,
-								String::from("enable armored output for copying the exported key(s)"),
-							);
-						}
-					} else if let Command::Refresh = command {
-						tui.enable_mouse_capture()?;
-					}
-					app.run_command(command)?;
+					handle_command_execution(command, tui, app)?;
 				} else {
 					app.prompt.set_output((
 						OutputType::Failure,
@@ -106,229 +70,250 @@ pub fn handle_key_input<B: Backend>(
 			_ => {}
 		}
 	} else {
-		app.run_command(match key_event.code {
-			Key::Char('q') | Key::Char('Q') => Command::Quit,
-			Key::Esc => {
-				if app.mode != Mode::Normal {
-					tui.enable_mouse_capture()?;
-					Command::SwitchMode(Mode::Normal)
-				} else if app.state.show_options {
-					Command::None
-				} else {
-					Command::Quit
-				}
-			}
-			Key::Char('d') | Key::Char('D') => {
-				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Quit
-				} else {
-					Command::None
-				}
-			}
-			Key::Char('c') | Key::Char('C') => {
-				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Quit
-				} else {
-					Command::SwitchMode(Mode::Copy)
-				}
-			}
-			Key::Char('v') | Key::Char('V') => {
-				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Paste
-				} else {
-					tui.disable_mouse_capture()?;
-					Command::SwitchMode(Mode::Visual)
-				}
-			}
-			Key::Char('r') | Key::Char('R') | Key::F(5) => {
-				tui.enable_mouse_capture()?;
-				Command::Refresh
-			}
-			Key::Up | Key::Char('k') | Key::Char('K') => {
-				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Scroll(ScrollDirection::Top, false)
-				} else {
-					Command::Scroll(
-						ScrollDirection::Up(1),
-						key_event.modifiers == Modifiers::ALT,
-					)
-				}
-			}
-			Key::Right | Key::Char('l') | Key::Char('L') => {
-				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Right(1), true)
-				} else {
-					Command::NextTab
-				}
-			}
-			Key::Down | Key::Char('j') | Key::Char('J') => {
-				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Scroll(ScrollDirection::Bottom, false)
-				} else {
-					Command::Scroll(
-						ScrollDirection::Down(1),
-						key_event.modifiers == Modifiers::ALT,
-					)
-				}
-			}
-			Key::Left | Key::Char('h') | Key::Char('H') => {
-				if key_event.modifiers == Modifiers::ALT {
-					Command::Scroll(ScrollDirection::Left(1), true)
-				} else {
-					Command::PreviousTab
-				}
-			}
-			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
-			Key::Tab => Command::ToggleDetail(false),
-			Key::Char('`') => Command::Set(
-				String::from("margin"),
-				String::from(if app.keys_table_margin == 1 {
-					"0"
-				} else {
-					"1"
-				}),
-			),
-			Key::Char('p') | Key::Char('P') => {
-				Command::ListKeys(KeyType::Public)
-			}
-			Key::Char('s') | Key::Char('S') => {
-				Command::ListKeys(KeyType::Secret)
-			}
-			Key::Char('e') | Key::Char('E') => {
-				if app.mode == Mode::Copy {
-					if app.gpgme.config.armor {
-						tui.toggle_pause()?;
-						toggle_pause = true;
-						Command::Copy(CopyType::Key)
+		handle_command_execution(
+			match key_event.code {
+				Key::Char('q') | Key::Char('Q') => Command::Quit,
+				Key::Esc => {
+					if app.mode != Mode::Normal {
+						Command::SwitchMode(Mode::Normal)
+					} else if app.state.show_options {
+						Command::None
 					} else {
-						Command::ShowOutput(
-							OutputType::Warning,
-							String::from("enable armored output for copying the exported key"),
+						Command::Quit
+					}
+				}
+				Key::Char('d') | Key::Char('D') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Quit
+					} else {
+						Command::None
+					}
+				}
+				Key::Char('c') | Key::Char('C') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Quit
+					} else {
+						Command::SwitchMode(Mode::Copy)
+					}
+				}
+				Key::Char('v') | Key::Char('V') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Paste
+					} else {
+						Command::SwitchMode(Mode::Visual)
+					}
+				}
+				Key::Char('r') | Key::Char('R') | Key::F(5) => Command::Refresh,
+				Key::Up | Key::Char('k') | Key::Char('K') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Scroll(ScrollDirection::Top, false)
+					} else {
+						Command::Scroll(
+							ScrollDirection::Up(1),
+							key_event.modifiers == Modifiers::ALT,
 						)
 					}
-				} else {
-					match app.keys_table.items.get(
-						app.keys_table
-							.state
-							.tui
-							.selected()
-							.expect("invalid selection"),
-					) {
-						Some(selected_key) => {
-							tui.toggle_pause()?;
-							toggle_pause = true;
-							Command::ExportKeys(
+				}
+				Key::Right | Key::Char('l') | Key::Char('L') => {
+					if key_event.modifiers == Modifiers::ALT {
+						Command::Scroll(ScrollDirection::Right(1), true)
+					} else {
+						Command::NextTab
+					}
+				}
+				Key::Down | Key::Char('j') | Key::Char('J') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Scroll(ScrollDirection::Bottom, false)
+					} else {
+						Command::Scroll(
+							ScrollDirection::Down(1),
+							key_event.modifiers == Modifiers::ALT,
+						)
+					}
+				}
+				Key::Left | Key::Char('h') | Key::Char('H') => {
+					if key_event.modifiers == Modifiers::ALT {
+						Command::Scroll(ScrollDirection::Left(1), true)
+					} else {
+						Command::PreviousTab
+					}
+				}
+				Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
+				Key::Tab => Command::ToggleDetail(false),
+				Key::Char('`') => Command::Set(
+					String::from("margin"),
+					String::from(if app.keys_table_margin == 1 {
+						"0"
+					} else {
+						"1"
+					}),
+				),
+				Key::Char('p') | Key::Char('P') => {
+					Command::ListKeys(KeyType::Public)
+				}
+				Key::Char('s') | Key::Char('S') => {
+					Command::ListKeys(KeyType::Secret)
+				}
+				Key::Char('e') | Key::Char('E') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::Key)
+					} else {
+						match app.keys_table.items.get(
+							app.keys_table
+								.state
+								.tui
+								.selected()
+								.expect("invalid selection"),
+						) {
+							Some(selected_key) => Command::ExportKeys(
 								match app.tab {
 									Tab::Keys(key_type) => key_type,
 								},
 								vec![selected_key.get_id()],
-							)
+							),
+							None => Command::ShowOutput(
+								OutputType::Failure,
+								String::from("invalid selection"),
+							),
 						}
-						None => Command::ShowOutput(
-							OutputType::Failure,
-							String::from("invalid selection"),
-						),
 					}
 				}
-			}
-			Key::Char('a') | Key::Char('A') => Command::Set(
-				String::from("armor"),
-				(!app.gpgme.config.armor).to_string(),
-			),
-			Key::Char('n') | Key::Char('N') => {
-				tui.enable_mouse_capture()?;
-				Command::SwitchMode(Mode::Normal)
-			}
-			Key::Char('1') => {
-				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::TableRow(1))
-				} else {
-					Command::Set(
-						String::from("detail"),
-						String::from("minimum"),
-					)
+				Key::Char('a') | Key::Char('A') => Command::Set(
+					String::from("armor"),
+					(!app.gpgme.config.armor).to_string(),
+				),
+				Key::Char('n') | Key::Char('N') => {
+					Command::SwitchMode(Mode::Normal)
 				}
-			}
-			Key::Char('2') => {
-				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::TableRow(2))
-				} else {
-					Command::Set(
-						String::from("detail"),
-						String::from("standard"),
-					)
-				}
-			}
-			Key::Char('3') => {
-				Command::Set(String::from("detail"), String::from("full"))
-			}
-			Key::Char('i') | Key::Char('I') => {
-				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyId)
-				} else {
-					Command::None
-				}
-			}
-			Key::Char('f') | Key::Char('F') => {
-				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyFingerprint)
-				} else {
-					Command::None
-				}
-			}
-			Key::Char('u') | Key::Char('U') => {
-				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyUserId)
-				} else {
-					Command::None
-				}
-			}
-			Key::Char('m') | Key::Char('M') => {
-				if app.state.minimized {
-					Command::Maximize
-				} else {
-					Command::Minimize
-				}
-			}
-			Key::Char('o') | Key::Char(' ') | Key::Enter => {
-				if app.state.show_options {
-					match app
-						.options
-						.items
-						.get(
-							app.options
-								.state
-								.selected()
-								.expect("invalid selection"),
+				Key::Char('1') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::TableRow(1))
+					} else {
+						Command::Set(
+							String::from("detail"),
+							String::from("minimum"),
 						)
-						.cloned()
-					{
-						Some(Command::Copy(CopyType::Key)) => {
-							if app.gpgme.config.armor {
-								tui.toggle_pause()?;
-								toggle_pause = true;
-								Command::Copy(CopyType::Key)
-							} else {
-								Command::ShowOutput(
-									OutputType::Warning,
-									String::from("enable armored output for copying the exported key"),
-								)
-							}
-						}
-						Some(command) => command,
-						None => Command::None,
 					}
-				} else if !app.keys_table.items.is_empty() {
-					Command::ShowOptions
-				} else {
-					Command::None
+				}
+				Key::Char('2') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::TableRow(2))
+					} else {
+						Command::Set(
+							String::from("detail"),
+							String::from("standard"),
+						)
+					}
+				}
+				Key::Char('3') => {
+					Command::Set(String::from("detail"), String::from("full"))
+				}
+				Key::Char('i') | Key::Char('I') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::KeyId)
+					} else {
+						Command::None
+					}
+				}
+				Key::Char('f') | Key::Char('F') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::KeyFingerprint)
+					} else {
+						Command::None
+					}
+				}
+				Key::Char('u') | Key::Char('U') => {
+					if app.mode == Mode::Copy {
+						Command::Copy(CopyType::KeyUserId)
+					} else {
+						Command::None
+					}
+				}
+				Key::Char('m') | Key::Char('M') => {
+					if app.state.minimized {
+						Command::Maximize
+					} else {
+						Command::Minimize
+					}
+				}
+				Key::Char('o') | Key::Char(' ') | Key::Enter => {
+					if app.state.show_options {
+						app.options
+							.items
+							.get(
+								app.options
+									.state
+									.selected()
+									.expect("invalid selection"),
+							)
+							.cloned()
+							.unwrap_or(Command::None)
+					} else if !app.keys_table.items.is_empty() {
+						Command::ShowOptions
+					} else {
+						Command::None
+					}
+				}
+				Key::Char(':') => Command::EnableInput,
+				Key::Char('/') => Command::Search(None),
+				_ => Command::None,
+			},
+			tui,
+			app,
+		)?;
+	}
+	Ok(())
+}
+
+/// Handles the execution of an application command.
+///
+/// It checks the additional conditions for determining
+/// if the execution of the given command is applicable.
+/// For example, depending on the command, it toggles the
+/// [`paused`] state of [`Tui`] or enables/disables the mouse capture.
+///
+/// [`Tui`]: Tui
+/// [`paused`]: Tui::paused
+fn handle_command_execution<B: Backend>(
+	mut command: Command,
+	tui: &mut Tui<B>,
+	app: &mut App,
+) -> Result<()> {
+	let mut toggle_pause = false;
+	match command {
+		Command::SwitchMode(Mode::Normal) | Command::Refresh => {
+			tui.enable_mouse_capture()?
+		}
+		Command::SwitchMode(Mode::Visual) => tui.disable_mouse_capture()?,
+		Command::Set(ref option, ref value) => {
+			if option == "mode" {
+				match Mode::from_str(value) {
+					Ok(Mode::Normal) => tui.enable_mouse_capture()?,
+					Ok(Mode::Visual) => tui.disable_mouse_capture()?,
+					_ => {}
 				}
 			}
-			Key::Char(':') => Command::EnableInput,
-			Key::Char('/') => Command::Search(None),
-			_ => Command::None,
-		})?;
+		}
+		Command::ExportKeys(_, _) => {
+			tui.toggle_pause()?;
+			toggle_pause = true;
+		}
+		Command::Copy(CopyType::Key) => {
+			if app.gpgme.config.armor {
+				tui.toggle_pause()?;
+				toggle_pause = true;
+			} else {
+				command = Command::ShowOutput(
+					OutputType::Warning,
+					String::from(
+						"enable armored output for copying the exported key(s)",
+					),
+				);
+			}
+		}
+		_ => {}
 	}
+	app.run_command(command)?;
 	if toggle_pause {
 		tui.toggle_pause()?;
 	}

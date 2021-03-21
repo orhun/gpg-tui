@@ -18,7 +18,7 @@ pub mod command;
 /// Application tabs.
 pub mod tab;
 
-/// Handler methods.
+/// Input and command handler.
 pub mod handler;
 
 /// Clipboard helper.
