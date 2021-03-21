@@ -71,6 +71,22 @@ pub struct Prompt {
 }
 
 impl Prompt {
+	/// Enables the prompt.
+	///
+	/// Available prefixes:
+	/// * `:`: command input
+	/// * `/`: search
+	fn enable(&mut self, prefix: String) {
+		self.text = if self.text.is_empty() || self.clock.is_some() {
+			prefix
+		} else {
+			format!("{}{}", prefix, &self.text[1..self.text.len()])
+		};
+		self.output_type = OutputType::None;
+		self.clock = None;
+		self.history_index = 0;
+	}
+
 	/// Checks if the prompt is enabled.
 	pub fn is_enabled(&self) -> bool {
 		!self.text.is_empty() && self.clock.is_none()
@@ -78,14 +94,7 @@ impl Prompt {
 
 	/// Enables the command input.
 	pub fn enable_command_input(&mut self) {
-		self.text = if self.text.is_empty() || self.clock.is_some() {
-			String::from(":")
-		} else {
-			format!(":{}", &self.text[1..self.text.len()])
-		};
-		self.output_type = OutputType::None;
-		self.clock = None;
-		self.history_index = 0;
+		self.enable(String::from(":"));
 	}
 
 	/// Checks if the command input is enabled.
@@ -95,14 +104,7 @@ impl Prompt {
 
 	/// Enables the search.
 	pub fn enable_search(&mut self) {
-		self.text = if self.text.is_empty() || self.clock.is_some() {
-			String::from("/")
-		} else {
-			format!("/{}", &self.text[1..self.text.len()])
-		};
-		self.output_type = OutputType::None;
-		self.clock = None;
-		self.history_index = 0;
+		self.enable(String::from("/"));
 	}
 
 	/// Checks if the search is enabled.
