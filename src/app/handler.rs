@@ -78,12 +78,17 @@ pub fn handle_key_input<B: Backend>(
 						Command::SwitchMode(Mode::Normal)
 					} else if app.state.show_options {
 						Command::None
+					} else if app.prompt.command.is_some() {
+						app.prompt.clear();
+						Command::None
 					} else {
 						Command::Quit
 					}
 				}
-				Key::Char('d') | Key::Char('D') => {
-					if key_event.modifiers == Modifiers::CONTROL {
+				Key::Char('d') | Key::Char('D') | Key::Backspace => {
+					if key_event.modifiers == Modifiers::CONTROL
+						&& key_event.code != Key::Backspace
+					{
 						Command::Quit
 					} else {
 						match app.keys_table.items.get(
@@ -93,12 +98,14 @@ pub fn handle_key_input<B: Backend>(
 								.selected()
 								.expect("invalid selection"),
 						) {
-							Some(selected_key) => Command::DeleteKey(
-								match app.tab {
-									Tab::Keys(key_type) => key_type,
-								},
-								selected_key.get_id(),
-							),
+							Some(selected_key) => {
+								Command::Confirm(Box::new(Command::DeleteKey(
+									match app.tab {
+										Tab::Keys(key_type) => key_type,
+									},
+									selected_key.get_id(),
+								)))
+							}
 							None => Command::ShowOutput(
 								OutputType::Failure,
 								String::from("invalid selection"),
@@ -200,7 +207,12 @@ pub fn handle_key_input<B: Backend>(
 					(!app.gpgme.config.armor).to_string(),
 				),
 				Key::Char('n') | Key::Char('N') => {
-					Command::SwitchMode(Mode::Normal)
+					if app.prompt.command.is_some() {
+						app.prompt.clear();
+						Command::None
+					} else {
+						Command::SwitchMode(Mode::Normal)
+					}
 				}
 				Key::Char('1') => {
 					if app.mode == Mode::Copy {
@@ -251,6 +263,13 @@ pub fn handle_key_input<B: Backend>(
 						Command::Maximize
 					} else {
 						Command::Minimize
+					}
+				}
+				Key::Char('y') | Key::Char('Y') => {
+					if let Some(command) = &app.prompt.command {
+						command.clone()
+					} else {
+						Command::None
 					}
 				}
 				Key::Char('o') | Key::Char(' ') | Key::Enter => {

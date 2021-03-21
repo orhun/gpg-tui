@@ -123,7 +123,9 @@ impl<'a> App<'a> {
 	/// It is currently used to flush the prompt messages.
 	pub fn tick(&mut self) {
 		if let Some(clock) = self.prompt.clock {
-			if clock.elapsed().as_secs() > MESSAGE_DURATION {
+			if clock.elapsed().as_secs() > MESSAGE_DURATION
+				&& self.prompt.command.is_none()
+			{
 				self.prompt.clear()
 			}
 		}
@@ -133,7 +135,12 @@ impl<'a> App<'a> {
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
 		let mut show_options = false;
+		let mut clear_confirm = true;
 		match command {
+			Command::Confirm(command) => {
+				clear_confirm = false;
+				self.prompt.set_command(*command)
+			}
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
 			}
@@ -157,7 +164,10 @@ impl<'a> App<'a> {
 								vec![selected_key.clone()],
 							),
 							Command::ExportKeys(key_type, Vec::new()),
-							Command::DeleteKey(key_type, selected_key),
+							Command::Confirm(Box::new(Command::DeleteKey(
+								key_type,
+								selected_key,
+							))),
 							Command::Copy(CopyType::Key),
 							Command::Copy(CopyType::KeyId),
 							Command::Copy(CopyType::KeyFingerprint),
@@ -539,6 +549,9 @@ impl<'a> App<'a> {
 			Command::None => {}
 		}
 		self.state.show_options = show_options;
+		if clear_confirm && self.prompt.command.is_some() {
+			self.prompt.clear();
+		}
 		Ok(())
 	}
 

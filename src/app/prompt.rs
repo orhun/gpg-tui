@@ -1,3 +1,4 @@
+use crate::app::command::Command;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::time::Instant;
@@ -51,8 +52,8 @@ impl From<String> for OutputType {
 }
 
 /// Application prompt which is responsible for
-/// handling user input ([`text`]) and showing the
-/// output of [`commands`] (for a while).
+/// handling user input ([`text`]), showing the
+/// output of [`commands`] and ask for confirmation.
 ///
 /// [`text`]: Prompt::text
 /// [`commands`]: crate::app::command::Command
@@ -64,6 +65,8 @@ pub struct Prompt {
 	pub output_type: OutputType,
 	/// Clock for tracking the duration of output messages.
 	pub clock: Option<Instant>,
+	/// Command that will be confirmed for execution.
+	pub command: Option<Command>,
 	/// Command history.
 	pub history: Vec<String>,
 	/// Index of the selected command from history.
@@ -84,12 +87,13 @@ impl Prompt {
 		};
 		self.output_type = OutputType::None;
 		self.clock = None;
+		self.command = None;
 		self.history_index = 0;
 	}
 
 	/// Checks if the prompt is enabled.
 	pub fn is_enabled(&self) -> bool {
-		!self.text.is_empty() && self.clock.is_none()
+		!self.text.is_empty() && self.clock.is_none() && self.command.is_none()
 	}
 
 	/// Enables the command input.
@@ -117,6 +121,14 @@ impl Prompt {
 		let (output_type, message) = output;
 		self.output_type = output_type;
 		self.text = message.as_ref().to_string();
+		self.clock = Some(Instant::now());
+	}
+
+	/// Sets the command that will be asked to confirm.
+	pub fn set_command(&mut self, command: Command) {
+		self.text = format!("press 'y' to {}", command);
+		self.output_type = OutputType::Action;
+		self.command = Some(command);
 		self.clock = Some(Instant::now());
 	}
 
@@ -152,6 +164,7 @@ impl Prompt {
 		self.text.clear();
 		self.output_type = OutputType::None;
 		self.clock = None;
+		self.command = None;
 		self.history_index = 0;
 	}
 }

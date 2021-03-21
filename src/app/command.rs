@@ -13,6 +13,8 @@ use std::str::FromStr;
 /// [`App`]: crate::app::launcher::App
 #[derive(Clone, Debug, PartialEq)]
 pub enum Command {
+	/// Confirm the execution of a command.
+	Confirm(Box<Command>),
 	/// Show application output.
 	ShowOutput(OutputType, String),
 	/// Show popup for options menu.
@@ -89,6 +91,7 @@ impl Display for Command {
 					"switch to {} mode",
 					format!("{:?}", mode).to_lowercase()
 				),
+				Command::Confirm(command) => (*command).to_string(),
 				_ => format!("{:?}", self),
 			}
 		)
@@ -107,6 +110,11 @@ impl FromStr for Command {
 		let command = values.first().cloned().unwrap_or_default();
 		let args = values.drain(1..).collect::<Vec<String>>();
 		match command.as_str() {
+			"confirm" => Ok(Self::Confirm(Box::new(if args.is_empty() {
+				Command::None
+			} else {
+				Command::from_str(&args.join(" "))?
+			}))),
 			"output" | "out" => Ok(Self::ShowOutput(
 				OutputType::from(args.first().cloned().unwrap_or_default()),
 				args[1..].join(" "),
@@ -187,6 +195,7 @@ impl FromStr for Command {
 			"maximize" | "max" => Ok(Self::Maximize),
 			"refresh" | "r" => Ok(Self::Refresh),
 			"quit" | "q" | "q!" => Ok(Self::Quit),
+			"none" => Ok(Self::None),
 			_ => Err(()),
 		}
 	}
@@ -198,6 +207,10 @@ mod tests {
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_command() {
+		assert_eq!(
+			Command::Confirm(Box::new(Command::None)),
+			Command::from_str(":confirm none").unwrap()
+		);
 		assert_eq!(
 			Command::ShowOutput(
 				OutputType::Success,
@@ -319,6 +332,7 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Quit, command);
 		}
+		assert_eq!(Command::None, Command::from_str(":none").unwrap());
 		assert!(Command::from_str("test").is_err());
 	}
 }
