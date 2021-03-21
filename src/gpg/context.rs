@@ -131,6 +131,34 @@ impl GpgContext {
 		File::create(&path)?.write_all(&output)?;
 		Ok(path.to_string_lossy().to_string())
 	}
+
+	/// Deletes the specified public/secret key.
+	///
+	/// Searches the keyring for finding the specified
+	/// key ID for deleting it.
+	pub fn delete_key(
+		&mut self,
+		key_type: KeyType,
+		key_id: String,
+	) -> Result<()> {
+		match self
+			.get_keys(key_type, Some(vec![key_id.clone()]))?
+			.into_iter()
+			.find(|key| key.get_id() == key_id)
+		{
+			Some(key) => match key_type {
+				KeyType::Public => {
+					self.inner.delete_key(&key.get_raw())?;
+					Ok(())
+				}
+				KeyType::Secret => {
+					self.inner.delete_secret_key(&key.get_raw())?;
+					Ok(())
+				}
+			},
+			None => Err(anyhow!("no keys found")),
+		}
+	}
 }
 
 #[cfg(test)]

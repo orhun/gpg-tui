@@ -141,64 +141,68 @@ impl<'a> App<'a> {
 				let prev_selection = self.options.state.selected();
 				let prev_item_count = self.options.items.len();
 				self.options = StatefulList::with_items(match self.tab {
-					Tab::Keys(key_type) => vec![
-						Command::None,
-						Command::Refresh,
-						Command::ExportKeys(
-							key_type,
-							vec![self.keys_table.items[self
-								.keys_table
-								.state
-								.tui
-								.selected()
-								.expect("invalid selection")]
-							.get_id()],
-						),
-						Command::ExportKeys(key_type, Vec::new()),
-						Command::Copy(CopyType::Key),
-						Command::Copy(CopyType::KeyId),
-						Command::Copy(CopyType::KeyFingerprint),
-						Command::Copy(CopyType::KeyUserId),
-						Command::Copy(CopyType::TableRow(1)),
-						Command::Copy(CopyType::TableRow(2)),
-						Command::Paste,
-						Command::ToggleDetail(false),
-						Command::ToggleDetail(true),
-						Command::Set(
-							String::from("detail"),
-							String::from("minimum"),
-						),
-						Command::Set(
-							String::from("detail"),
-							String::from("standard"),
-						),
-						Command::Set(
-							String::from("detail"),
-							String::from("full"),
-						),
-						Command::Set(
-							String::from("armor"),
-							(!self.gpgme.config.armor).to_string(),
-						),
-						Command::Set(
-							String::from("margin"),
-							String::from(if self.keys_table_margin == 1 {
-								"0"
+					Tab::Keys(key_type) => {
+						let selected_key = self.keys_table.items[self
+							.keys_table
+							.state
+							.tui
+							.selected()
+							.expect("invalid selection")]
+						.get_id();
+						vec![
+							Command::None,
+							Command::Refresh,
+							Command::ExportKeys(
+								key_type,
+								vec![selected_key.clone()],
+							),
+							Command::ExportKeys(key_type, Vec::new()),
+							Command::DeleteKey(key_type, selected_key),
+							Command::Copy(CopyType::Key),
+							Command::Copy(CopyType::KeyId),
+							Command::Copy(CopyType::KeyFingerprint),
+							Command::Copy(CopyType::KeyUserId),
+							Command::Copy(CopyType::TableRow(1)),
+							Command::Copy(CopyType::TableRow(2)),
+							Command::Paste,
+							Command::ToggleDetail(false),
+							Command::ToggleDetail(true),
+							Command::Set(
+								String::from("detail"),
+								String::from("minimum"),
+							),
+							Command::Set(
+								String::from("detail"),
+								String::from("standard"),
+							),
+							Command::Set(
+								String::from("detail"),
+								String::from("full"),
+							),
+							Command::Set(
+								String::from("armor"),
+								(!self.gpgme.config.armor).to_string(),
+							),
+							Command::Set(
+								String::from("margin"),
+								String::from(if self.keys_table_margin == 1 {
+									"0"
+								} else {
+									"1"
+								}),
+							),
+							if self.state.minimized {
+								Command::Maximize
 							} else {
-								"1"
-							}),
-						),
-						if self.state.minimized {
-							Command::Maximize
-						} else {
-							Command::Minimize
-						},
-						if self.mode == Mode::Visual {
-							Command::SwitchMode(Mode::Normal)
-						} else {
-							Command::SwitchMode(Mode::Visual)
-						},
-					],
+								Command::Minimize
+							},
+							if self.mode == Mode::Visual {
+								Command::SwitchMode(Mode::Normal)
+							} else {
+								Command::SwitchMode(Mode::Visual)
+							},
+						]
+					}
 				});
 				if prev_item_count == 0
 					|| self.options.items.len() == prev_item_count
@@ -246,6 +250,17 @@ impl<'a> App<'a> {
 						),
 					},
 				);
+			}
+			Command::DeleteKey(key_type, ref key_id) => {
+				match self.gpgme.delete_key(key_type, key_id.to_string()) {
+					Ok(_) => {
+						self.refresh()?;
+					}
+					Err(e) => self.prompt.set_output((
+						OutputType::Failure,
+						format!("delete error: {}", e),
+					)),
+				}
 			}
 			Command::ToggleDetail(true) => {
 				self.keys_table_detail.increase();

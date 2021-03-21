@@ -96,6 +96,11 @@ impl From<Key> for GpgKey {
 }
 
 impl GpgKey {
+	/// Returns the underlying raw key type.
+	pub fn get_raw(self) -> Key {
+		self.inner
+	}
+
 	/// Returns the key ID with '0x' prefix.
 	pub fn get_id(&self) -> String {
 		self.inner

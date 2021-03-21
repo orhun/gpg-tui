@@ -21,6 +21,8 @@ pub enum Command {
 	ListKeys(KeyType),
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>),
+	/// Delete the public/secret key.
+	DeleteKey(KeyType, String),
 	/// Copy a property to clipboard.
 	Copy(CopyType),
 	/// Toggle the detail level.
@@ -70,6 +72,8 @@ impl Display for Command {
 						format!("export the selected key ({})", key_type)
 					}
 				}
+				Command::DeleteKey(key_type, _) =>
+					format!("delete the selected key ({})", key_type),
 				Command::Copy(copy_type) =>
 					format!("copy {}", copy_type.to_string().to_lowercase()),
 				Command::Paste => String::from("paste from clipboard"),
@@ -124,6 +128,22 @@ impl FromStr for Command {
 					Vec::new()
 				},
 			)),
+			"delete" | "del" => {
+				let key_id = args.get(1).cloned().unwrap_or_default();
+				Ok(Command::DeleteKey(
+					KeyType::from_str(
+						&args
+							.get(0)
+							.cloned()
+							.unwrap_or_else(|| String::from("pub")),
+					)?,
+					if let Some(key) = key_id.strip_prefix("0x") {
+						format!("0x{}", key.to_string().to_uppercase())
+					} else {
+						key_id
+					},
+				))
+			}
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
 					Ok(Self::Copy(CopyType::from_str(&arg)?))
@@ -201,6 +221,13 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(
 				Command::ExportKeys(KeyType::Public, Vec::new()),
+				command
+			);
+		}
+		for cmd in &[":delete pub xyz", ":del pub xyz"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(
+				Command::DeleteKey(KeyType::Public, String::from("xyz")),
 				command
 			);
 		}

@@ -86,7 +86,24 @@ pub fn handle_key_input<B: Backend>(
 					if key_event.modifiers == Modifiers::CONTROL {
 						Command::Quit
 					} else {
-						Command::None
+						match app.keys_table.items.get(
+							app.keys_table
+								.state
+								.tui
+								.selected()
+								.expect("invalid selection"),
+						) {
+							Some(selected_key) => Command::DeleteKey(
+								match app.tab {
+									Tab::Keys(key_type) => key_type,
+								},
+								selected_key.get_id(),
+							),
+							None => Command::ShowOutput(
+								OutputType::Failure,
+								String::from("invalid selection"),
+							),
+						}
 					}
 				}
 				Key::Char('c') | Key::Char('C') => {
@@ -294,7 +311,7 @@ fn handle_command_execution<B: Backend>(
 				}
 			}
 		}
-		Command::ExportKeys(_, _) => {
+		Command::ExportKeys(_, _) | Command::DeleteKey(_, _) => {
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}
