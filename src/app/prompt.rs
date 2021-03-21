@@ -114,7 +114,7 @@ impl Prompt {
 	pub fn set_output<S: AsRef<str>>(&mut self, output: (OutputType, S)) {
 		let (output_type, message) = output;
 		self.output_type = output_type;
-		self.text = message.as_ref().to_string().to_lowercase();
+		self.text = message.as_ref().to_string();
 		self.clock = Some(Instant::now());
 	}
 
@@ -166,8 +166,8 @@ mod tests {
 		prompt.enable_search();
 		assert!(prompt.is_search_enabled());
 		assert!(prompt.is_enabled());
-		prompt.set_output((OutputType::from(String::from("success")), "test"));
-		assert_eq!(String::from("test"), prompt.text);
+		prompt.set_output((OutputType::from(String::from("success")), "Test"));
+		assert_eq!(String::from("Test"), prompt.text);
 		assert_eq!(OutputType::Success, prompt.output_type);
 		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
 		assert!(!prompt.is_enabled());

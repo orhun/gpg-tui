@@ -312,7 +312,13 @@ impl<'a> App<'a> {
 				"mode" => {
 					if let Ok(mode) = Mode::from_str(&value) {
 						self.mode = mode;
-						(OutputType::Success, format!("mode: {:?}", mode))
+						(
+							OutputType::Success,
+							format!(
+								"mode: {}",
+								format!("{:?}", mode).to_lowercase()
+							),
+						)
 					} else {
 						(OutputType::Failure, String::from("invalid mode"))
 					}
@@ -380,15 +386,19 @@ impl<'a> App<'a> {
 					if !option.is_empty() {
 						format!("unknown option: {}", option)
 					} else {
-						String::from("Usage: set <option> <value>")
+						String::from("usage: set <option> <value>")
 					},
 				),
 			}),
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
-					"mode" => {
-						(OutputType::Success, format!("mode: {:?}", self.mode))
-					}
+					"mode" => (
+						OutputType::Success,
+						format!(
+							"mode: {}",
+							format!("{:?}", self.mode).to_lowercase()
+						),
+					),
 					"armor" => (
 						OutputType::Success,
 						format!("armor: {}", self.gpgme.config.armor),

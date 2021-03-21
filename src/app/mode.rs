@@ -16,15 +16,7 @@ pub enum Mode {
 
 impl Display for Mode {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-		write!(
-			f,
-			"-- {} --",
-			match self {
-				Self::Normal => "NORMAL",
-				Self::Visual => "VISUAL",
-				Self::Copy => "COPY",
-			}
-		)
+		write!(f, "-- {} --", format!("{:?}", self).to_lowercase())
 	}
 }
 
@@ -48,12 +40,12 @@ mod tests {
 	fn test_app_mode() {
 		let mode = Mode::from_str("normal").unwrap();
 		assert_eq!(Mode::Normal, mode);
-		assert_eq!(String::from("-- NORMAL --"), mode.to_string());
+		assert_eq!(String::from("-- normal --"), mode.to_string());
 		let mode = Mode::from_str("visual").unwrap();
 		assert_eq!(Mode::Visual, mode);
-		assert_eq!(String::from("-- VISUAL --"), mode.to_string());
+		assert_eq!(String::from("-- visual --"), mode.to_string());
 		let mode = Mode::from_str("copy").unwrap();
 		assert_eq!(Mode::Copy, mode);
-		assert_eq!(String::from("-- COPY --"), mode.to_string());
+		assert_eq!(String::from("-- copy --"), mode.to_string());
 	}
 }

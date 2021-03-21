@@ -22,11 +22,11 @@ impl Display for CopyType {
 			f,
 			"{}",
 			match self {
-				Self::TableRow(i) => format!("Table row ({})", i),
-				Self::Key => String::from("Key"),
-				Self::KeyId => String::from("Key ID"),
-				Self::KeyFingerprint => String::from("Key fingerprint"),
-				Self::KeyUserId => String::from("User ID"),
+				Self::TableRow(i) => format!("table row ({})", i),
+				Self::Key => String::from("key"),
+				Self::KeyId => String::from("key ID"),
+				Self::KeyFingerprint => String::from("key fingerprint"),
+				Self::KeyUserId => String::from("user ID"),
 			}
 		)
 	}
@@ -55,18 +55,18 @@ mod tests {
 	fn test_app_clipboard() {
 		let copy_type = CopyType::from_str("row1").unwrap();
 		assert_eq!(CopyType::TableRow(1), copy_type);
-		assert_eq!(String::from("Table row (1)"), copy_type.to_string());
+		assert_eq!(String::from("table row (1)"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key").unwrap();
 		assert_eq!(CopyType::Key, copy_type);
-		assert_eq!(String::from("Key"), copy_type.to_string());
+		assert_eq!(String::from("key"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key_id").unwrap();
 		assert_eq!(CopyType::KeyId, copy_type);
-		assert_eq!(String::from("Key ID"), copy_type.to_string());
+		assert_eq!(String::from("key ID"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key_fingerprint").unwrap();
 		assert_eq!(CopyType::KeyFingerprint, copy_type);
-		assert_eq!(String::from("Key fingerprint"), copy_type.to_string());
+		assert_eq!(String::from("key fingerprint"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key_user_id").unwrap();
 		assert_eq!(CopyType::KeyUserId, copy_type);
-		assert_eq!(String::from("User ID"), copy_type.to_string());
+		assert_eq!(String::from("user ID"), copy_type.to_string());
 	}
 }
