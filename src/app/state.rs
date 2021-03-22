@@ -54,6 +54,7 @@ mod tests {
 		let state = State::default();
 		assert_eq!(true, state.running);
 		assert_eq!(false, state.minimized);
+		assert_eq!(false, state.colored);
 		assert_eq!(90, state.minimize_threshold);
 		assert_eq!(false, state.show_options);
 	}
