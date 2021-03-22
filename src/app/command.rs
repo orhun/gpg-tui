@@ -83,8 +83,16 @@ impl Display for Command {
 					"toggle detail ({})",
 					if *all { "all" } else { "selected" }
 				),
-				Command::Set(option, value) =>
-					format!("set {} to {}", option, value),
+				Command::Set(option, ref value) => {
+					let action =
+						if value == "true" { "enable" } else { "disable" };
+					match option.as_ref() {
+						"armor" => format!("{} armored output", action),
+						"color" => format!("{} colors", action),
+						"margin" => String::from("toggle table margin"),
+						_ => format!("set {} to {}", option, value),
+					}
+				}
 				Command::Minimize => String::from("minimize the table"),
 				Command::Maximize => String::from("maximize the table"),
 				Command::SwitchMode(mode) => format!(

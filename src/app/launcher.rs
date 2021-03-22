@@ -165,6 +165,10 @@ impl<'a> App<'a> {
 								key_type,
 								selected_key,
 							))),
+							Command::Set(
+								String::from("armor"),
+								(!self.gpgme.config.armor).to_string(),
+							),
 							Command::Copy(CopyType::Key),
 							Command::Copy(CopyType::KeyId),
 							Command::Copy(CopyType::KeyFingerprint),
@@ -187,14 +191,6 @@ impl<'a> App<'a> {
 								String::from("full"),
 							),
 							Command::Set(
-								String::from("armor"),
-								(!self.gpgme.config.armor).to_string(),
-							),
-							Command::Set(
-								String::from("color"),
-								(!self.state.colored).to_string(),
-							),
-							Command::Set(
 								String::from("margin"),
 								String::from(if self.keys_table_margin == 1 {
 									"0"
@@ -207,6 +203,10 @@ impl<'a> App<'a> {
 							} else {
 								Command::Minimize
 							},
+							Command::Set(
+								String::from("color"),
+								(!self.state.colored).to_string(),
+							),
 							if self.mode == Mode::Visual {
 								Command::SwitchMode(Mode::Normal)
 							} else {
