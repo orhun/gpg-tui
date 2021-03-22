@@ -132,12 +132,12 @@ impl<'a> App<'a> {
 	/// the widget to render or action to perform.
 	pub fn run_command(&mut self, command: Command) -> Result<()> {
 		let mut show_options = false;
-		let mut clear_confirm = true;
+		if let Command::Confirm(ref cmd) = command {
+			self.prompt.set_command(*cmd.clone())
+		} else if self.prompt.command.is_some() {
+			self.prompt.clear();
+		}
 		match command {
-			Command::Confirm(command) => {
-				clear_confirm = false;
-				self.prompt.set_command(*command)
-			}
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
 			}
@@ -564,12 +564,9 @@ impl<'a> App<'a> {
 			}
 			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,
-			Command::None => {}
+			Command::Confirm(_) | Command::None => {}
 		}
 		self.state.show_options = show_options;
-		if clear_confirm && self.prompt.command.is_some() {
-			self.prompt.clear();
-		}
 		Ok(())
 	}
 
