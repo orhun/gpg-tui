@@ -106,13 +106,13 @@ impl EventHandler {
 	}
 }
 
+#[cfg(feature = "tui-tests")]
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use crossterm::event::{KeyCode, KeyModifiers};
 	use pretty_assertions::assert_eq;
 	#[test]
-	#[ignore]
 	fn test_term_event() -> Result<()> {
 		let events = EventHandler::new(100);
 		for step in 0..2 {

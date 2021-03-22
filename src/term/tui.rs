@@ -103,12 +103,12 @@ impl<B: Backend> Tui<B> {
 	}
 }
 
+#[cfg(feature = "tui-tests")]
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use tui::backend::TestBackend;
 	#[test]
-	#[ignore]
 	fn test_term_tui() -> Result<()> {
 		let backend = TestBackend::new(10, 10);
 		let terminal = Terminal::new(backend)?;
