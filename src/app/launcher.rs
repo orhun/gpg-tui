@@ -94,7 +94,7 @@ impl<'a> App<'a> {
 	pub fn refresh(&mut self) -> Result<()> {
 		self.state.refresh();
 		self.mode = Mode::Normal;
-		self.prompt = Prompt::default();
+		self.prompt.clear();
 		self.options.state.select(Some(0));
 		self.keys = self.gpgme.get_all_keys()?;
 		self.keys_table_states.clear();
