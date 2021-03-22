@@ -1,22 +1,22 @@
-use tui::widgets::ListState as State;
+use tui::widgets::ListState;
 
 /// List widget with TUI controlled states.
 pub struct StatefulList<T> {
 	/// List items (states).
 	pub items: Vec<T>,
 	/// State that can be modified by TUI.
-	pub state: State,
+	pub state: ListState,
 }
 
 impl<T> StatefulList<T> {
 	/// Constructs a new instance of `StatefulList`.
-	pub fn new(items: Vec<T>, state: State) -> StatefulList<T> {
+	pub fn new(items: Vec<T>, state: ListState) -> StatefulList<T> {
 		Self { items, state }
 	}
 
 	/// Construct a new `StatefulList` with given items.
 	pub fn with_items(items: Vec<T>) -> StatefulList<T> {
-		Self::new(items, State::default())
+		Self::new(items, ListState::default())
 	}
 
 	/// Select the next item.
