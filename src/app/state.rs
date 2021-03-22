@@ -1,3 +1,5 @@
+use crate::args::Args;
+
 /// Application states (flags) for managing the launcher.
 #[derive(Clone, Debug)]
 pub struct State {
@@ -5,6 +7,8 @@ pub struct State {
 	pub running: bool,
 	/// Is app minimized?
 	pub minimized: bool,
+	/// Is app colored?
+	pub colored: bool,
 	/// Threshold value (width) for minimizing.
 	pub minimize_threshold: u16,
 	/// Is the options menu (popup) showing?
@@ -16,9 +20,28 @@ impl Default for State {
 		Self {
 			running: true,
 			minimized: false,
+			colored: false,
 			minimize_threshold: 90,
 			show_options: false,
 		}
+	}
+}
+
+impl<'a> From<&'a Args> for State {
+	fn from(args: &'a Args) -> Self {
+		State {
+			colored: args.style == *"colored",
+			..Self::default()
+		}
+	}
+}
+
+impl State {
+	/// Reverts back the values to default.
+	pub fn refresh(&mut self) {
+		let colored = self.colored;
+		*self = Self::default();
+		self.colored = colored;
 	}
 }
 

@@ -176,7 +176,14 @@ pub fn handle_key_input<B: Backend>(
 					Command::ListKeys(KeyType::Public)
 				}
 				Key::Char('s') | Key::Char('S') => {
-					Command::ListKeys(KeyType::Secret)
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::Set(
+							String::from("color"),
+							(!app.state.colored).to_string(),
+						)
+					} else {
+						Command::ListKeys(KeyType::Secret)
+					}
 				}
 				Key::Char('e') | Key::Char('E') => {
 					if app.mode == Mode::Copy {

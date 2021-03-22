@@ -63,8 +63,6 @@ pub struct App<'a> {
 	pub clipboard: ClipboardContext,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
-	/// Parsed command-line arguments.
-	args: &'a Args,
 }
 
 impl<'a> App<'a> {
@@ -72,7 +70,7 @@ impl<'a> App<'a> {
 	pub fn new(gpgme: &'a mut GpgContext, args: &'a Args) -> Result<Self> {
 		let keys = gpgme.get_all_keys()?;
 		Ok(Self {
-			state: State::default(),
+			state: State::from(args),
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
@@ -89,13 +87,12 @@ impl<'a> App<'a> {
 			clipboard: ClipboardContext::new()
 				.expect("failed to initialize clipboard"),
 			gpgme,
-			args,
 		})
 	}
 
 	/// Resets the application state.
 	pub fn refresh(&mut self) -> Result<()> {
-		self.state = State::default();
+		self.state.refresh();
 		self.mode = Mode::Normal;
 		self.prompt = Prompt::default();
 		self.options.state.select(Some(0));
@@ -192,6 +189,10 @@ impl<'a> App<'a> {
 							Command::Set(
 								String::from("armor"),
 								(!self.gpgme.config.armor).to_string(),
+							),
+							Command::Set(
+								String::from("color"),
+								(!self.state.colored).to_string(),
 							),
 							Command::Set(
 								String::from("margin"),
@@ -406,6 +407,19 @@ impl<'a> App<'a> {
 						format!("table margin: {}", self.keys_table_margin),
 					)
 				}
+				"color" => match value.parse() {
+					Ok(colored) => {
+						self.state.colored = colored;
+						(
+							OutputType::Success,
+							format!("color: {}", self.state.colored),
+						)
+					}
+					Err(_) => (
+						OutputType::Failure,
+						String::from("usage: set color <true/false>"),
+					),
+				},
 				_ => (
 					OutputType::Failure,
 					if !option.is_empty() {
@@ -461,6 +475,10 @@ impl<'a> App<'a> {
 					"margin" => (
 						OutputType::Success,
 						format!("table margin: {}", self.keys_table_margin),
+					),
+					"color" => (
+						OutputType::Success,
+						format!("color: {}", self.state.colored),
 					),
 					_ => (
 						OutputType::Failure,
@@ -591,7 +609,7 @@ impl<'a> App<'a> {
 			} else {
 				match self.tab {
 					Tab::Keys(key_type) => {
-						let arrow_color = if self.args.style == *"colored" {
+						let arrow_color = if self.state.colored {
 							Color::LightBlue
 						} else {
 							Color::DarkGray
@@ -626,7 +644,7 @@ impl<'a> App<'a> {
 					}
 				}
 			}))
-			.style(if self.args.style == *"colored" {
+			.style(if self.state.colored {
 				match self.prompt.output_type {
 					OutputType::Success => Style::default()
 						.fg(Color::LightGreen)
@@ -638,7 +656,7 @@ impl<'a> App<'a> {
 						.fg(Color::LightRed)
 						.add_modifier(Modifier::BOLD),
 					OutputType::Action => {
-						if self.args.style == *"colored" {
+						if self.state.colored {
 							Style::default()
 								.fg(Color::LightBlue)
 								.add_modifier(Modifier::BOLD)
@@ -675,7 +693,7 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let (length_x, percent_y) = (38, 50);
+		let (length_x, percent_y) = (38, 55);
 		let popup_layout = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
@@ -716,7 +734,7 @@ impl<'a> App<'a> {
 			.block(
 				Block::default()
 					.title("Options")
-					.style(if self.args.style == *"colored" {
+					.style(if self.state.colored {
 						Style::default().fg(Color::LightBlue)
 					} else {
 						Style::default()
@@ -757,7 +775,7 @@ impl<'a> App<'a> {
 				),
 			)
 			.style(Style::default().fg(Color::Gray))
-			.highlight_style(if self.args.style == *"colored" {
+			.highlight_style(if self.state.colored {
 				Style::default().add_modifier(Modifier::BOLD)
 			} else {
 				Style::default()
@@ -827,7 +845,7 @@ impl<'a> App<'a> {
 					self.keys_table.state.scroll,
 				);
 				rows.push(
-					Row::new(if self.args.style == *"colored" {
+					Row::new(if self.state.colored {
 						let highlighted =
 							self.keys_table.state.tui.selected() == Some(*i);
 						vec![
