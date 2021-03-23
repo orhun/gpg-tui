@@ -209,6 +209,7 @@ pub fn handle_key_input<B: Backend>(
 						}
 					}
 				}
+				Key::Char('g') | Key::Char('G') => Command::GenerateKey,
 				Key::Char('a') | Key::Char('A') => Command::Set(
 					String::from("armor"),
 					(!app.gpgme.config.armor).to_string(),
@@ -337,7 +338,9 @@ fn handle_command_execution<B: Backend>(
 				}
 			}
 		}
-		Command::ExportKeys(_, _) | Command::DeleteKey(_, _) => {
+		Command::ExportKeys(_, _)
+		| Command::DeleteKey(_, _)
+		| Command::GenerateKey => {
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}

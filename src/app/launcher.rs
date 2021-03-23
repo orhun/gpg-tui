@@ -17,6 +17,7 @@ use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
 use tui::backend::Backend;
@@ -165,6 +166,7 @@ impl<'a> App<'a> {
 								key_type,
 								selected_key,
 							))),
+							Command::GenerateKey,
 							Command::Set(
 								String::from("armor"),
 								(!self.gpgme.config.armor).to_string(),
@@ -270,6 +272,18 @@ impl<'a> App<'a> {
 					Err(e) => self.prompt.set_output((
 						OutputType::Failure,
 						format!("delete error: {}", e),
+					)),
+				}
+			}
+			Command::GenerateKey => {
+				match OsCommand::new("gpg").arg("--full-gen-key").spawn() {
+					Ok(mut child) => {
+						child.wait()?;
+						self.refresh()?;
+					}
+					Err(e) => self.prompt.set_output((
+						OutputType::Failure,
+						format!("execution error: {}", e),
 					)),
 				}
 			}

@@ -25,6 +25,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Delete the public/secret key.
 	DeleteKey(KeyType, String),
+	/// Generate a new key pair.
+	GenerateKey,
 	/// Copy a property to clipboard.
 	Copy(CopyType),
 	/// Toggle the detail level.
@@ -76,6 +78,7 @@ impl Display for Command {
 				}
 				Command::DeleteKey(key_type, _) =>
 					format!("delete the selected key ({})", key_type),
+				Command::GenerateKey => String::from("generate a new key pair"),
 				Command::Copy(copy_type) =>
 					format!("copy {}", copy_type.to_string().to_lowercase()),
 				Command::Paste => String::from("paste from clipboard"),
@@ -160,6 +163,7 @@ impl FromStr for Command {
 					},
 				))
 			}
+			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
 					Ok(Self::Copy(CopyType::from_str(&arg)?))
@@ -252,6 +256,10 @@ mod tests {
 				command
 			);
 		}
+		assert_eq!(
+			Command::GenerateKey,
+			Command::from_str(":generate").unwrap()
+		);
 		assert_eq!(
 			Command::ExportKeys(
 				KeyType::Public,
