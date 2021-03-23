@@ -147,25 +147,25 @@ impl<'a> App<'a> {
 				let prev_item_count = self.options.items.len();
 				self.options = StatefulList::with_items(match self.tab {
 					Tab::Keys(key_type) => {
-						let selected_key = self.keys_table.items[self
+						let selected_key = &self.keys_table.items[self
 							.keys_table
 							.state
 							.tui
 							.selected()
-							.expect("invalid selection")]
-						.get_id();
+							.expect("invalid selection")];
 						vec![
 							Command::None,
 							Command::Refresh,
 							Command::ExportKeys(
 								key_type,
-								vec![selected_key.clone()],
+								vec![selected_key.get_id()],
 							),
 							Command::ExportKeys(key_type, Vec::new()),
 							Command::Confirm(Box::new(Command::DeleteKey(
 								key_type,
-								selected_key,
+								selected_key.get_id(),
 							))),
+							Command::EditKey(selected_key.get_id()),
 							Command::GenerateKey,
 							Command::Set(
 								String::from("armor"),
@@ -275,8 +275,15 @@ impl<'a> App<'a> {
 					)),
 				}
 			}
-			Command::GenerateKey => {
-				match OsCommand::new("gpg").arg("--full-gen-key").spawn() {
+			Command::GenerateKey | Command::EditKey(_) => {
+				let mut os_command = OsCommand::new("gpg");
+				let os_command = match command {
+					Command::EditKey(key) => {
+						os_command.arg("--edit-key").arg(&key)
+					}
+					_ => os_command.arg("--full-gen-key"),
+				};
+				match os_command.spawn() {
 					Ok(mut child) => {
 						child.wait()?;
 						self.refresh()?;

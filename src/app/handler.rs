@@ -186,6 +186,23 @@ pub fn handle_key_input<B: Backend>(
 					}
 				}
 				Key::Char('e') | Key::Char('E') => {
+					match app.keys_table.items.get(
+						app.keys_table
+							.state
+							.tui
+							.selected()
+							.expect("invalid selection"),
+					) {
+						Some(selected_key) => {
+							Command::EditKey(selected_key.get_id())
+						}
+						None => Command::ShowOutput(
+							OutputType::Failure,
+							String::from("invalid selection"),
+						),
+					}
+				}
+				Key::Char('x') | Key::Char('X') => {
 					if app.mode == Mode::Copy {
 						Command::Copy(CopyType::Key)
 					} else {
@@ -340,7 +357,8 @@ fn handle_command_execution<B: Backend>(
 		}
 		Command::ExportKeys(_, _)
 		| Command::DeleteKey(_, _)
-		| Command::GenerateKey => {
+		| Command::GenerateKey
+		| Command::EditKey(_) => {
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}
