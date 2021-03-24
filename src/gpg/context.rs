@@ -35,6 +35,18 @@ impl GpgContext {
 		self.inner.set_armor(self.config.armor);
 	}
 
+	/// Returns the public/secret key with the specified ID.
+	pub fn get_key(
+		&mut self,
+		key_type: KeyType,
+		key_id: String,
+	) -> Result<Key> {
+		match key_type {
+			KeyType::Public => Ok(self.inner.get_key(key_id)?),
+			KeyType::Secret => Ok(self.inner.get_secret_key(key_id)?),
+		}
+	}
+
 	/// Returns an iterator over a list of all public/secret keys
 	/// matching one or more of the specified patterns.
 	fn get_keys_iter(
@@ -141,22 +153,18 @@ impl GpgContext {
 		key_type: KeyType,
 		key_id: String,
 	) -> Result<()> {
-		match self
-			.get_keys(key_type, Some(vec![key_id.clone()]))?
-			.into_iter()
-			.find(|key| key.get_id() == key_id)
-		{
-			Some(key) => match key_type {
+		match self.get_key(key_type, key_id) {
+			Ok(key) => match key_type {
 				KeyType::Public => {
-					self.inner.delete_key(&key.get_raw())?;
+					self.inner.delete_key(&key)?;
 					Ok(())
 				}
 				KeyType::Secret => {
-					self.inner.delete_secret_key(&key.get_raw())?;
+					self.inner.delete_secret_key(&key)?;
 					Ok(())
 				}
 			},
-			None => Err(anyhow!("no keys found")),
+			Err(e) => Err(e),
 		}
 	}
 }
