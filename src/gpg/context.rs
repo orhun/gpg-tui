@@ -96,7 +96,7 @@ impl GpgContext {
 			&mut output,
 		)?;
 		if output.is_empty() {
-			Err(anyhow!("failed to export keys"))
+			Err(anyhow!("nothing exported"))
 		} else {
 			Ok(output)
 		}
