@@ -166,6 +166,7 @@ impl<'a> App<'a> {
 								selected_key.get_id(),
 							))),
 							Command::EditKey(selected_key.get_id()),
+							Command::SignKey(selected_key.get_id()),
 							Command::GenerateKey,
 							Command::Set(
 								String::from("armor"),
@@ -275,11 +276,16 @@ impl<'a> App<'a> {
 					)),
 				}
 			}
-			Command::GenerateKey | Command::EditKey(_) => {
+			Command::GenerateKey
+			| Command::EditKey(_)
+			| Command::SignKey(_) => {
 				let mut os_command = OsCommand::new("gpg");
 				let os_command = match command {
 					Command::EditKey(key) => {
 						os_command.arg("--edit-key").arg(&key)
+					}
+					Command::SignKey(key) => {
+						os_command.arg("--sign-key").arg(&key)
 					}
 					_ => os_command.arg("--full-gen-key"),
 				};
@@ -726,7 +732,7 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let (length_x, percent_y) = (38, 55);
+		let (length_x, percent_y) = (38, 60);
 		let popup_layout = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(

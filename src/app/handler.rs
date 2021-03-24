@@ -4,7 +4,6 @@ use crate::app::launcher::App;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::app::tab::Tab;
-use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
@@ -127,6 +126,7 @@ pub fn handle_key_input<B: Backend>(
 						Command::SwitchMode(Mode::Visual)
 					}
 				}
+				Key::Char('p') | Key::Char('P') => Command::Paste,
 				Key::Char('r') | Key::Char('R') | Key::F(5) => Command::Refresh,
 				Key::Up | Key::Char('k') | Key::Char('K') => {
 					if key_event.modifiers == Modifiers::CONTROL {
@@ -172,9 +172,6 @@ pub fn handle_key_input<B: Backend>(
 						"1"
 					}),
 				),
-				Key::Char('p') | Key::Char('P') => {
-					Command::ListKeys(KeyType::Public)
-				}
 				Key::Char('s') | Key::Char('S') => {
 					if key_event.modifiers == Modifiers::CONTROL {
 						Command::Set(
@@ -182,7 +179,21 @@ pub fn handle_key_input<B: Backend>(
 							(!app.state.colored).to_string(),
 						)
 					} else {
-						Command::ListKeys(KeyType::Secret)
+						match app.keys_table.items.get(
+							app.keys_table
+								.state
+								.tui
+								.selected()
+								.expect("invalid selection"),
+						) {
+							Some(selected_key) => {
+								Command::SignKey(selected_key.get_id())
+							}
+							None => Command::ShowOutput(
+								OutputType::Failure,
+								String::from("invalid selection"),
+							),
+						}
 					}
 				}
 				Key::Char('e') | Key::Char('E') => {
@@ -358,7 +369,8 @@ fn handle_command_execution<B: Backend>(
 		Command::ExportKeys(_, _)
 		| Command::DeleteKey(_, _)
 		| Command::GenerateKey
-		| Command::EditKey(_) => {
+		| Command::EditKey(_)
+		| Command::SignKey(_) => {
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}

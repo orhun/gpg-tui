@@ -27,6 +27,8 @@ pub enum Command {
 	DeleteKey(KeyType, String),
 	/// Edit a key.
 	EditKey(String),
+	/// Sign a key.
+	SignKey(String),
 	/// Generate a new key pair.
 	GenerateKey,
 	/// Copy a property to clipboard.
@@ -81,6 +83,7 @@ impl Display for Command {
 				Command::DeleteKey(key_type, _) =>
 					format!("delete the selected key ({})", key_type),
 				Command::EditKey(_) => String::from("edit the selected key"),
+				Command::SignKey(_) => String::from("sign the selected key"),
 				Command::GenerateKey => String::from("generate a new key pair"),
 				Command::Copy(copy_type) =>
 					format!("copy {}", copy_type.to_string().to_lowercase()),
@@ -166,9 +169,8 @@ impl FromStr for Command {
 					},
 				))
 			}
-			"edit" | "e" => {
-				Ok(Command::EditKey(args.first().cloned().ok_or(())?))
-			}
+			"edit" => Ok(Command::EditKey(args.first().cloned().ok_or(())?)),
+			"sign" => Ok(Command::SignKey(args.first().cloned().ok_or(())?)),
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
