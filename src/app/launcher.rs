@@ -11,7 +11,7 @@ use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::list::StatefulList;
 use crate::widget::row::{RowItem, ScrollDirection};
 use crate::widget::table::{StatefulTable, TableState};
-use anyhow::Result;
+use anyhow::{anyhow, Error as AnyhowError, Result};
 use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
@@ -525,35 +525,50 @@ impl<'a> App<'a> {
 					.tui
 					.selected()
 					.expect("invalid selection")];
-				self.clipboard
-					.set_contents(match copy_type {
-						CopyType::TableRow(1) => selected_key
-							.get_subkey_info(self.state.minimized)
-							.join("\n"),
-						CopyType::TableRow(2) => selected_key
-							.get_user_info(self.state.minimized)
-							.join("\n"),
-						CopyType::TableRow(_) => String::new(),
-						CopyType::Key => {
-							str::from_utf8(&self.gpgme.get_exported_keys(
-								match self.tab {
-									Tab::Keys(key_type) => key_type,
-								},
-								Some(vec![selected_key.get_id()]),
-							)?)?
-							.to_string()
+				let content = match copy_type {
+					CopyType::TableRow(1) => Ok(selected_key
+						.get_subkey_info(self.state.minimized)
+						.join("\n")),
+					CopyType::TableRow(2) => Ok(selected_key
+						.get_user_info(self.state.minimized)
+						.join("\n")),
+					CopyType::TableRow(_) => Err(anyhow!("invalid row number")),
+					CopyType::Key => {
+						match self.gpgme.get_exported_keys(
+							match self.tab {
+								Tab::Keys(key_type) => key_type,
+							},
+							Some(vec![selected_key.get_id()]),
+						) {
+							Ok(key) => str::from_utf8(&key)
+								.map(|v| v.to_string())
+								.map_err(AnyhowError::from),
+							Err(e) => Err(e),
 						}
-						CopyType::KeyId => selected_key.get_id(),
-						CopyType::KeyFingerprint => {
-							selected_key.get_fingerprint()
-						}
-						CopyType::KeyUserId => selected_key.get_user_id(),
-					})
-					.expect("failed to set clipboard contents");
-				self.prompt.set_output((
-					OutputType::Success,
-					format!("{} copied to clipboard", copy_type),
-				));
+					}
+					CopyType::KeyId => Ok(selected_key.get_id()),
+					CopyType::KeyFingerprint => {
+						Ok(selected_key.get_fingerprint())
+					}
+					CopyType::KeyUserId => Ok(selected_key.get_user_id()),
+				};
+				match content {
+					Ok(content) => {
+						self.clipboard
+							.set_contents(content)
+							.expect("failed to set clipboard contents");
+						self.prompt.set_output((
+							OutputType::Success,
+							format!("{} copied to clipboard", copy_type),
+						));
+					}
+					Err(e) => {
+						self.prompt.set_output((
+							OutputType::Failure,
+							format!("copy error: {}", e),
+						));
+					}
+				}
 				self.mode = Mode::Normal;
 			}
 			Command::Paste => {
