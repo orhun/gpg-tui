@@ -4,6 +4,7 @@ use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::path::PathBuf;
 use std::str::FromStr;
 
 /// Command to run on rendering process.
@@ -21,6 +22,8 @@ pub enum Command {
 	ShowOptions,
 	/// List the public/secret keys.
 	ListKeys(KeyType),
+	/// Import public/secret keys.
+	ImportKeys(Vec<PathBuf>),
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>),
 	/// Delete the public/secret key.
@@ -73,6 +76,7 @@ impl Display for Command {
 			match self {
 				Command::None => String::from("close"),
 				Command::Refresh => String::from("refresh"),
+				Command::ImportKeys(_) => String::from("import key(s)"),
 				Command::ExportKeys(key_type, patterns) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
@@ -140,6 +144,13 @@ impl FromStr for Command {
 			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
 			)?)),
+			"import" => Ok(Command::ImportKeys(
+				s.replacen(':', "", 1)
+					.split_whitespace()
+					.map(PathBuf::from)
+					.skip(1)
+					.collect(),
+			)),
 			"export" | "exp" => Ok(Command::ExportKeys(
 				KeyType::from_str(
 					&args
@@ -250,6 +261,14 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ListKeys(KeyType::Secret), command);
 		}
+		assert_eq!(
+			Command::ImportKeys(vec![
+				PathBuf::from("Test1"),
+				PathBuf::from("Test2"),
+				PathBuf::from("tesT3")
+			]),
+			Command::from_str(":import Test1 Test2 tesT3").unwrap()
+		);
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(
@@ -257,17 +276,6 @@ mod tests {
 				command
 			);
 		}
-		for cmd in &[":delete pub xyz", ":del pub xyz"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(
-				Command::DeleteKey(KeyType::Public, String::from("xyz")),
-				command
-			);
-		}
-		assert_eq!(
-			Command::GenerateKey,
-			Command::from_str(":generate").unwrap()
-		);
 		assert_eq!(
 			Command::ExportKeys(
 				KeyType::Public,
@@ -292,6 +300,17 @@ mod tests {
 				]
 			),
 			Command::from_str(":export sec test1 test2 test3").unwrap()
+		);
+		for cmd in &[":delete pub xyz", ":del pub xyz"] {
+			let command = Command::from_str(cmd).unwrap();
+			assert_eq!(
+				Command::DeleteKey(KeyType::Public, String::from("xyz")),
+				command
+			);
+		}
+		assert_eq!(
+			Command::GenerateKey,
+			Command::from_str(":generate").unwrap()
 		);
 		for cmd in &[":toggle all", ":t all"] {
 			let command = Command::from_str(cmd).unwrap();

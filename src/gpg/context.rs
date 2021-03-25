@@ -2,10 +2,13 @@ use crate::gpg::config::GpgConfig;
 use crate::gpg::key::{GpgKey, KeyType};
 use anyhow::{anyhow, Result};
 use gpgme::context::Keys;
-use gpgme::{Context, ExportMode, Key, KeyListMode, PinentryMode, Protocol};
+use gpgme::{
+	Context, Data, ExportMode, Key, KeyListMode, PinentryMode, Protocol,
+};
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Write;
+use std::path::PathBuf;
 
 /// A context for cryptographic operations.
 pub struct GpgContext {
@@ -84,6 +87,17 @@ impl GpgContext {
 		keys.insert(KeyType::Public, self.get_keys(KeyType::Public, None)?);
 		keys.insert(KeyType::Secret, self.get_keys(KeyType::Secret, None)?);
 		Ok(keys)
+	}
+
+	/// Reads the keys from given files and adds them to the keyring.
+	pub fn import_keys(&mut self, files: Vec<PathBuf>) -> Result<u32> {
+		let mut imported_keys = 0;
+		for file in files {
+			let input = File::open(file)?;
+			let mut data = Data::from_seekable_stream(input)?;
+			imported_keys += self.inner.import(&mut data)?.imported();
+		}
+		Ok(imported_keys)
 	}
 
 	/// Returns the exported public/secret keys
