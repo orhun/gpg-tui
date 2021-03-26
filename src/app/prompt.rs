@@ -3,6 +3,11 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::time::Instant;
 
+/// Prefix character for indicating command input.
+pub const COMMAND_PREFIX: char = ':';
+/// Prefix character for indicating search input.
+pub const SEARCH_PREFIX: char = '/';
+
 /// Output type of the prompt.
 #[derive(Clone, Debug, PartialEq)]
 pub enum OutputType {
@@ -79,9 +84,9 @@ impl Prompt {
 	/// Available prefixes:
 	/// * `:`: command input
 	/// * `/`: search
-	fn enable(&mut self, prefix: String) {
+	fn enable(&mut self, prefix: char) {
 		self.text = if self.text.is_empty() || self.clock.is_some() {
-			prefix
+			prefix.to_string()
 		} else {
 			format!("{}{}", prefix, &self.text[1..self.text.len()])
 		};
@@ -98,22 +103,22 @@ impl Prompt {
 
 	/// Enables the command input.
 	pub fn enable_command_input(&mut self) {
-		self.enable(String::from(":"));
+		self.enable(COMMAND_PREFIX);
 	}
 
 	/// Checks if the command input is enabled.
 	pub fn is_command_input_enabled(&self) -> bool {
-		self.text.starts_with(':')
+		self.text.starts_with(COMMAND_PREFIX)
 	}
 
 	/// Enables the search.
 	pub fn enable_search(&mut self) {
-		self.enable(String::from("/"));
+		self.enable(SEARCH_PREFIX);
 	}
 
 	/// Checks if the search is enabled.
 	pub fn is_search_enabled(&self) -> bool {
-		self.text.starts_with('/')
+		self.text.starts_with(SEARCH_PREFIX)
 	}
 
 	/// Sets the output message.
