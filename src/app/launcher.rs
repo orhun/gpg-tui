@@ -253,19 +253,28 @@ impl<'a> App<'a> {
 				}
 				self.tab = Tab::Keys(key_type);
 			}
-			Command::ImportKeys(keys) => match self.gpgme.import_keys(keys) {
-				Ok(key_count) => {
-					self.refresh()?;
+			Command::ImportKeys(keys) => {
+				if keys.is_empty() {
 					self.prompt.set_output((
-						OutputType::Success,
-						format!("{} keys imported", key_count),
+						OutputType::Failure,
+						String::from("no files given"),
 					))
+				} else {
+					match self.gpgme.import_keys(keys) {
+						Ok(key_count) => {
+							self.refresh()?;
+							self.prompt.set_output((
+								OutputType::Success,
+								format!("{} keys imported", key_count),
+							))
+						}
+						Err(e) => self.prompt.set_output((
+							OutputType::Failure,
+							format!("import error: {}", e),
+						)),
+					}
 				}
-				Err(e) => self.prompt.set_output((
-					OutputType::Failure,
-					format!("import error: {}", e),
-				)),
-			},
+			}
 			Command::ExportKeys(key_type, ref patterns) => {
 				self.prompt.set_output(
 					match self
