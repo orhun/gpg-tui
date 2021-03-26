@@ -277,7 +277,10 @@ pub fn handle_key_input<B: Backend>(
 					if app.mode == Mode::Copy {
 						Command::Copy(CopyType::KeyId)
 					} else {
-						Command::None
+						Command::Set(
+							String::from("prompt"),
+							String::from(":import "),
+						)
 					}
 				}
 				Key::Char('f') | Key::Char('F') => {

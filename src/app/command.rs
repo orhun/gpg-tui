@@ -76,7 +76,6 @@ impl Display for Command {
 			match self {
 				Command::None => String::from("close"),
 				Command::Refresh => String::from("refresh"),
-				Command::ImportKeys(_) => String::from("import key(s)"),
 				Command::ExportKeys(key_type, patterns) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
@@ -103,6 +102,13 @@ impl Display for Command {
 						"armor" => format!("{} armored output", action),
 						"color" => format!("{} colors", action),
 						"margin" => String::from("toggle table margin"),
+						"prompt" => {
+							if value == ":import " {
+								String::from("import key(s)")
+							} else {
+								format!("set prompt text to {}", value)
+							}
+						}
 						_ => format!("set {} to {}", option, value),
 					}
 				}

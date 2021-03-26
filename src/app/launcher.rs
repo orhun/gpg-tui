@@ -1,7 +1,7 @@
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::mode::Mode;
-use crate::app::prompt::{OutputType, Prompt};
+use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
 use crate::app::state::State;
 use crate::app::style;
 use crate::app::tab::Tab;
@@ -156,6 +156,10 @@ impl<'a> App<'a> {
 						vec![
 							Command::None,
 							Command::Refresh,
+							Command::Set(
+								String::from("prompt"),
+								String::from(":import "),
+							),
 							Command::ExportKeys(
 								key_type,
 								vec![selected_key.get_id()],
@@ -372,103 +376,127 @@ impl<'a> App<'a> {
 			Command::Scroll(direction, true) => {
 				self.keys_table.scroll_row(direction);
 			}
-			Command::Set(option, value) => self.prompt.set_output(match option
-				.as_str()
-			{
-				"mode" => {
-					if let Ok(mode) = Mode::from_str(&value) {
-						self.mode = mode;
-						(
-							OutputType::Success,
-							format!(
-								"mode: {}",
-								format!("{:?}", mode).to_lowercase()
-							),
-						)
-					} else {
-						(OutputType::Failure, String::from("invalid mode"))
-					}
-				}
-				"armor" => {
-					if let Ok(value) = FromStr::from_str(&value) {
-						self.gpgme.config.armor = value;
-						self.gpgme.apply_config();
-						(OutputType::Success, format!("armor: {}", value))
-					} else {
-						(
-							OutputType::Failure,
-							String::from("usage: set armor <true/false>"),
-						)
-					}
-				}
-				"minimize" => {
-					self.state.minimize_threshold =
-						value.parse().unwrap_or_default();
-					(
-						OutputType::Success,
-						format!("minimize threshold: {}", value),
-					)
-				}
-				"detail" => {
-					if let Ok(detail_level) = KeyDetail::from_str(&value) {
-						if let Some(index) =
-							self.keys_table.state.tui.selected()
-						{
-							if let Some(key) =
-								self.keys_table.items.get_mut(index)
-							{
-								key.detail = detail_level;
-							}
-							if self.keys_table.items.len()
-								== self.keys_table.default_items.len()
-							{
-								if let Some(key) =
-									self.keys_table.default_items.get_mut(index)
-								{
-									key.detail = detail_level;
-								}
+			Command::Set(option, value) => {
+				if option == *"prompt"
+					&& (value.starts_with(COMMAND_PREFIX)
+						| value.starts_with(SEARCH_PREFIX))
+				{
+					self.prompt.clear();
+					self.prompt.text = value;
+				} else {
+					self.prompt.set_output(match option.as_str() {
+						"mode" => {
+							if let Ok(mode) = Mode::from_str(&value) {
+								self.mode = mode;
+								(
+									OutputType::Success,
+									format!(
+										"mode: {}",
+										format!("{:?}", mode).to_lowercase()
+									),
+								)
+							} else {
+								(
+									OutputType::Failure,
+									String::from("invalid mode"),
+								)
 							}
 						}
-						(
-							OutputType::Success,
-							format!("detail: {}", detail_level),
-						)
-					} else {
-						(
+						"armor" => {
+							if let Ok(value) = FromStr::from_str(&value) {
+								self.gpgme.config.armor = value;
+								self.gpgme.apply_config();
+								(
+									OutputType::Success,
+									format!("armor: {}", value),
+								)
+							} else {
+								(
+									OutputType::Failure,
+									String::from(
+										"usage: set armor <true/false>",
+									),
+								)
+							}
+						}
+						"minimize" => {
+							self.state.minimize_threshold =
+								value.parse().unwrap_or_default();
+							(
+								OutputType::Success,
+								format!("minimize threshold: {}", value),
+							)
+						}
+						"detail" => {
+							if let Ok(detail_level) =
+								KeyDetail::from_str(&value)
+							{
+								if let Some(index) =
+									self.keys_table.state.tui.selected()
+								{
+									if let Some(key) =
+										self.keys_table.items.get_mut(index)
+									{
+										key.detail = detail_level;
+									}
+									if self.keys_table.items.len()
+										== self.keys_table.default_items.len()
+									{
+										if let Some(key) = self
+											.keys_table
+											.default_items
+											.get_mut(index)
+										{
+											key.detail = detail_level;
+										}
+									}
+								}
+								(
+									OutputType::Success,
+									format!("detail: {}", detail_level),
+								)
+							} else {
+								(
+									OutputType::Failure,
+									String::from("usage: set detail <level>"),
+								)
+							}
+						}
+						"margin" => {
+							self.keys_table_margin =
+								value.parse().unwrap_or_default();
+							(
+								OutputType::Success,
+								format!(
+									"table margin: {}",
+									self.keys_table_margin
+								),
+							)
+						}
+						"color" => match value.parse() {
+							Ok(colored) => {
+								self.state.colored = colored;
+								(
+									OutputType::Success,
+									format!("color: {}", self.state.colored),
+								)
+							}
+							Err(_) => (
+								OutputType::Failure,
+								String::from("usage: set color <true/false>"),
+							),
+						},
+						_ => (
 							OutputType::Failure,
-							String::from("usage: set detail <level>"),
-						)
-					}
+							if !option.is_empty() {
+								format!("unknown option: {}", option)
+							} else {
+								String::from("usage: set <option> <value>")
+							},
+						),
+					})
 				}
-				"margin" => {
-					self.keys_table_margin = value.parse().unwrap_or_default();
-					(
-						OutputType::Success,
-						format!("table margin: {}", self.keys_table_margin),
-					)
-				}
-				"color" => match value.parse() {
-					Ok(colored) => {
-						self.state.colored = colored;
-						(
-							OutputType::Success,
-							format!("color: {}", self.state.colored),
-						)
-					}
-					Err(_) => (
-						OutputType::Failure,
-						String::from("usage: set color <true/false>"),
-					),
-				},
-				_ => (
-					OutputType::Failure,
-					if !option.is_empty() {
-						format!("unknown option: {}", option)
-					} else {
-						String::from("usage: set <option> <value>")
-					},
-				),
-			}),
+			}
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
 					"mode" => (
