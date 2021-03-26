@@ -33,7 +33,7 @@ use unicode_width::UnicodeWidthStr;
 /// Lengths of keys row in minimized/maximized mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 /// Max duration of prompt messages (in seconds).
-const MESSAGE_DURATION: u64 = 1;
+const MESSAGE_DURATION: u128 = 1500;
 
 /// Main application.
 ///
@@ -121,7 +121,7 @@ impl<'a> App<'a> {
 	/// It is currently used to flush the prompt messages.
 	pub fn tick(&mut self) {
 		if let Some(clock) = self.prompt.clock {
-			if clock.elapsed().as_secs() > MESSAGE_DURATION
+			if clock.elapsed().as_millis() > MESSAGE_DURATION
 				&& self.prompt.command.is_none()
 			{
 				self.prompt.clear()
