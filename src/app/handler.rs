@@ -287,7 +287,10 @@ pub fn handle_key_input<B: Backend>(
 					if app.mode == Mode::Copy {
 						Command::Copy(CopyType::KeyFingerprint)
 					} else {
-						Command::None
+						Command::Set(
+							String::from("prompt"),
+							String::from(":receive "),
+						)
 					}
 				}
 				Key::Char('u') | Key::Char('U') => {
@@ -387,7 +390,8 @@ fn handle_command_execution<B: Backend>(
 		| Command::DeleteKey(_, _)
 		| Command::GenerateKey
 		| Command::EditKey(_)
-		| Command::SignKey(_) => {
+		| Command::SignKey(_)
+		| Command::ImportKeys(_, true) => {
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}

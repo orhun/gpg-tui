@@ -160,6 +160,10 @@ impl<'a> App<'a> {
 								String::from("prompt"),
 								String::from(":import "),
 							),
+							Command::Set(
+								String::from("prompt"),
+								String::from(":receive "),
+							),
 							Command::ExportKeys(
 								key_type,
 								vec![selected_key.get_id()],
@@ -256,7 +260,7 @@ impl<'a> App<'a> {
 				}
 				self.tab = Tab::Keys(key_type);
 			}
-			Command::ImportKeys(keys) => {
+			Command::ImportKeys(keys, false) => {
 				if keys.is_empty() {
 					self.prompt.set_output((
 						OutputType::Failure,
@@ -318,7 +322,8 @@ impl<'a> App<'a> {
 			}
 			Command::GenerateKey
 			| Command::EditKey(_)
-			| Command::SignKey(_) => {
+			| Command::SignKey(_)
+			| Command::ImportKeys(_, true) => {
 				let mut os_command = OsCommand::new("gpg");
 				let os_command = match command {
 					Command::EditKey(key) => {
@@ -326,6 +331,9 @@ impl<'a> App<'a> {
 					}
 					Command::SignKey(key) => {
 						os_command.arg("--sign-key").arg(&key)
+					}
+					Command::ImportKeys(keys, _) => {
+						os_command.arg("--receive-keys").args(&keys)
 					}
 					_ => os_command.arg("--full-gen-key"),
 				};

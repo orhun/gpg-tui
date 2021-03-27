@@ -4,7 +4,6 @@ use crate::app::prompt::OutputType;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::path::PathBuf;
 use std::str::FromStr;
 
 /// Command to run on rendering process.
@@ -22,8 +21,8 @@ pub enum Command {
 	ShowOptions,
 	/// List the public/secret keys.
 	ListKeys(KeyType),
-	/// Import public/secret keys.
-	ImportKeys(Vec<PathBuf>),
+	/// Import public/secret keys from files or a keyserver.
+	ImportKeys(Vec<String>, bool),
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>),
 	/// Delete the public/secret key.
@@ -109,6 +108,8 @@ impl Display for Command {
 						"prompt" => {
 							if value == ":import " {
 								String::from("import key(s)")
+							} else if value == ":receive " {
+								String::from("receive key(s) from keyserver")
 							} else {
 								format!("set prompt text to {}", value)
 							}
@@ -154,12 +155,13 @@ impl FromStr for Command {
 			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
 			)?)),
-			"import" => Ok(Command::ImportKeys(
+			"import" | "receive" => Ok(Command::ImportKeys(
 				s.replacen(':', "", 1)
 					.split_whitespace()
-					.map(PathBuf::from)
+					.map(String::from)
 					.skip(1)
 					.collect(),
+				command.as_str() == "receive",
 			)),
 			"export" | "exp" => Ok(Command::ExportKeys(
 				KeyType::from_str(
@@ -273,12 +275,19 @@ mod tests {
 			assert_eq!(Command::ListKeys(KeyType::Secret), command);
 		}
 		assert_eq!(
-			Command::ImportKeys(vec![
-				PathBuf::from("Test1"),
-				PathBuf::from("Test2"),
-				PathBuf::from("tesT3")
-			]),
+			Command::ImportKeys(
+				vec![
+					String::from("Test1"),
+					String::from("Test2"),
+					String::from("tesT3")
+				],
+				false
+			),
 			Command::from_str(":import Test1 Test2 tesT3").unwrap()
+		);
+		assert_eq!(
+			Command::ImportKeys(vec![String::from("Test"),], true),
+			Command::from_str(":receive Test").unwrap()
 		);
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
 			let command = Command::from_str(cmd).unwrap();

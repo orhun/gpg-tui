@@ -8,7 +8,6 @@ use gpgme::{
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Write;
-use std::path::PathBuf;
 
 /// A context for cryptographic operations.
 pub struct GpgContext {
@@ -90,7 +89,7 @@ impl GpgContext {
 	}
 
 	/// Reads the keys from given files and adds them to the keyring.
-	pub fn import_keys(&mut self, files: Vec<PathBuf>) -> Result<u32> {
+	pub fn import_keys(&mut self, files: Vec<String>) -> Result<u32> {
 		let mut imported_keys = 0;
 		for file in files {
 			let input = File::open(file)?;
