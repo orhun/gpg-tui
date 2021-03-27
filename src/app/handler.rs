@@ -294,7 +294,21 @@ pub fn handle_key_input<B: Backend>(
 					if app.mode == Mode::Copy {
 						Command::Copy(CopyType::KeyUserId)
 					} else {
-						Command::None
+						match app.keys_table.items.get(
+							app.keys_table
+								.state
+								.tui
+								.selected()
+								.expect("invalid selection"),
+						) {
+							Some(selected_key) => Command::Confirm(Box::new(
+								Command::SendKey(selected_key.get_id()),
+							)),
+							None => Command::ShowOutput(
+								OutputType::Failure,
+								String::from("invalid selection"),
+							),
+						}
 					}
 				}
 				Key::Char('m') | Key::Char('M') => {

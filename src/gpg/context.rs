@@ -158,6 +158,21 @@ impl GpgContext {
 		Ok(path.to_string_lossy().to_string())
 	}
 
+	/// Sends the given key to the default keyserver.
+	pub fn send_key(&mut self, key_id: String) -> Result<()> {
+		let keys = self
+			.get_keys_iter(KeyType::Public, Some(vec![key_id]))?
+			.filter_map(|key| key.ok())
+			.collect::<Vec<Key>>();
+		if let Some(key) = keys.first() {
+			self.inner
+				.export_keys_extern(vec![key], ExportMode::EXTERN)
+				.map_err(|e| anyhow!("failed to send key(s): {:?}", e))
+		} else {
+			Err(anyhow!("key not found"))
+		}
+	}
+
 	/// Deletes the specified public/secret key.
 	///
 	/// Searches the keyring for finding the specified

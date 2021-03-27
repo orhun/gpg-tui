@@ -28,6 +28,8 @@ pub enum Command {
 	ExportKeys(KeyType, Vec<String>),
 	/// Delete the public/secret key.
 	DeleteKey(KeyType, String),
+	/// Send the key to the default keyserver.
+	SendKey(String),
 	/// Edit a key.
 	EditKey(String),
 	/// Sign a key.
@@ -85,6 +87,8 @@ impl Display for Command {
 				}
 				Command::DeleteKey(key_type, _) =>
 					format!("delete the selected key ({})", key_type),
+				Command::SendKey(_) =>
+					String::from("send key to the keyserver"),
 				Command::EditKey(_) => String::from("edit the selected key"),
 				Command::SignKey(_) => String::from("sign the selected key"),
 				Command::GenerateKey => String::from("generate a new key pair"),
@@ -186,6 +190,7 @@ impl FromStr for Command {
 					},
 				))
 			}
+			"send" => Ok(Command::SendKey(args.first().cloned().ok_or(())?)),
 			"edit" => Ok(Command::EditKey(args.first().cloned().ok_or(())?)),
 			"sign" => Ok(Command::SignKey(args.first().cloned().ok_or(())?)),
 			"generate" | "gen" => Ok(Command::GenerateKey),
@@ -314,6 +319,18 @@ mod tests {
 				command
 			);
 		}
+		assert_eq!(
+			Command::SendKey(String::from("test")),
+			Command::from_str(":send test").unwrap()
+		);
+		assert_eq!(
+			Command::EditKey(String::from("test")),
+			Command::from_str(":edit test").unwrap()
+		);
+		assert_eq!(
+			Command::SignKey(String::from("test")),
+			Command::from_str(":sign test").unwrap()
+		);
 		assert_eq!(
 			Command::GenerateKey,
 			Command::from_str(":generate").unwrap()

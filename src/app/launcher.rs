@@ -169,6 +169,9 @@ impl<'a> App<'a> {
 								key_type,
 								selected_key.get_id(),
 							))),
+							Command::Confirm(Box::new(Command::SendKey(
+								selected_key.get_id(),
+							))),
 							Command::EditKey(selected_key.get_id()),
 							Command::SignKey(selected_key.get_id()),
 							Command::GenerateKey,
@@ -301,6 +304,17 @@ impl<'a> App<'a> {
 						format!("delete error: {}", e),
 					)),
 				}
+			}
+			Command::SendKey(key_id) => {
+				self.prompt.set_output(match self.gpgme.send_key(key_id) {
+					Ok(()) => (
+						OutputType::Success,
+						String::from("key sent to the keyserver"),
+					),
+					Err(e) => {
+						(OutputType::Failure, format!("send error: {}", e))
+					}
+				});
 			}
 			Command::GenerateKey
 			| Command::EditKey(_)
