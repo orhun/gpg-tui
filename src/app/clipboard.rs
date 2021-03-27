@@ -23,7 +23,7 @@ impl Display for CopyType {
 			"{}",
 			match self {
 				Self::TableRow(i) => format!("table row ({})", i),
-				Self::Key => String::from("key"),
+				Self::Key => String::from("exported key"),
 				Self::KeyId => String::from("key ID"),
 				Self::KeyFingerprint => String::from("key fingerprint"),
 				Self::KeyUserId => String::from("user ID"),
@@ -58,7 +58,7 @@ mod tests {
 		assert_eq!(String::from("table row (1)"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key").unwrap();
 		assert_eq!(CopyType::Key, copy_type);
-		assert_eq!(String::from("key"), copy_type.to_string());
+		assert_eq!(String::from("exported key"), copy_type.to_string());
 		let copy_type = CopyType::from_str("key_id").unwrap();
 		assert_eq!(CopyType::KeyId, copy_type);
 		assert_eq!(String::from("key ID"), copy_type.to_string());
