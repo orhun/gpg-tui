@@ -156,6 +156,7 @@ impl<'a> App<'a> {
 						vec![
 							Command::None,
 							Command::Refresh,
+							Command::RefreshKeys,
 							Command::Set(
 								String::from("prompt"),
 								String::from(":import "),
@@ -321,6 +322,7 @@ impl<'a> App<'a> {
 				});
 			}
 			Command::GenerateKey
+			| Command::RefreshKeys
 			| Command::EditKey(_)
 			| Command::SignKey(_)
 			| Command::ImportKeys(_, true) => {
@@ -335,6 +337,7 @@ impl<'a> App<'a> {
 					Command::ImportKeys(keys, _) => {
 						os_command.arg("--receive-keys").args(&keys)
 					}
+					Command::RefreshKeys => os_command.arg("--refresh-keys"),
 					_ => os_command.arg("--full-gen-key"),
 				};
 				match os_command.spawn() {

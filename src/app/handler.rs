@@ -127,7 +127,13 @@ pub fn handle_key_input<B: Backend>(
 					}
 				}
 				Key::Char('p') | Key::Char('P') => Command::Paste,
-				Key::Char('r') | Key::Char('R') | Key::F(5) => Command::Refresh,
+				Key::Char('r') | Key::Char('R') | Key::F(5) => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						Command::RefreshKeys
+					} else {
+						Command::Refresh
+					}
+				}
 				Key::Up | Key::Char('k') | Key::Char('K') => {
 					if key_event.modifiers == Modifiers::CONTROL {
 						Command::Scroll(ScrollDirection::Top, false)
@@ -389,6 +395,7 @@ fn handle_command_execution<B: Backend>(
 		Command::ExportKeys(_, _)
 		| Command::DeleteKey(_, _)
 		| Command::GenerateKey
+		| Command::RefreshKeys
 		| Command::EditKey(_)
 		| Command::SignKey(_)
 		| Command::ImportKeys(_, true) => {

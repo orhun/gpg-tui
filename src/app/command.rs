@@ -35,6 +35,8 @@ pub enum Command {
 	SignKey(String),
 	/// Generate a new key pair.
 	GenerateKey,
+	/// Refresh the keyring.
+	RefreshKeys,
 	/// Copy a property to clipboard.
 	Copy(CopyType),
 	/// Toggle the detail level.
@@ -75,8 +77,9 @@ impl Display for Command {
 			f,
 			"{}",
 			match self {
-				Command::None => String::from("close"),
-				Command::Refresh => String::from("refresh"),
+				Command::None => String::from("close menu"),
+				Command::Refresh => String::from("refresh application"),
+				Command::RefreshKeys => String::from("refresh the keyring"),
 				Command::ExportKeys(key_type, patterns) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
@@ -237,7 +240,13 @@ impl FromStr for Command {
 			"previous" | "prev" => Ok(Self::PreviousTab),
 			"minimize" | "min" => Ok(Self::Minimize),
 			"maximize" | "max" => Ok(Self::Maximize),
-			"refresh" | "r" => Ok(Self::Refresh),
+			"refresh" | "r" => {
+				if args.first() == Some(&String::from("keys")) {
+					Ok(Self::RefreshKeys)
+				} else {
+					Ok(Self::Refresh)
+				}
+			}
 			"quit" | "q" | "q!" => Ok(Self::Quit),
 			"none" => Ok(Self::None),
 			_ => Err(()),
@@ -344,6 +353,10 @@ mod tests {
 			Command::GenerateKey,
 			Command::from_str(":generate").unwrap()
 		);
+		assert_eq!(
+			Command::RefreshKeys,
+			Command::from_str(":refresh keys").unwrap()
+		);
 		for cmd in &[":toggle all", ":t all"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ToggleDetail(true), command);
@@ -383,14 +396,13 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Paste, command);
 		}
-		let command = Command::from_str(":search q").unwrap();
-		assert_eq!(Command::Search(Some(String::from("q"))), command);
-		let command = Command::from_str(":input").unwrap();
-		assert_eq!(Command::EnableInput, command);
-		let command = Command::from_str(":next").unwrap();
-		assert_eq!(Command::NextTab, command);
-		let command = Command::from_str(":prev").unwrap();
-		assert_eq!(Command::PreviousTab, command);
+		assert_eq!(
+			Command::Search(Some(String::from("q"))),
+			Command::from_str(":search q").unwrap()
+		);
+		assert_eq!(Command::EnableInput, Command::from_str(":input").unwrap());
+		assert_eq!(Command::NextTab, Command::from_str(":next").unwrap());
+		assert_eq!(Command::PreviousTab, Command::from_str(":prev").unwrap());
 		for cmd in &[":minimize", ":min"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Minimize, command);
@@ -399,10 +411,7 @@ mod tests {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Maximize, command);
 		}
-		for cmd in &[":refresh", ":r"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::Refresh, command);
-		}
+		assert_eq!(Command::Refresh, Command::from_str(":refresh").unwrap());
 		for cmd in &[":quit", ":q", ":q!"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Quit, command);
