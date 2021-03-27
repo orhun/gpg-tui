@@ -32,8 +32,8 @@ use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/maximized mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
-/// Max duration of prompt messages (in seconds).
-const MESSAGE_DURATION: u128 = 1500;
+/// Max duration of prompt messages.
+const MESSAGE_DURATION: u128 = 1750;
 
 /// Main application.
 ///
