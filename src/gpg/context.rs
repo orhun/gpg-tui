@@ -158,15 +158,16 @@ impl GpgContext {
 	}
 
 	/// Sends the given key to the default keyserver.
-	pub fn send_key(&mut self, key_id: String) -> Result<()> {
+	pub fn send_key(&mut self, key_id: String) -> Result<String> {
 		let keys = self
 			.get_keys_iter(KeyType::Public, Some(vec![key_id]))?
 			.filter_map(|key| key.ok())
 			.collect::<Vec<Key>>();
-		if let Some(key) = keys.first() {
+		if let Some(key) = &keys.first() {
 			self.inner
-				.export_keys_extern(vec![key], ExportMode::EXTERN)
-				.map_err(|e| anyhow!("failed to send key(s): {:?}", e))
+				.export_keys_extern(vec![*key], ExportMode::EXTERN)
+				.map_err(|e| anyhow!("failed to send key(s): {:?}", e))?;
+			Ok(key.id().unwrap_or_default().to_string())
 		} else {
 			Err(anyhow!("key not found"))
 		}

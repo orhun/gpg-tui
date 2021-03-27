@@ -312,9 +312,9 @@ impl<'a> App<'a> {
 			}
 			Command::SendKey(key_id) => {
 				self.prompt.set_output(match self.gpgme.send_key(key_id) {
-					Ok(()) => (
+					Ok(key_id) => (
 						OutputType::Success,
-						String::from("key sent to the keyserver"),
+						format!("key sent to the keyserver: 0x{}", key_id),
 					),
 					Err(e) => {
 						(OutputType::Failure, format!("send error: {}", e))
