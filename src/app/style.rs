@@ -24,11 +24,10 @@ pub fn get_colored_table_row<'a>(
 				(line.find('['), line.find(']'))
 			{
 				let data = line[first_bracket + 1..second_bracket].to_string();
-				let mut colored_line = Vec::new();
-				colored_line.push(Span::styled(
+				let mut colored_line = vec![Span::styled(
 					line[..first_bracket + 1].to_string(),
 					highlight_style,
-				));
+				)];
 				if vec![
 					// expired
 					String::from("exp"),
