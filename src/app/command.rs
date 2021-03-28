@@ -106,7 +106,7 @@ impl Display for Command {
 						if value == "true" { "enable" } else { "disable" };
 					match option.as_ref() {
 						"armor" => format!("{} armored output", action),
-						"color" => format!("{} colors", action),
+						"colored" => format!("{} colors", action),
 						"margin" => String::from("toggle table margin"),
 						"prompt" => {
 							if value == ":import " {

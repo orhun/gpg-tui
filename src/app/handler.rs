@@ -181,7 +181,7 @@ pub fn handle_key_input<B: Backend>(
 				Key::Char('s') | Key::Char('S') => {
 					if key_event.modifiers == Modifiers::CONTROL {
 						Command::Set(
-							String::from("color"),
+							String::from("colored"),
 							(!app.state.colored).to_string(),
 						)
 					} else {

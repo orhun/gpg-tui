@@ -219,7 +219,7 @@ impl<'a> App<'a> {
 								Command::Minimize
 							},
 							Command::Set(
-								String::from("color"),
+								String::from("colored"),
 								(!self.state.colored).to_string(),
 							),
 							if self.mode == Mode::Visual {
@@ -507,17 +507,17 @@ impl<'a> App<'a> {
 								),
 							)
 						}
-						"color" => match value.parse() {
+						"colored" => match value.parse() {
 							Ok(colored) => {
 								self.state.colored = colored;
 								(
 									OutputType::Success,
-									format!("color: {}", self.state.colored),
+									format!("colored: {}", self.state.colored),
 								)
 							}
 							Err(_) => (
 								OutputType::Failure,
-								String::from("usage: set color <true/false>"),
+								String::from("usage: set colored <true/false>"),
 							),
 						},
 						_ => (
@@ -578,9 +578,9 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						format!("table margin: {}", self.keys_table_margin),
 					),
-					"color" => (
+					"colored" => (
 						OutputType::Success,
-						format!("color: {}", self.state.colored),
+						format!("colored: {}", self.state.colored),
 					),
 					_ => (
 						OutputType::Failure,
