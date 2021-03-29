@@ -13,6 +13,7 @@ use crate::widget::row::{RowItem, ScrollDirection};
 use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableState};
 use anyhow::{anyhow, Error as AnyhowError, Result};
+use colorsys::Rgb;
 use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
@@ -528,8 +529,12 @@ impl<'a> App<'a> {
 								OutputType::Success,
 								format!(
 									"color: {}",
-									format!("{:?}", self.state.color)
-										.to_lowercase()
+									match self.state.color {
+										Color::Rgb(r, g, b) =>
+											Rgb::from((r, g, b)).to_hex_string(),
+										_ => format!("{:?}", self.state.color)
+											.to_lowercase(),
+									}
 								),
 							)
 						}
@@ -599,7 +604,12 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						format!(
 							"color: {}",
-							format!("{:?}", self.state.color).to_lowercase()
+							match self.state.color {
+								Color::Rgb(r, g, b) =>
+									Rgb::from((r, g, b)).to_hex_string(),
+								_ => format!("{:?}", self.state.color)
+									.to_lowercase(),
+							}
 						),
 					),
 					_ => (
