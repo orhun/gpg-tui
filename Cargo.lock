@@ -107,6 +107,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "colorsys"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f002e5b764d885ca647fc2ae36abfec4263d900470dc25c3320ca911b1b83e75"
+
+[[package]]
 name = "conv"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -253,6 +259,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "colorsys",
  "copypasta-ext",
  "crossterm 0.19.0",
  "gpgme",

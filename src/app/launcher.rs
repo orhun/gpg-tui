@@ -10,6 +10,7 @@ use crate::gpg::context::GpgContext;
 use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::list::StatefulList;
 use crate::widget::row::{RowItem, ScrollDirection};
+use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableState};
 use anyhow::{anyhow, Error as AnyhowError, Result};
 use copypasta_ext::prelude::ClipboardProvider;
@@ -520,6 +521,18 @@ impl<'a> App<'a> {
 								String::from("usage: set colored <true/false>"),
 							),
 						},
+						"color" => {
+							self.state.color =
+								WidgetColor::from(value.as_ref()).get();
+							(
+								OutputType::Success,
+								format!(
+									"color: {}",
+									format!("{:?}", self.state.color)
+										.to_lowercase()
+								),
+							)
+						}
 						_ => (
 							OutputType::Failure,
 							if !option.is_empty() {
@@ -581,6 +594,13 @@ impl<'a> App<'a> {
 					"colored" => (
 						OutputType::Success,
 						format!("colored: {}", self.state.colored),
+					),
+					"color" => (
+						OutputType::Success,
+						format!(
+							"color: {}",
+							format!("{:?}", self.state.color).to_lowercase()
+						),
 					),
 					_ => (
 						OutputType::Failure,
@@ -855,7 +875,7 @@ impl<'a> App<'a> {
 					})
 					.borders(Borders::ALL),
 			)
-			.style(Style::default().fg(Color::Gray))
+			.style(Style::default().fg(self.state.color))
 			.highlight_style(
 				Style::default()
 					.fg(Color::Reset)
@@ -888,7 +908,7 @@ impl<'a> App<'a> {
 					rect.height.checked_sub(2).unwrap_or(rect.height),
 				),
 			)
-			.style(Style::default().fg(Color::Gray))
+			.style(Style::default().fg(self.state.color))
 			.highlight_style(if self.state.colored {
 				Style::default().add_modifier(Modifier::BOLD)
 			} else {

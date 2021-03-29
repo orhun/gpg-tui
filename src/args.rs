@@ -1,5 +1,6 @@
 //! Command-line argument parser.
 
+use crate::widget::style::Color;
 use std::path::PathBuf;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
@@ -30,6 +31,9 @@ pub struct Args {
 	/// Sets the tick rate of the terminal.
 	#[structopt(short, long, value_name = "ms", default_value = "250")]
 	pub tick_rate: u64,
+	/// Sets the accent color of the terminal.
+	#[structopt(short, long, default_value = "gray", parse(from_str))]
+	pub color: Color,
 	/// Sets the style of the terminal.
 	#[structopt(short, long, possible_values = &["plain", "colored"], default_value = "plain")]
 	pub style: String,
