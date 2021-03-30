@@ -402,6 +402,13 @@ fn handle_command_execution<B: Backend>(
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}
+		Command::ListKeys(key_type) => match app.tab {
+			Tab::Keys(tab_key_type) => {
+				if key_type == tab_key_type {
+					command = Command::Refresh
+				}
+			}
+		},
 		Command::Copy(CopyType::Key) => {
 			if app.gpgme.config.armor {
 				tui.toggle_pause()?;
