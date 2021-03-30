@@ -32,3 +32,21 @@ impl Tab {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::{assert_eq, assert_ne};
+	#[test]
+	fn test_app_tab() {
+		let mut tab = Tab::Keys(KeyType::Public);
+		assert_eq!(Command::ListKeys(KeyType::Public), tab.get_command());
+		tab.next();
+		assert_eq!(Tab::Keys(KeyType::Secret), tab);
+		assert_ne!(Tab::Keys(KeyType::Public), tab);
+		assert_eq!(Command::ListKeys(KeyType::Secret), tab.get_command());
+		tab.previous();
+		assert_eq!(Tab::Keys(KeyType::Public), tab);
+		assert_ne!(Tab::Keys(KeyType::Secret), tab);
+	}
+}
