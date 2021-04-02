@@ -253,7 +253,7 @@ mod tests {
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
 		let mut keys = context.get_keys(KeyType::Public, None)?;
-		if keys.len() == 1 {
+		if keys.len() == 2 {
 			let key = &mut keys[0];
 			if key.get_user_id() == TEST_USER {
 				let date = Utc::now().format("%F").to_string();
@@ -267,7 +267,11 @@ mod tests {
 				assert!(key
 					.get_subkey_info(true)
 					.join("\n")
-					.contains(key.inner.id().unwrap()));
+					.contains(&key.get_id().replace("0x", "")));
+				assert!(key
+					.get_subkey_info(false)
+					.join("\n")
+					.contains(&key.get_fingerprint()));
 				assert_eq!(
 					format!("[u] {}\n    └─[13] selfsig ({})", TEST_USER, date),
 					key.get_user_info(false).join("\n")

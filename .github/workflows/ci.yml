@@ -56,6 +56,7 @@ jobs:
         run: |
           echo "${{ secrets.TEST_PASSPHRASE }}" | gpg --pinentry-mode loopback \
           --no-tty --passphrase-fd 0 --quick-gen-key "Test User <test@example.org>"
+          gpg --recv-keys 0x53F218C35C1DC8B1
       - name: Run cargo-tarpaulin
         run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
