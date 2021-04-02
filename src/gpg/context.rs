@@ -213,9 +213,40 @@ mod tests {
 		context.config.armor = true;
 		context.apply_config();
 		assert_eq!(true, context.config.armor);
-		context.get_keys_iter(KeyType::Public, None)?;
-		context.get_keys(KeyType::Public, None)?;
-		fs::remove_file(context.export_keys(KeyType::Public, None)?)?;
+		if context.config.get_dir_info("homedir").ok()
+			== dirs::cache_dir()
+				.unwrap()
+				.join(env!("CARGO_PKG_NAME"))
+				.to_str()
+		{
+			let keys = context.get_all_keys()?;
+			let key_count = keys.get(&KeyType::Public).unwrap().len();
+			assert!(context
+				.get_key(
+					KeyType::Secret,
+					keys.get(&KeyType::Public).unwrap()[0].get_id()
+				)
+				.is_ok());
+			let key_id = keys.get(&KeyType::Public).unwrap()[1].get_id();
+			assert!(context.get_key(KeyType::Public, key_id.clone()).is_ok());
+			let output_file = context.export_keys(KeyType::Public, None)?;
+			context.delete_key(KeyType::Public, key_id)?;
+			assert_eq!(
+				key_count - 1,
+				context.get_keys(KeyType::Public, None).unwrap().len()
+			);
+			assert_eq!(
+				1,
+				context
+					.import_keys(vec![output_file.clone()])
+					.unwrap_or_default()
+			);
+			assert_eq!(
+				key_count,
+				context.get_keys(KeyType::Public, None).unwrap().len()
+			);
+			fs::remove_file(output_file)?;
+		}
 		Ok(())
 	}
 }
