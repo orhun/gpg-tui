@@ -228,10 +228,6 @@ mod tests {
 				)
 				.is_ok());
 			let key_id = keys.get(&KeyType::Public).unwrap()[1].get_id();
-			assert_eq!(
-				key_id.replace("0x", ""),
-				context.send_key(key_id.clone())?
-			);
 			assert!(context.get_key(KeyType::Public, key_id.clone()).is_ok());
 			let output_file = context.export_keys(KeyType::Public, None)?;
 			context.delete_key(KeyType::Public, key_id)?;
