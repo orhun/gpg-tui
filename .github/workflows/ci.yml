@@ -52,7 +52,7 @@ jobs:
           override: true
       - name: Checkout the repository
         uses: actions/checkout@master
-      - name: Prepare the test environment
+      - name: Run tests
         run: |
           test_dir="$HOME/.cache/gpg-tui/"
           mkdir -p $test_dir
@@ -62,8 +62,6 @@ jobs:
             --no-tty --passphrase-fd 0 \
             --quick-gen-key 'Test User <test@example.org>'
           echo "${{ secrets.TEST_KEY }}" | gpg --import
-      - name: Run tests
-        run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
             grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
           tar -xzf cargo-tarpaulin-*.tar.gz
