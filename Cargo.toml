@@ -28,6 +28,7 @@ features = ["crossterm"]
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"
+dirs = "3.0.1"
 
 [profile.dev]
 opt-level = 0

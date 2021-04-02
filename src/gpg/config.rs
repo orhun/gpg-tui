@@ -1,5 +1,5 @@
 use crate::args::Args;
-use anyhow::{self, Result};
+use anyhow::{anyhow, Result};
 use gpgme::{Gpgme, Protocol};
 use std::path::PathBuf;
 
@@ -36,6 +36,11 @@ impl GpgConfig {
 			armor: args.armor,
 			output_dir,
 		})
+	}
+
+	/// Returns the directory information for the given value.
+	pub fn get_dir_info(&self, dir: &str) -> Result<&str> {
+		self.inner.get_dir_info(dir).map_err(|e| anyhow!("{:?}", e))
 	}
 
 	/// Checks if the linked version of the library is

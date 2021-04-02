@@ -246,37 +246,39 @@ mod tests {
 	use anyhow::Result;
 	use chrono::Utc;
 	use pretty_assertions::assert_eq;
-	const TEST_USER: &str = "Test User <test@example.org>";
 	#[test]
 	fn test_gpg_key() -> Result<()> {
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
 		let mut keys = context.get_keys(KeyType::Public, None)?;
-		if keys.len() == 2 {
+		if context.config.get_dir_info("homedir").ok()
+			== dirs::cache_dir()
+				.unwrap()
+				.join(env!("CARGO_PKG_NAME"))
+				.to_str()
+		{
 			let key = &mut keys[0];
-			if key.get_user_id() == TEST_USER {
-				let date = Utc::now().format("%F").to_string();
-				key.detail.increase();
-				assert_eq!(KeyDetail::Standard, key.detail);
-				assert_eq!(Ok(key.detail), KeyDetail::from_str("standard"));
-				key.detail.increase();
-				assert_eq!(KeyDetail::Full, key.detail);
-				assert_eq!("full", key.detail.to_string());
-				assert!(key.get_subkey_info(false).join("\n").contains(&date));
-				assert!(key
-					.get_subkey_info(true)
-					.join("\n")
-					.contains(&key.get_id().replace("0x", "")));
-				assert!(key
-					.get_subkey_info(false)
-					.join("\n")
-					.contains(&key.get_fingerprint()));
-				assert_eq!(
-					format!("[u] {}\n    └─[13] selfsig ({})", TEST_USER, date),
-					key.get_user_info(false).join("\n")
-				);
-			}
+			let date = Utc::now().format("%F").to_string();
+			key.detail.increase();
+			assert_eq!(KeyDetail::Standard, key.detail);
+			assert_eq!(Ok(key.detail), KeyDetail::from_str("standard"));
+			key.detail.increase();
+			assert_eq!(KeyDetail::Full, key.detail);
+			assert_eq!("full", key.detail.to_string());
+			assert!(key.get_subkey_info(false).join("\n").contains(&date));
+			assert!(key
+				.get_subkey_info(true)
+				.join("\n")
+				.contains(&key.get_id().replace("0x", "")));
+			assert!(key
+				.get_subkey_info(false)
+				.join("\n")
+				.contains(&key.get_fingerprint()));
+			assert_eq!(
+				format!("[u] {}\n    └─[13] selfsig ({})", TEST_USER, date),
+				key.get_user_info(false).join("\n")
+			);
 		}
 		Ok(())
 	}

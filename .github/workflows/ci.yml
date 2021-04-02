@@ -43,8 +43,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             --no-install-recommends \
-            --allow-unauthenticated libgpgme-dev \
-            libxcb-shape0-dev libxcb-xfixes0-dev
+            --allow-unauthenticated \
+            libgpgme-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -52,12 +52,17 @@ jobs:
           override: true
       - name: Checkout the repository
         uses: actions/checkout@master
-      - name: Generate a test key
+      - name: Prepare the test environment
         run: |
-          echo "${{ secrets.TEST_PASSPHRASE }}" | gpg --pinentry-mode loopback \
-          --no-tty --passphrase-fd 0 --quick-gen-key "Test User <test@example.org>"
+          test_dir="$HOME/.cache/gpg-tui/"
+          mkdir -p $test_dir
+          export GNUPGHOME=$test_dir
+          echo $(openssl rand -base64 6) | gpg \
+                  --pinentry-mode loopback \
+                  --no-tty --passphrase-fd 0 \
+                  --quick-gen-key 'Test User <test@example.org>'
           gpg --recv-keys 0x53F218C35C1DC8B1
-      - name: Run cargo-tarpaulin
+      - name: Run tests
         run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
             grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
