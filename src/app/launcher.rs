@@ -63,7 +63,7 @@ pub struct App<'a> {
 	/// Bottom margin value of the keys table.
 	pub keys_table_margin: u16,
 	/// Clipboard context.
-	pub clipboard: ClipboardContext,
+	pub clipboard: Option<ClipboardContext>,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
 }
@@ -87,8 +87,13 @@ impl<'a> App<'a> {
 			keys_table_states: HashMap::new(),
 			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
-			clipboard: ClipboardContext::new()
-				.expect("failed to initialize clipboard"),
+			clipboard: match ClipboardContext::new() {
+				Ok(clipboard) => Some(clipboard),
+				Err(e) => {
+					println!("failed to initialize clipboard: {:?}", e);
+					None
+				}
+			},
 			gpgme,
 		})
 	}
@@ -665,13 +670,20 @@ impl<'a> App<'a> {
 				};
 				match content {
 					Ok(content) => {
-						self.clipboard
-							.set_contents(content)
-							.expect("failed to set clipboard contents");
-						self.prompt.set_output((
-							OutputType::Success,
-							format!("{} copied to clipboard", copy_type),
-						));
+						if let Some(clipboard) = self.clipboard.as_mut() {
+							clipboard
+								.set_contents(content)
+								.expect("failed to set clipboard contents");
+							self.prompt.set_output((
+								OutputType::Success,
+								format!("{} copied to clipboard", copy_type),
+							));
+						} else {
+							self.prompt.set_output((
+								OutputType::Failure,
+								String::from("clipboard not available"),
+							));
+						}
 					}
 					Err(e) => {
 						self.prompt.set_output((
@@ -683,13 +695,20 @@ impl<'a> App<'a> {
 				self.mode = Mode::Normal;
 			}
 			Command::Paste => {
-				self.prompt.clear();
-				self.prompt.text = format!(
-					":{}",
-					self.clipboard
-						.get_contents()
-						.expect("failed to get clipboard contents")
-				);
+				if let Some(clipboard) = self.clipboard.as_mut() {
+					self.prompt.clear();
+					self.prompt.text = format!(
+						":{}",
+						clipboard
+							.get_contents()
+							.expect("failed to get clipboard contents")
+					);
+				} else {
+					self.prompt.set_output((
+						OutputType::Failure,
+						String::from("clipboard not available"),
+					));
+				}
 			}
 			Command::EnableInput => self.prompt.enable_command_input(),
 			Command::Search(query) => {
