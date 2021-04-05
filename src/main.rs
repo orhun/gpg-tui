@@ -41,7 +41,7 @@ fn main() -> Result<()> {
 		// Handle events.
 		match tui.events.next()? {
 			Event::Key(key_event) => {
-				handler::handle_key_input(key_event, &mut tui, &mut app)?
+				handler::handle_events(key_event, &mut tui, &mut app)?
 			}
 			Event::Tick => app.tick(),
 			_ => {}

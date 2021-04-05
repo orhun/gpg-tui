@@ -11,13 +11,18 @@ use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
 use std::str::FromStr;
 use tui::backend::Backend;
 
-/// Handles the key events and
-/// runs an application command if necessary.
-pub fn handle_key_input<B: Backend>(
+/// Handles the key events and executes the application command.
+pub fn handle_events<B: Backend>(
 	key_event: KeyEvent,
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
+	handle_command_execution(handle_key_event(key_event, app), tui, app)
+}
+
+/// Returns the corresponding application command for a key event.
+fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
+	let mut command = Command::None;
 	if app.prompt.is_enabled() {
 		match key_event.code {
 			Key::Char(c) => {
@@ -51,11 +56,10 @@ pub fn handle_key_input<B: Backend>(
 			Key::Enter => {
 				if app.prompt.is_search_enabled() || app.prompt.text.len() < 2 {
 					app.prompt.clear();
-				} else if let Ok(command) = Command::from_str(&app.prompt.text)
-				{
+				} else if let Ok(cmd) = Command::from_str(&app.prompt.text) {
 					app.prompt.history.push(app.prompt.text.clone());
 					app.prompt.clear();
-					handle_command_execution(command, tui, app)?;
+					command = cmd;
 				} else {
 					app.prompt.set_output((
 						OutputType::Failure,
@@ -69,140 +73,26 @@ pub fn handle_key_input<B: Backend>(
 			_ => {}
 		}
 	} else {
-		handle_command_execution(
-			match key_event.code {
-				Key::Char('q') | Key::Char('Q') => Command::Quit,
-				Key::Esc => {
-					if app.mode != Mode::Normal {
-						Command::SwitchMode(Mode::Normal)
-					} else if app.state.show_options {
-						Command::None
-					} else if app.prompt.command.is_some() {
-						app.prompt.clear();
-						Command::None
-					} else {
-						Command::Quit
-					}
+		command = match key_event.code {
+			Key::Char('q') | Key::Char('Q') => Command::Quit,
+			Key::Esc => {
+				if app.mode != Mode::Normal {
+					Command::SwitchMode(Mode::Normal)
+				} else if app.state.show_options {
+					Command::None
+				} else if app.prompt.command.is_some() {
+					app.prompt.clear();
+					Command::None
+				} else {
+					Command::Quit
 				}
-				Key::Char('d') | Key::Char('D') | Key::Backspace => {
-					if key_event.modifiers == Modifiers::CONTROL
-						&& key_event.code != Key::Backspace
-					{
-						Command::Quit
-					} else {
-						match app.keys_table.items.get(
-							app.keys_table
-								.state
-								.tui
-								.selected()
-								.expect("invalid selection"),
-						) {
-							Some(selected_key) => {
-								Command::Confirm(Box::new(Command::DeleteKey(
-									match app.tab {
-										Tab::Keys(key_type) => key_type,
-									},
-									selected_key.get_id(),
-								)))
-							}
-							None => Command::ShowOutput(
-								OutputType::Failure,
-								String::from("invalid selection"),
-							),
-						}
-					}
-				}
-				Key::Char('c') | Key::Char('C') => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::Quit
-					} else {
-						Command::SwitchMode(Mode::Copy)
-					}
-				}
-				Key::Char('v') | Key::Char('V') => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::Paste
-					} else {
-						Command::SwitchMode(Mode::Visual)
-					}
-				}
-				Key::Char('p') | Key::Char('P') => Command::Paste,
-				Key::Char('r') | Key::Char('R') | Key::F(5) => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::RefreshKeys
-					} else {
-						Command::Refresh
-					}
-				}
-				Key::Up | Key::Char('k') | Key::Char('K') => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::Scroll(ScrollDirection::Top, false)
-					} else {
-						Command::Scroll(
-							ScrollDirection::Up(1),
-							key_event.modifiers == Modifiers::ALT,
-						)
-					}
-				}
-				Key::Right | Key::Char('l') | Key::Char('L') => {
-					if key_event.modifiers == Modifiers::ALT {
-						Command::Scroll(ScrollDirection::Right(1), true)
-					} else {
-						Command::NextTab
-					}
-				}
-				Key::Down | Key::Char('j') | Key::Char('J') => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::Scroll(ScrollDirection::Bottom, false)
-					} else {
-						Command::Scroll(
-							ScrollDirection::Down(1),
-							key_event.modifiers == Modifiers::ALT,
-						)
-					}
-				}
-				Key::Left | Key::Char('h') | Key::Char('H') => {
-					if key_event.modifiers == Modifiers::ALT {
-						Command::Scroll(ScrollDirection::Left(1), true)
-					} else {
-						Command::PreviousTab
-					}
-				}
-				Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
-				Key::Tab => Command::ToggleDetail(false),
-				Key::Char('`') => Command::Set(
-					String::from("margin"),
-					String::from(if app.keys_table_margin == 1 {
-						"0"
-					} else {
-						"1"
-					}),
-				),
-				Key::Char('s') | Key::Char('S') => {
-					if key_event.modifiers == Modifiers::CONTROL {
-						Command::Set(
-							String::from("colored"),
-							(!app.state.colored).to_string(),
-						)
-					} else {
-						match app.keys_table.items.get(
-							app.keys_table
-								.state
-								.tui
-								.selected()
-								.expect("invalid selection"),
-						) {
-							Some(selected_key) => {
-								Command::SignKey(selected_key.get_id())
-							}
-							None => Command::ShowOutput(
-								OutputType::Failure,
-								String::from("invalid selection"),
-							),
-						}
-					}
-				}
-				Key::Char('e') | Key::Char('E') => {
+			}
+			Key::Char('d') | Key::Char('D') | Key::Backspace => {
+				if key_event.modifiers == Modifiers::CONTROL
+					&& key_event.code != Key::Backspace
+				{
+					Command::Quit
+				} else {
 					match app.keys_table.items.get(
 						app.keys_table
 							.state
@@ -211,7 +101,12 @@ pub fn handle_key_input<B: Backend>(
 							.expect("invalid selection"),
 					) {
 						Some(selected_key) => {
-							Command::EditKey(selected_key.get_id())
+							Command::Confirm(Box::new(Command::DeleteKey(
+								match app.tab {
+									Tab::Keys(key_type) => key_type,
+								},
+								selected_key.get_id(),
+							)))
 						}
 						None => Command::ShowOutput(
 							OutputType::Failure,
@@ -219,148 +114,253 @@ pub fn handle_key_input<B: Backend>(
 						),
 					}
 				}
-				Key::Char('x') | Key::Char('X') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::Key)
-					} else {
-						match app.keys_table.items.get(
-							app.keys_table
+			}
+			Key::Char('c') | Key::Char('C') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Quit
+				} else {
+					Command::SwitchMode(Mode::Copy)
+				}
+			}
+			Key::Char('v') | Key::Char('V') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Paste
+				} else {
+					Command::SwitchMode(Mode::Visual)
+				}
+			}
+			Key::Char('p') | Key::Char('P') => Command::Paste,
+			Key::Char('r') | Key::Char('R') | Key::F(5) => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::RefreshKeys
+				} else {
+					Command::Refresh
+				}
+			}
+			Key::Up | Key::Char('k') | Key::Char('K') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Scroll(ScrollDirection::Top, false)
+				} else {
+					Command::Scroll(
+						ScrollDirection::Up(1),
+						key_event.modifiers == Modifiers::ALT,
+					)
+				}
+			}
+			Key::Right | Key::Char('l') | Key::Char('L') => {
+				if key_event.modifiers == Modifiers::ALT {
+					Command::Scroll(ScrollDirection::Right(1), true)
+				} else {
+					Command::NextTab
+				}
+			}
+			Key::Down | Key::Char('j') | Key::Char('J') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Scroll(ScrollDirection::Bottom, false)
+				} else {
+					Command::Scroll(
+						ScrollDirection::Down(1),
+						key_event.modifiers == Modifiers::ALT,
+					)
+				}
+			}
+			Key::Left | Key::Char('h') | Key::Char('H') => {
+				if key_event.modifiers == Modifiers::ALT {
+					Command::Scroll(ScrollDirection::Left(1), true)
+				} else {
+					Command::PreviousTab
+				}
+			}
+			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
+			Key::Tab => Command::ToggleDetail(false),
+			Key::Char('`') => Command::Set(
+				String::from("margin"),
+				String::from(if app.keys_table_margin == 1 {
+					"0"
+				} else {
+					"1"
+				}),
+			),
+			Key::Char('s') | Key::Char('S') => {
+				if key_event.modifiers == Modifiers::CONTROL {
+					Command::Set(
+						String::from("colored"),
+						(!app.state.colored).to_string(),
+					)
+				} else {
+					match app.keys_table.items.get(
+						app.keys_table
+							.state
+							.tui
+							.selected()
+							.expect("invalid selection"),
+					) {
+						Some(selected_key) => {
+							Command::SignKey(selected_key.get_id())
+						}
+						None => Command::ShowOutput(
+							OutputType::Failure,
+							String::from("invalid selection"),
+						),
+					}
+				}
+			}
+			Key::Char('e') | Key::Char('E') => {
+				match app.keys_table.items.get(
+					app.keys_table
+						.state
+						.tui
+						.selected()
+						.expect("invalid selection"),
+				) {
+					Some(selected_key) => {
+						Command::EditKey(selected_key.get_id())
+					}
+					None => Command::ShowOutput(
+						OutputType::Failure,
+						String::from("invalid selection"),
+					),
+				}
+			}
+			Key::Char('x') | Key::Char('X') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::Key)
+				} else {
+					match app.keys_table.items.get(
+						app.keys_table
+							.state
+							.tui
+							.selected()
+							.expect("invalid selection"),
+					) {
+						Some(selected_key) => Command::ExportKeys(
+							match app.tab {
+								Tab::Keys(key_type) => key_type,
+							},
+							vec![selected_key.get_id()],
+						),
+						None => Command::ShowOutput(
+							OutputType::Failure,
+							String::from("invalid selection"),
+						),
+					}
+				}
+			}
+			Key::Char('g') | Key::Char('G') => Command::GenerateKey,
+			Key::Char('a') | Key::Char('A') => Command::Set(
+				String::from("armor"),
+				(!app.gpgme.config.armor).to_string(),
+			),
+			Key::Char('n') | Key::Char('N') => {
+				if app.prompt.command.is_some() {
+					app.prompt.clear();
+					Command::None
+				} else {
+					Command::SwitchMode(Mode::Normal)
+				}
+			}
+			Key::Char('1') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::TableRow(1))
+				} else {
+					Command::Set(
+						String::from("detail"),
+						String::from("minimum"),
+					)
+				}
+			}
+			Key::Char('2') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::TableRow(2))
+				} else {
+					Command::Set(
+						String::from("detail"),
+						String::from("standard"),
+					)
+				}
+			}
+			Key::Char('3') => {
+				Command::Set(String::from("detail"), String::from("full"))
+			}
+			Key::Char('i') | Key::Char('I') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::KeyId)
+				} else {
+					Command::Set(
+						String::from("prompt"),
+						String::from(":import "),
+					)
+				}
+			}
+			Key::Char('f') | Key::Char('F') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::KeyFingerprint)
+				} else {
+					Command::Set(
+						String::from("prompt"),
+						String::from(":receive "),
+					)
+				}
+			}
+			Key::Char('u') | Key::Char('U') => {
+				if app.mode == Mode::Copy {
+					Command::Copy(CopyType::KeyUserId)
+				} else {
+					match app.keys_table.items.get(
+						app.keys_table
+							.state
+							.tui
+							.selected()
+							.expect("invalid selection"),
+					) {
+						Some(selected_key) => Command::Confirm(Box::new(
+							Command::SendKey(selected_key.get_id()),
+						)),
+						None => Command::ShowOutput(
+							OutputType::Failure,
+							String::from("invalid selection"),
+						),
+					}
+				}
+			}
+			Key::Char('m') | Key::Char('M') => {
+				if app.state.minimized {
+					Command::Maximize
+				} else {
+					Command::Minimize
+				}
+			}
+			Key::Char('y') | Key::Char('Y') => {
+				if let Some(command) = &app.prompt.command {
+					command.clone()
+				} else {
+					Command::None
+				}
+			}
+			Key::Char('o') | Key::Char(' ') | Key::Enter => {
+				if app.state.show_options {
+					app.options
+						.items
+						.get(
+							app.options
 								.state
-								.tui
 								.selected()
 								.expect("invalid selection"),
-						) {
-							Some(selected_key) => Command::ExportKeys(
-								match app.tab {
-									Tab::Keys(key_type) => key_type,
-								},
-								vec![selected_key.get_id()],
-							),
-							None => Command::ShowOutput(
-								OutputType::Failure,
-								String::from("invalid selection"),
-							),
-						}
-					}
-				}
-				Key::Char('g') | Key::Char('G') => Command::GenerateKey,
-				Key::Char('a') | Key::Char('A') => Command::Set(
-					String::from("armor"),
-					(!app.gpgme.config.armor).to_string(),
-				),
-				Key::Char('n') | Key::Char('N') => {
-					if app.prompt.command.is_some() {
-						app.prompt.clear();
-						Command::None
-					} else {
-						Command::SwitchMode(Mode::Normal)
-					}
-				}
-				Key::Char('1') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::TableRow(1))
-					} else {
-						Command::Set(
-							String::from("detail"),
-							String::from("minimum"),
 						)
-					}
+						.cloned()
+						.unwrap_or(Command::None)
+				} else if !app.keys_table.items.is_empty() {
+					Command::ShowOptions
+				} else {
+					Command::None
 				}
-				Key::Char('2') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::TableRow(2))
-					} else {
-						Command::Set(
-							String::from("detail"),
-							String::from("standard"),
-						)
-					}
-				}
-				Key::Char('3') => {
-					Command::Set(String::from("detail"), String::from("full"))
-				}
-				Key::Char('i') | Key::Char('I') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::KeyId)
-					} else {
-						Command::Set(
-							String::from("prompt"),
-							String::from(":import "),
-						)
-					}
-				}
-				Key::Char('f') | Key::Char('F') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::KeyFingerprint)
-					} else {
-						Command::Set(
-							String::from("prompt"),
-							String::from(":receive "),
-						)
-					}
-				}
-				Key::Char('u') | Key::Char('U') => {
-					if app.mode == Mode::Copy {
-						Command::Copy(CopyType::KeyUserId)
-					} else {
-						match app.keys_table.items.get(
-							app.keys_table
-								.state
-								.tui
-								.selected()
-								.expect("invalid selection"),
-						) {
-							Some(selected_key) => Command::Confirm(Box::new(
-								Command::SendKey(selected_key.get_id()),
-							)),
-							None => Command::ShowOutput(
-								OutputType::Failure,
-								String::from("invalid selection"),
-							),
-						}
-					}
-				}
-				Key::Char('m') | Key::Char('M') => {
-					if app.state.minimized {
-						Command::Maximize
-					} else {
-						Command::Minimize
-					}
-				}
-				Key::Char('y') | Key::Char('Y') => {
-					if let Some(command) = &app.prompt.command {
-						command.clone()
-					} else {
-						Command::None
-					}
-				}
-				Key::Char('o') | Key::Char(' ') | Key::Enter => {
-					if app.state.show_options {
-						app.options
-							.items
-							.get(
-								app.options
-									.state
-									.selected()
-									.expect("invalid selection"),
-							)
-							.cloned()
-							.unwrap_or(Command::None)
-					} else if !app.keys_table.items.is_empty() {
-						Command::ShowOptions
-					} else {
-						Command::None
-					}
-				}
-				Key::Char(':') => Command::EnableInput,
-				Key::Char('/') => Command::Search(None),
-				_ => Command::None,
-			},
-			tui,
-			app,
-		)?;
+			}
+			Key::Char(':') => Command::EnableInput,
+			Key::Char('/') => Command::Search(None),
+			_ => Command::None,
+		};
 	}
-	Ok(())
+	command
 }
 
 /// Handles the execution of an application command.
