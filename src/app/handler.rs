@@ -430,3 +430,152 @@ fn handle_command_execution<B: Backend>(
 	}
 	Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::app::command::Command;
+	use crate::args::Args;
+	use crate::gpg::config::GpgConfig;
+	use crate::gpg::context::GpgContext;
+	use pretty_assertions::assert_eq;
+	#[test]
+	fn test_app_handler() -> Result<()> {
+		let args = Args::default();
+		let config = GpgConfig::new(&args)?;
+		let mut context = GpgContext::new(config)?;
+		let mut app = App::new(&mut context, &args)?;
+		let test_cases = vec![
+			(
+				Command::Quit,
+				vec![
+					KeyEvent::new(Key::Char('q'), Modifiers::NONE),
+					KeyEvent::new(Key::Esc, Modifiers::NONE),
+					KeyEvent::new(Key::Char('d'), Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('c'), Modifiers::CONTROL),
+				],
+			),
+			(
+				Command::ShowOptions,
+				vec![
+					KeyEvent::new(Key::Char('o'), Modifiers::NONE),
+					KeyEvent::new(Key::Char(' '), Modifiers::NONE),
+					KeyEvent::new(Key::Enter, Modifiers::NONE),
+				],
+			),
+			(
+				Command::GenerateKey,
+				vec![KeyEvent::new(Key::Char('g'), Modifiers::NONE)],
+			),
+			(
+				Command::RefreshKeys,
+				vec![KeyEvent::new(Key::Char('r'), Modifiers::CONTROL)],
+			),
+			(
+				Command::ToggleDetail(true),
+				vec![KeyEvent::new(Key::Char('t'), Modifiers::NONE)],
+			),
+			(
+				Command::ToggleDetail(false),
+				vec![KeyEvent::new(Key::Tab, Modifiers::NONE)],
+			),
+			(
+				Command::Scroll(ScrollDirection::Top, false),
+				vec![
+					KeyEvent::new(Key::Up, Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('k'), Modifiers::CONTROL),
+				],
+			),
+			(
+				Command::Scroll(ScrollDirection::Up(1), false),
+				vec![
+					KeyEvent::new(Key::Up, Modifiers::NONE),
+					KeyEvent::new(Key::Char('k'), Modifiers::NONE),
+				],
+			),
+			(
+				Command::Scroll(ScrollDirection::Right(1), true),
+				vec![
+					KeyEvent::new(Key::Right, Modifiers::ALT),
+					KeyEvent::new(Key::Char('l'), Modifiers::ALT),
+				],
+			),
+			(
+				Command::Scroll(ScrollDirection::Bottom, false),
+				vec![
+					KeyEvent::new(Key::Down, Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('j'), Modifiers::CONTROL),
+				],
+			),
+			(
+				Command::Scroll(ScrollDirection::Down(1), false),
+				vec![
+					KeyEvent::new(Key::Down, Modifiers::NONE),
+					KeyEvent::new(Key::Char('j'), Modifiers::NONE),
+				],
+			),
+			(
+				Command::Scroll(ScrollDirection::Left(1), true),
+				vec![
+					KeyEvent::new(Key::Left, Modifiers::ALT),
+					KeyEvent::new(Key::Char('h'), Modifiers::ALT),
+				],
+			),
+			(
+				Command::SwitchMode(Mode::Normal),
+				vec![KeyEvent::new(Key::Char('n'), Modifiers::NONE)],
+			),
+			(
+				Command::SwitchMode(Mode::Visual),
+				vec![KeyEvent::new(Key::Char('v'), Modifiers::NONE)],
+			),
+			(
+				Command::SwitchMode(Mode::Copy),
+				vec![KeyEvent::new(Key::Char('c'), Modifiers::NONE)],
+			),
+			(
+				Command::Paste,
+				vec![KeyEvent::new(Key::Char('v'), Modifiers::CONTROL)],
+			),
+			(
+				Command::EnableInput,
+				vec![KeyEvent::new(Key::Char(':'), Modifiers::CONTROL)],
+			),
+			(
+				Command::Search(None),
+				vec![KeyEvent::new(Key::Char('/'), Modifiers::CONTROL)],
+			),
+			(
+				Command::NextTab,
+				vec![
+					KeyEvent::new(Key::Right, Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('l'), Modifiers::NONE),
+				],
+			),
+			(
+				Command::PreviousTab,
+				vec![
+					KeyEvent::new(Key::Left, Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('h'), Modifiers::NONE),
+				],
+			),
+			(
+				Command::Minimize,
+				vec![KeyEvent::new(Key::Char('m'), Modifiers::CONTROL)],
+			),
+			(
+				Command::Refresh,
+				vec![
+					KeyEvent::new(Key::Char('r'), Modifiers::NONE),
+					KeyEvent::new(Key::F(5), Modifiers::NONE),
+				],
+			),
+		];
+		for (command, key_events) in test_cases {
+			for key_event in key_events {
+				assert_eq!(command, handle_key_event(key_event, &mut app));
+			}
+		}
+		Ok(())
+	}
+}
