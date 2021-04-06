@@ -204,5 +204,20 @@ mod tests {
 			prompt.next();
 			assert_eq!(i.to_string(), prompt.text);
 		}
+		for output_type in vec![
+			OutputType::from(String::from("warning")),
+			OutputType::from(String::from("failure")),
+			OutputType::from(String::from("action")),
+			OutputType::from(String::from("test")),
+		] {
+			assert_eq!(
+				match output_type {
+					OutputType::Warning => "(w) ",
+					OutputType::Failure => "(e) ",
+					_ => "",
+				},
+				&output_type.to_string()
+			);
+		}
 	}
 }
