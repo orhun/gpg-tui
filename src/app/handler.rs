@@ -545,6 +545,38 @@ mod tests {
 				],
 			),
 			(
+				Command::Set(String::from("margin"), String::from("0")),
+				vec![KeyEvent::new(Key::Char('`'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("colored"), String::from("true")),
+				vec![KeyEvent::new(Key::Char('s'), Modifiers::CONTROL)],
+			),
+			(
+				Command::Set(String::from("armor"), String::from("true")),
+				vec![KeyEvent::new(Key::Char('a'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("detail"), String::from("minimum")),
+				vec![KeyEvent::new(Key::Char('1'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("detail"), String::from("standard")),
+				vec![KeyEvent::new(Key::Char('2'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("detail"), String::from("full")),
+				vec![KeyEvent::new(Key::Char('3'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("prompt"), String::from(":import ")),
+				vec![KeyEvent::new(Key::Char('i'), Modifiers::NONE)],
+			),
+			(
+				Command::Set(String::from("prompt"), String::from(":receive ")),
+				vec![KeyEvent::new(Key::Char('f'), Modifiers::NONE)],
+			),
+			(
 				Command::SwitchMode(Mode::Normal),
 				vec![KeyEvent::new(Key::Char('n'), Modifiers::NONE)],
 			),
