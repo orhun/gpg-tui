@@ -57,7 +57,8 @@ mod tests {
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_state() {
-		let state = State::default();
+		let mut state = State::default();
+		state.refresh();
 		assert_eq!(true, state.running);
 		assert_eq!(false, state.minimized);
 		assert_eq!(false, state.colored);
