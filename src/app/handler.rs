@@ -438,6 +438,7 @@ mod tests {
 	use crate::args::Args;
 	use crate::gpg::config::GpgConfig;
 	use crate::gpg::context::GpgContext;
+	use crate::gpg::key::KeyType;
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_handler() -> Result<()> {
@@ -445,15 +446,37 @@ mod tests {
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
 		let mut app = App::new(&mut context, &args)?;
+		let key_id = app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()
+			[0]
+		.get_id();
 		let test_cases = vec![
 			(
-				Command::Quit,
+				Command::Confirm(Box::new(Command::DeleteKey(
+					KeyType::Public,
+					key_id.to_string(),
+				))),
 				vec![
-					KeyEvent::new(Key::Char('q'), Modifiers::NONE),
-					KeyEvent::new(Key::Esc, Modifiers::NONE),
-					KeyEvent::new(Key::Char('d'), Modifiers::CONTROL),
-					KeyEvent::new(Key::Char('c'), Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('d'), Modifiers::NONE),
+					KeyEvent::new(Key::Backspace, Modifiers::NONE),
 				],
+			),
+			(
+				Command::Confirm(Box::new(Command::SendKey(
+					key_id.to_string(),
+				))),
+				vec![KeyEvent::new(Key::Char('u'), Modifiers::NONE)],
+			),
+			(
+				Command::ExportKeys(KeyType::Public, vec![key_id.to_string()]),
+				vec![KeyEvent::new(Key::Char('x'), Modifiers::NONE)],
+			),
+			(
+				Command::EditKey(key_id.to_string()),
+				vec![KeyEvent::new(Key::Char('e'), Modifiers::NONE)],
+			),
+			(
+				Command::SignKey(key_id),
+				vec![KeyEvent::new(Key::Char('s'), Modifiers::NONE)],
 			),
 			(
 				Command::ShowOptions,
@@ -568,6 +591,15 @@ mod tests {
 				vec![
 					KeyEvent::new(Key::Char('r'), Modifiers::NONE),
 					KeyEvent::new(Key::F(5), Modifiers::NONE),
+				],
+			),
+			(
+				Command::Quit,
+				vec![
+					KeyEvent::new(Key::Char('q'), Modifiers::NONE),
+					KeyEvent::new(Key::Esc, Modifiers::NONE),
+					KeyEvent::new(Key::Char('d'), Modifiers::CONTROL),
+					KeyEvent::new(Key::Char('c'), Modifiers::CONTROL),
 				],
 			),
 		];
