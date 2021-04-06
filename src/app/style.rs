@@ -144,3 +144,223 @@ pub fn get_colored_table_row<'a>(
 	}
 	Text::from(row)
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::assert_eq;
+	use std::borrow::Cow::Borrowed;
+	#[test]
+	fn test_app_style() {
+		let row_data = r#"
+[sc--] rsa2048/C4B2D24CF87CD188C79D00BB485B7C52E9EC0DC6
+       └─(2020-07-29)
+		"#
+		.to_string()
+		.lines()
+		.map(String::from)
+		.collect::<Vec<String>>();
+		assert_eq!(
+			Text {
+				lines: vec![
+					Spans(vec![Span {
+						content: Borrowed(""),
+						style: Style::default(),
+					}]),
+					Spans(vec![
+						Span {
+							content: Borrowed("["),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("s"),
+							style: Style {
+								fg: Some(Color::LightGreen),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("c"),
+							style: Style {
+								fg: Some(Color::LightBlue),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("-"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("-"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("]"),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed(" rsa2048"),
+							style: Style {
+								fg: Some(Color::Cyan),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("/"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed(
+								"C4B2D24CF87CD188C79D00BB485B7C52E9EC0DC6"
+							),
+							style: Style::default(),
+						},
+					],),
+					Spans(vec![Span {
+						content: Borrowed("       └─(2020-07-29)"),
+						style: Style::default(),
+					}]),
+					Spans(vec![Span {
+						content: Borrowed("\t\t"),
+						style: Style::default(),
+					}]),
+				],
+			},
+			get_colored_table_row(&row_data, false)
+		);
+		let row_data = r#"
+[u] kmon releases <kmonlinux@protonmail.com>
+	├─[13] selfsig (2020-07-29)
+	└─[10] B928720AEC532117 orhun <orhunparmaksiz@gmail.com> (2020-07-29)
+				"#
+		.to_string()
+		.lines()
+		.map(String::from)
+		.collect::<Vec<String>>();
+		assert_eq!(
+			Text {
+				lines: vec![
+					Spans(vec![Span {
+						content: Borrowed(""),
+						style: Style::default(),
+					}]),
+					Spans(vec![
+						Span {
+							content: Borrowed("["),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("u"),
+							style: Style {
+								fg: Some(Color::Green),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("] kmon releases "),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("<"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("kmonlinux@protonmail.com"),
+							style: Style {
+								fg: Some(Color::Cyan),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed(">"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed(""),
+							style: Style::default(),
+						},
+					]),
+					Spans(vec![
+						Span {
+							content: Borrowed("\t├─["),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("13"),
+							style: Style {
+								fg: Some(Color::Green),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("] selfsig (2020-07-29)"),
+							style: Style::default(),
+						},
+					]),
+					Spans(vec![
+						Span {
+							content: Borrowed("\t└─["),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("10"),
+							style: Style {
+								fg: Some(Color::Yellow),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("] B928720AEC532117 orhun "),
+							style: Style::default(),
+						},
+						Span {
+							content: Borrowed("<"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("orhunparmaksiz@gmail.com"),
+							style: Style {
+								fg: Some(Color::Cyan),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed(">"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed(" (2020-07-29)"),
+							style: Style::default(),
+						},
+					]),
+					Spans(vec![Span {
+						content: Borrowed("\t\t\t\t"),
+						style: Style::default(),
+					}]),
+				],
+			},
+			get_colored_table_row(&row_data, false)
+		)
+	}
+}
