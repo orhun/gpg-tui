@@ -59,10 +59,6 @@ pub enum Command {
 	NextTab,
 	/// Select the previous tab.
 	PreviousTab,
-	/// Minimize the application.
-	Minimize,
-	/// Maximize the application.
-	Maximize,
 	/// Refresh the application.
 	Refresh,
 	/// Quit the application.
@@ -117,11 +113,16 @@ impl Display for Command {
 								format!("set prompt text to {}", value)
 							}
 						}
+						"minimized" => {
+							if value == "true" {
+								String::from("minimize the table")
+							} else {
+								String::from("maximize the table")
+							}
+						}
 						_ => format!("set {} to {}", option, value),
 					}
 				}
-				Command::Minimize => String::from("minimize the table"),
-				Command::Maximize => String::from("maximize the table"),
 				Command::SwitchMode(mode) => format!(
 					"switch to {} mode",
 					format!("{:?}", mode).to_lowercase()
@@ -238,8 +239,6 @@ impl FromStr for Command {
 			"search" => Ok(Self::Search(args.first().cloned())),
 			"next" => Ok(Self::NextTab),
 			"previous" | "prev" => Ok(Self::PreviousTab),
-			"minimize" | "min" => Ok(Self::Minimize),
-			"maximize" | "max" => Ok(Self::Maximize),
 			"refresh" | "r" => {
 				if args.first() == Some(&String::from("keys")) {
 					Ok(Self::RefreshKeys)
@@ -403,14 +402,6 @@ mod tests {
 		assert_eq!(Command::EnableInput, Command::from_str(":input").unwrap());
 		assert_eq!(Command::NextTab, Command::from_str(":next").unwrap());
 		assert_eq!(Command::PreviousTab, Command::from_str(":prev").unwrap());
-		for cmd in &[":minimize", ":min"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::Minimize, command);
-		}
-		for cmd in &[":maximize", ":max"] {
-			let command = Command::from_str(cmd).unwrap();
-			assert_eq!(Command::Maximize, command);
-		}
 		assert_eq!(Command::Refresh, Command::from_str(":refresh").unwrap());
 		for cmd in &[":quit", ":q", ":q!"] {
 			let command = Command::from_str(cmd).unwrap();

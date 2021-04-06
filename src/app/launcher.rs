@@ -220,11 +220,10 @@ impl<'a> App<'a> {
 									"1"
 								}),
 							),
-							if self.state.minimized {
-								Command::Maximize
-							} else {
-								Command::Minimize
-							},
+							Command::Set(
+								String::from("minimized"),
+								(!self.state.minimized).to_string(),
+							),
 							Command::Set(
 								String::from("colored"),
 								(!self.state.colored).to_string(),
@@ -460,12 +459,24 @@ impl<'a> App<'a> {
 								)
 							}
 						}
+						"minimized" => {
+							self.state.minimize_threshold = 0;
+							self.state.minimized =
+								FromStr::from_str(&value).unwrap_or_default();
+							(
+								OutputType::Success,
+								format!("minimized: {}", self.state.minimized),
+							)
+						}
 						"minimize" => {
 							self.state.minimize_threshold =
 								value.parse().unwrap_or_default();
 							(
 								OutputType::Success,
-								format!("minimize threshold: {}", value),
+								format!(
+									"minimize threshold: {}",
+									self.state.minimize_threshold
+								),
 							)
 						}
 						"detail" => {
@@ -566,6 +577,10 @@ impl<'a> App<'a> {
 					"armor" => (
 						OutputType::Success,
 						format!("armor: {}", self.gpgme.config.armor),
+					),
+					"minimized" => (
+						OutputType::Success,
+						format!("minimized: {}", self.state.minimized),
 					),
 					"minimize" => (
 						OutputType::Success,
@@ -723,10 +738,6 @@ impl<'a> App<'a> {
 			Command::PreviousTab => {
 				self.tab.previous();
 				self.run_command(self.tab.get_command())?
-			}
-			Command::Minimize | Command::Maximize => {
-				self.state.minimize_threshold = 0;
-				self.state.minimized = command == Command::Minimize;
 			}
 			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,

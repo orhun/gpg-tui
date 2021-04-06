@@ -323,13 +323,10 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 					}
 				}
 			}
-			Key::Char('m') | Key::Char('M') => {
-				if app.state.minimized {
-					Command::Maximize
-				} else {
-					Command::Minimize
-				}
-			}
+			Key::Char('m') | Key::Char('M') => Command::Set(
+				String::from("minimized"),
+				(!app.state.minimized).to_string(),
+			),
 			Key::Char('y') | Key::Char('Y') => {
 				if let Some(command) = &app.prompt.command {
 					command.clone()
@@ -577,6 +574,10 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('f'), Modifiers::NONE)],
 			),
 			(
+				Command::Set(String::from("minimized"), String::from("true")),
+				vec![KeyEvent::new(Key::Char('m'), Modifiers::NONE)],
+			),
+			(
 				Command::SwitchMode(Mode::Normal),
 				vec![KeyEvent::new(Key::Char('n'), Modifiers::NONE)],
 			),
@@ -617,10 +618,6 @@ mod tests {
 					KeyEvent::new(Key::Left, Modifiers::CONTROL),
 					KeyEvent::new(Key::Char('h'), Modifiers::NONE),
 				],
-			),
-			(
-				Command::Minimize,
-				vec![KeyEvent::new(Key::Char('m'), Modifiers::CONTROL)],
 			),
 			(
 				Command::Refresh,
