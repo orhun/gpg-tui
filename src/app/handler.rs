@@ -593,6 +593,10 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('v'), Modifiers::CONTROL)],
 			),
 			(
+				Command::Paste,
+				vec![KeyEvent::new(Key::Char('p'), Modifiers::NONE)],
+			),
+			(
 				Command::EnableInput,
 				vec![KeyEvent::new(Key::Char(':'), Modifiers::CONTROL)],
 			),
@@ -634,12 +638,47 @@ mod tests {
 					KeyEvent::new(Key::Char('c'), Modifiers::CONTROL),
 				],
 			),
+			(
+				Command::None,
+				vec![KeyEvent::new(Key::Char('y'), Modifiers::NONE)],
+			),
+			(
+				Command::None,
+				vec![KeyEvent::new(Key::Char('ö'), Modifiers::NONE)],
+			),
 		];
 		for (command, key_events) in test_cases {
 			for key_event in key_events {
 				assert_eq!(command, handle_key_event(key_event, &mut app));
 			}
 		}
+		app.prompt.enable_command_input();
+		handle_key_event(KeyEvent::new(Key::Esc, Modifiers::NONE), &mut app);
+		assert!(!app.prompt.is_enabled());
+		app.prompt.enable_search();
+		handle_key_event(KeyEvent::new(Key::Tab, Modifiers::NONE), &mut app);
+		for c in String::from("normal-").chars() {
+			handle_key_event(
+				KeyEvent::new(Key::Char(c), Modifiers::NONE),
+				&mut app,
+			);
+		}
+		handle_key_event(
+			KeyEvent::new(Key::Backspace, Modifiers::NONE),
+			&mut app,
+		);
+		assert_eq!(":normal", app.prompt.text);
+		assert_eq!(
+			Command::SwitchMode(Mode::Normal),
+			handle_key_event(
+				KeyEvent::new(Key::Enter, Modifiers::NONE),
+				&mut app,
+			)
+		);
+		app.prompt.enable_command_input();
+		handle_key_event(KeyEvent::new(Key::Down, Modifiers::NONE), &mut app);
+		handle_key_event(KeyEvent::new(Key::Up, Modifiers::NONE), &mut app);
+		assert_eq!(":normal", app.prompt.text);
 		Ok(())
 	}
 }
