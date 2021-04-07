@@ -409,5 +409,104 @@ mod tests {
 		}
 		assert_eq!(Command::None, Command::from_str(":none").unwrap());
 		assert!(Command::from_str("test").is_err());
+		assert_eq!("close menu", Command::None.to_string());
+		assert_eq!("refresh application", Command::Refresh.to_string());
+		assert_eq!("refresh the keyring", Command::RefreshKeys.to_string());
+		assert_eq!(
+			"export all the keys (sec)",
+			Command::ExportKeys(KeyType::Secret, Vec::new()).to_string()
+		);
+		assert_eq!(
+			"export the selected key (pub)",
+			Command::ExportKeys(KeyType::Public, vec![String::new()])
+				.to_string()
+		);
+		assert_eq!(
+			"delete the selected key (pub)",
+			Command::DeleteKey(KeyType::Public, String::new()).to_string()
+		);
+		assert_eq!(
+			"send key to the keyserver",
+			Command::SendKey(String::new()).to_string()
+		);
+		assert_eq!(
+			"edit the selected key",
+			Command::EditKey(String::new()).to_string()
+		);
+		assert_eq!(
+			"sign the selected key",
+			Command::SignKey(String::new()).to_string()
+		);
+		assert_eq!("generate a new key pair", Command::GenerateKey.to_string());
+		assert_eq!(
+			"copy exported key",
+			Command::Copy(CopyType::Key).to_string()
+		);
+		assert_eq!("paste from clipboard", Command::Paste.to_string());
+		assert_eq!(
+			"toggle detail (all)",
+			Command::ToggleDetail(true).to_string()
+		);
+		assert_eq!(
+			"toggle detail (selected)",
+			Command::ToggleDetail(false).to_string()
+		);
+		assert_eq!(
+			"disable armored output",
+			Command::Set(String::from("armor"), String::from("false"))
+				.to_string()
+		);
+		assert_eq!(
+			"enable colors",
+			Command::Set(String::from("colored"), String::from("true"))
+				.to_string()
+		);
+		assert_eq!(
+			"toggle table margin",
+			Command::Set(String::from("margin"), String::new()).to_string()
+		);
+		assert_eq!(
+			"import key(s)",
+			Command::Set(String::from("prompt"), String::from(":import "))
+				.to_string()
+		);
+		assert_eq!(
+			"receive key(s) from keyserver",
+			Command::Set(String::from("prompt"), String::from(":receive "))
+				.to_string()
+		);
+		assert_eq!(
+			"set prompt text to xyz",
+			Command::Set(String::from("prompt"), String::from("xyz"))
+				.to_string()
+		);
+		assert_eq!(
+			"minimize the table",
+			Command::Set(String::from("minimized"), String::from("true"))
+				.to_string()
+		);
+		assert_eq!(
+			"maximize the table",
+			Command::Set(String::from("minimized"), String::from("false"))
+				.to_string()
+		);
+		assert_eq!(
+			"minimize the table",
+			Command::Set(String::from("minimized"), String::from("true"))
+				.to_string()
+		);
+		assert_eq!(
+			"set x to y",
+			Command::Set(String::from("x"), String::from("y")).to_string()
+		);
+		assert_eq!(
+			"switch to visual mode",
+			Command::SwitchMode(Mode::Visual).to_string()
+		);
+		assert_eq!(
+			"refresh application",
+			Command::Confirm(Box::new(Command::Refresh)).to_string()
+		);
+		assert_eq!("NextTab", Command::NextTab.to_string());
 	}
 }
