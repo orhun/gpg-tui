@@ -66,7 +66,7 @@ jobs:
             grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
           tar -xzf cargo-tarpaulin-*.tar.gz
           mv cargo-tarpaulin ~/.cargo/bin/
-          cargo tarpaulin --out Xml --verbose
+          cargo tarpaulin --out Xml --verbose --features gpg-tests
       - name: Upload reports to codecov
         uses: codecov/codecov-action@v1.0.7
         with:

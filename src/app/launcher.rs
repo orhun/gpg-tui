@@ -1053,3 +1053,52 @@ impl<'a> App<'a> {
 		rows
 	}
 }
+
+#[cfg(feature = "gpg-tests")]
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::args::Args;
+	use crate::gpg::config::GpgConfig;
+	use pretty_assertions::assert_eq;
+	use tui::backend::TestBackend;
+	use tui::buffer::Buffer;
+	use tui::Terminal;
+	#[test]
+	fn test_app_launcher() -> Result<()> {
+		let args = Args::default();
+		let config = GpgConfig::new(&args)?;
+		let mut context = GpgContext::new(config)?;
+		let mut app = App::new(&mut context, &args)?;
+		let backend = TestBackend::new(70, 10);
+		let mut terminal = Terminal::new(backend)?;
+		terminal.draw(|f| app.render(f))?;
+		let mut expected = Buffer::with_lines(vec![
+			"┌────────────────────────────────────────────────────────────────────┐",
+			format!(
+				"│> [sc--] rsa3072/{} [u] test@example.org              │",
+				app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()[0]
+					.get_id()
+			)
+			.replace("0x", "").as_ref(),
+			"│                                                                    │",
+			"│  [sc--] rsa4096/53F218C35C1DC8B1 [?] menyoki.cli@protonmail.com    │",
+			"│                                                                    │",
+			"│                                                                    │",
+			"│                                                                    │",
+			"│                                                                    │",
+			"└────────────────────────────────────────────────────────────────────┘",
+			"                                                    < list pub (1/2) >",
+		]);
+		assert_eq!(expected.area, terminal.backend().size().unwrap());
+		for x in 0..expected.area().width {
+			for y in 0..expected.area().height {
+				expected
+					.get_mut(x, y)
+					.set_style(terminal.backend().buffer().get(x, y).style());
+			}
+		}
+		terminal.backend().assert_buffer(&expected);
+		Ok(())
+	}
+}
