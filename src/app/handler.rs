@@ -4,6 +4,7 @@ use crate::app::launcher::App;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::app::tab::Tab;
+use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
@@ -74,6 +75,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 		}
 	} else {
 		command = match key_event.code {
+			Key::Char('?') => Command::ShowHelp,
 			Key::Char('q') | Key::Char('Q') => Command::Quit,
 			Key::Esc => {
 				if app.mode != Mode::Normal {
@@ -104,6 +106,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 							Command::Confirm(Box::new(Command::DeleteKey(
 								match app.tab {
 									Tab::Keys(key_type) => key_type,
+									_ => KeyType::Public,
 								},
 								selected_key.get_id(),
 							)))
@@ -236,6 +239,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 						Some(selected_key) => Command::ExportKeys(
 							match app.tab {
 								Tab::Keys(key_type) => key_type,
+								_ => KeyType::Public,
 							},
 							vec![selected_key.get_id()],
 						),
@@ -374,6 +378,22 @@ fn handle_command_execution<B: Backend>(
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
+	if let Tab::Help = app.tab {
+		match command {
+			Command::ShowOptions
+			| Command::Scroll(_, _)
+			| Command::ListKeys(_)
+			| Command::SwitchMode(_)
+			| Command::Paste
+			| Command::EnableInput
+			| Command::NextTab
+			| Command::PreviousTab
+			| Command::Refresh
+			| Command::Quit
+			| Command::None => {}
+			_ => command = Command::None,
+		}
+	}
 	let mut toggle_pause = false;
 	match command {
 		Command::SwitchMode(Mode::Normal) | Command::Refresh => {
@@ -399,13 +419,6 @@ fn handle_command_execution<B: Backend>(
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}
-		Command::ListKeys(key_type) => match app.tab {
-			Tab::Keys(tab_key_type) => {
-				if key_type == tab_key_type {
-					command = Command::Refresh
-				}
-			}
-		},
 		Command::Copy(CopyType::Key) => {
 			if app.gpgme.config.armor {
 				tui.toggle_pause()?;
@@ -435,7 +448,6 @@ mod tests {
 	use crate::args::Args;
 	use crate::gpg::config::GpgConfig;
 	use crate::gpg::context::GpgContext;
-	use crate::gpg::key::KeyType;
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_handler() -> Result<()> {
@@ -474,6 +486,10 @@ mod tests {
 			(
 				Command::SignKey(key_id),
 				vec![KeyEvent::new(Key::Char('s'), Modifiers::NONE)],
+			),
+			(
+				Command::ShowHelp,
+				vec![KeyEvent::new(Key::Char('?'), Modifiers::NONE)],
 			),
 			(
 				Command::ShowOptions,

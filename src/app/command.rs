@@ -15,6 +15,8 @@ use std::str::FromStr;
 pub enum Command {
 	/// Confirm the execution of a command.
 	Confirm(Box<Command>),
+	/// Show help.
+	ShowHelp,
 	/// Show application output.
 	ShowOutput(OutputType, String),
 	/// Show popup for options menu.
@@ -76,6 +78,13 @@ impl Display for Command {
 				Command::None => String::from("close menu"),
 				Command::Refresh => String::from("refresh application"),
 				Command::RefreshKeys => String::from("refresh the keyring"),
+				Command::ShowHelp => String::from("show help"),
+				Command::ListKeys(key_type) => {
+					format!(
+						"list {} keys",
+						format!("{:?}", key_type).to_lowercase()
+					)
+				}
 				Command::ExportKeys(key_type, patterns) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
@@ -151,6 +160,7 @@ impl FromStr for Command {
 			} else {
 				Command::from_str(&args.join(" "))?
 			}))),
+			"help" | "h" => Ok(Command::ShowHelp),
 			"output" | "out" => Ok(Self::ShowOutput(
 				OutputType::from(args.first().cloned().unwrap_or_default()),
 				args[1..].join(" "),
@@ -263,6 +273,7 @@ mod tests {
 			Command::Confirm(Box::new(Command::None)),
 			Command::from_str(":confirm none").unwrap()
 		);
+		assert_eq!(Command::ShowHelp, Command::from_str(":help").unwrap());
 		assert_eq!(
 			Command::ShowOutput(
 				OutputType::Success,
@@ -410,8 +421,13 @@ mod tests {
 		assert_eq!(Command::None, Command::from_str(":none").unwrap());
 		assert!(Command::from_str("test").is_err());
 		assert_eq!("close menu", Command::None.to_string());
+		assert_eq!("show help", Command::ShowHelp.to_string());
 		assert_eq!("refresh application", Command::Refresh.to_string());
 		assert_eq!("refresh the keyring", Command::RefreshKeys.to_string());
+		assert_eq!(
+			"list public keys",
+			Command::ListKeys(KeyType::Public).to_string()
+		);
 		assert_eq!(
 			"export all the keys (sec)",
 			Command::ExportKeys(KeyType::Secret, Vec::new()).to_string()

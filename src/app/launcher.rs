@@ -72,18 +72,19 @@ impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
 	pub fn new(gpgme: &'a mut GpgContext, args: &'a Args) -> Result<Self> {
 		let keys = gpgme.get_all_keys()?;
+		let keys_table = StatefulTable::with_items(
+			keys.get(&KeyType::Public)
+				.expect("failed to get public keys")
+				.to_vec(),
+		);
 		Ok(Self {
 			state: State::from(args),
 			mode: Mode::Normal,
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
-			keys_table: StatefulTable::with_items(
-				keys.get(&KeyType::Public)
-					.expect("failed to get public keys")
-					.to_vec(),
-			),
 			keys,
+			keys_table,
 			keys_table_states: HashMap::new(),
 			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
@@ -119,6 +120,7 @@ impl<'a> App<'a> {
 						.to_vec(),
 				)
 			}
+			Tab::Help => {}
 		};
 		Ok(())
 	}
@@ -146,6 +148,9 @@ impl<'a> App<'a> {
 			self.prompt.clear();
 		}
 		match command {
+			Command::ShowHelp => {
+				self.tab = Tab::Help;
+			}
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
 			}
@@ -162,6 +167,7 @@ impl<'a> App<'a> {
 							.expect("invalid selection")];
 						vec![
 							Command::None,
+							Command::ShowHelp,
 							Command::Refresh,
 							Command::RefreshKeys,
 							Command::Set(
@@ -235,25 +241,40 @@ impl<'a> App<'a> {
 							},
 						]
 					}
+					Tab::Help => {
+						vec![
+							Command::None,
+							Command::ListKeys(KeyType::Public),
+							Command::ListKeys(KeyType::Secret),
+							Command::Refresh,
+							if self.mode == Mode::Visual {
+								Command::SwitchMode(Mode::Normal)
+							} else {
+								Command::SwitchMode(Mode::Visual)
+							},
+						]
+					}
 				});
 				if prev_item_count == 0
 					|| self.options.items.len() == prev_item_count
 				{
 					self.options.state.select(prev_selection.or(Some(0)));
+				} else {
+					self.options.state.select(Some(0));
 				}
 				show_options = true;
 			}
 			Command::ListKeys(key_type) => {
-				let previous_key_type = match key_type {
-					KeyType::Public => KeyType::Secret,
-					KeyType::Secret => KeyType::Public,
-				};
-				self.keys_table_states
-					.insert(previous_key_type, self.keys_table.state.clone());
-				self.keys.insert(
-					previous_key_type,
-					self.keys_table.default_items.clone(),
-				);
+				if let Tab::Keys(previous_key_type) = self.tab {
+					self.keys_table_states.insert(
+						previous_key_type,
+						self.keys_table.state.clone(),
+					);
+					self.keys.insert(
+						previous_key_type,
+						self.keys_table.default_items.clone(),
+					);
+				}
 				self.keys_table = StatefulTable::with_items(
 					self.keys
 						.get(&key_type)
@@ -668,6 +689,7 @@ impl<'a> App<'a> {
 						match self.gpgme.get_exported_keys(
 							match self.tab {
 								Tab::Keys(key_type) => key_type,
+								_ => KeyType::Public,
 							},
 							Some(vec![selected_key.get_id()]),
 						) {
@@ -732,12 +754,10 @@ impl<'a> App<'a> {
 				self.keys_table.items = self.keys_table.default_items.clone();
 			}
 			Command::NextTab => {
-				self.tab.next();
-				self.run_command(self.tab.get_command())?
+				self.run_command(self.tab.next().get_command())?
 			}
 			Command::PreviousTab => {
-				self.tab.previous();
-				self.run_command(self.tab.get_command())?
+				self.run_command(self.tab.previous().get_command())?
 			}
 			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,
@@ -762,6 +782,7 @@ impl<'a> App<'a> {
 		self.render_command_prompt(frame, chunks[1]);
 		match self.tab {
 			Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
+			Tab::Help => self.render_help_page(frame, chunks[0]),
 		}
 		if self.state.show_options {
 			self.render_options_menu(frame, rect);
@@ -781,42 +802,35 @@ impl<'a> App<'a> {
 					self.prompt.output_type, self.prompt.text
 				))]
 			} else {
-				match self.tab {
-					Tab::Keys(key_type) => {
-						let arrow_color = if self.state.colored {
-							Color::LightBlue
-						} else {
-							Color::DarkGray
-						};
-						vec![
-							Span::styled(
-								"< ",
-								Style::default().fg(arrow_color),
-							),
-							Span::raw(format!(
-								"list {}{}",
-								key_type,
-								if !self.keys_table.items.is_empty() {
-									format!(
-										" ({}/{})",
-										self.keys_table
-											.state
-											.tui
-											.selected()
-											.unwrap_or_default() + 1,
-										self.keys_table.items.len()
-									)
-								} else {
-									String::new()
-								}
-							)),
-							Span::styled(
-								" >",
-								Style::default().fg(arrow_color),
-							),
-						]
-					}
-				}
+				let arrow_color = if self.state.colored {
+					Color::LightBlue
+				} else {
+					Color::DarkGray
+				};
+				vec![
+					Span::styled("< ", Style::default().fg(arrow_color)),
+					match self.tab {
+						Tab::Keys(key_type) => Span::raw(format!(
+							"list {}{}",
+							key_type,
+							if !self.keys_table.items.is_empty() {
+								format!(
+									" ({}/{})",
+									self.keys_table
+										.state
+										.tui
+										.selected()
+										.unwrap_or_default() + 1,
+									self.keys_table.items.len()
+								)
+							} else {
+								String::new()
+							}
+						)),
+						Tab::Help => Span::raw("help"),
+					},
+					Span::styled(" >", Style::default().fg(arrow_color)),
+				]
 			}))
 			.style(if self.state.colored {
 				match self.prompt.output_type {
@@ -861,7 +875,27 @@ impl<'a> App<'a> {
 		}
 	}
 
-	/// Renders the options menu. (widget)
+	/// Renders the help tab.
+	fn render_help_page<B: Backend>(
+		&mut self,
+		frame: &mut Frame<'_, B>,
+		rect: Rect,
+	) {
+		frame.render_widget(
+			Paragraph::new("TODO")
+				.block(
+					Block::default()
+						.borders(Borders::ALL)
+						.border_style(Style::default().fg(Color::DarkGray)),
+				)
+				.style(Style::default().fg(self.state.color))
+				.alignment(Alignment::Left)
+				.wrap(Wrap { trim: true }),
+			rect,
+		);
+	}
+
+	/// Renders the options menu.
 	fn render_options_menu<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
@@ -927,7 +961,7 @@ impl<'a> App<'a> {
 		);
 	}
 
-	/// Renders the table of keys. (widget)
+	/// Renders the table of keys.
 	fn render_keys_table<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
