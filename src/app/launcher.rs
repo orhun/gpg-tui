@@ -207,18 +207,6 @@ impl<'a> App<'a> {
 							Command::ToggleDetail(false),
 							Command::ToggleDetail(true),
 							Command::Set(
-								String::from("detail"),
-								String::from("minimum"),
-							),
-							Command::Set(
-								String::from("detail"),
-								String::from("standard"),
-							),
-							Command::Set(
-								String::from("detail"),
-								String::from("full"),
-							),
-							Command::Set(
 								String::from("margin"),
 								String::from(if self.keys_table_margin == 1 {
 									"0"
