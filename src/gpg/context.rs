@@ -204,9 +204,18 @@ mod tests {
 	use super::*;
 	use crate::args::Args;
 	use pretty_assertions::assert_eq;
+	use std::env;
 	use std::fs;
 	#[test]
 	fn test_gpg_context() -> Result<()> {
+		env::set_var(
+			"GNUPGHOME",
+			dirs::cache_dir()
+				.unwrap()
+				.join(env!("CARGO_PKG_NAME"))
+				.to_str()
+				.unwrap(),
+		);
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;

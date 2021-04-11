@@ -1095,11 +1095,20 @@ mod tests {
 	use crate::args::Args;
 	use crate::gpg::config::GpgConfig;
 	use pretty_assertions::assert_eq;
+	use std::env;
 	use tui::backend::TestBackend;
 	use tui::buffer::Buffer;
 	use tui::Terminal;
 	#[test]
 	fn test_app_launcher() -> Result<()> {
+		env::set_var(
+			"GNUPGHOME",
+			dirs::cache_dir()
+				.unwrap()
+				.join(env!("CARGO_PKG_NAME"))
+				.to_str()
+				.unwrap(),
+		);
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
