@@ -136,6 +136,7 @@ impl Display for Command {
 					"switch to {} mode",
 					format!("{:?}", mode).to_lowercase()
 				),
+				Command::Quit => String::from("quit application"),
 				Command::Confirm(command) => (*command).to_string(),
 				_ => format!("{:?}", self),
 			}
@@ -523,6 +524,7 @@ mod tests {
 			"refresh application",
 			Command::Confirm(Box::new(Command::Refresh)).to_string()
 		);
+		assert_eq!("quit application", Command::Quit.to_string());
 		assert_eq!("NextTab", Command::NextTab.to_string());
 	}
 }

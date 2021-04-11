@@ -227,6 +227,7 @@ impl<'a> App<'a> {
 							} else {
 								Command::SwitchMode(Mode::Visual)
 							},
+							Command::Quit,
 						]
 					}
 					Tab::Help => {
@@ -234,12 +235,13 @@ impl<'a> App<'a> {
 							Command::None,
 							Command::ListKeys(KeyType::Public),
 							Command::ListKeys(KeyType::Secret),
-							Command::Refresh,
 							if self.mode == Mode::Visual {
 								Command::SwitchMode(Mode::Normal)
 							} else {
 								Command::SwitchMode(Mode::Visual)
 							},
+							Command::Refresh,
+							Command::Quit,
 						]
 					}
 				});
