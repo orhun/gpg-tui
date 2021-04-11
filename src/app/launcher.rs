@@ -901,7 +901,20 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		let (length_x, percent_y) = (38, 60);
+		let items = self
+			.options
+			.items
+			.iter()
+			.map(|v| ListItem::new(Span::raw(v.to_string())))
+			.collect::<Vec<ListItem>>();
+		let (length_x, mut percent_y) = (38, 60);
+		let text_height =
+			items.iter().map(|v| v.height() as f32).sum::<f32>() + 3.;
+		if rect.height.checked_sub(5).unwrap_or(rect.height) as f32
+			> text_height
+		{
+			percent_y = ((text_height / rect.height as f32) * 100.) as u16;
+		}
 		let popup_layout = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
@@ -932,30 +945,24 @@ impl<'a> App<'a> {
 			.split(popup_layout[1])[1];
 		frame.render_widget(Clear, area);
 		frame.render_stateful_widget(
-			List::new(
-				self.options
-					.items
-					.iter()
-					.map(|v| ListItem::new(Span::raw(v.to_string())))
-					.collect::<Vec<ListItem>>(),
-			)
-			.block(
-				Block::default()
-					.title("Options")
-					.style(if self.state.colored {
-						Style::default().fg(Color::LightBlue)
-					} else {
-						Style::default()
-					})
-					.borders(Borders::ALL),
-			)
-			.style(Style::default().fg(self.state.color))
-			.highlight_style(
-				Style::default()
-					.fg(Color::Reset)
-					.add_modifier(Modifier::BOLD),
-			)
-			.highlight_symbol("> "),
+			List::new(items)
+				.block(
+					Block::default()
+						.title("Options")
+						.style(if self.state.colored {
+							Style::default().fg(Color::LightBlue)
+						} else {
+							Style::default()
+						})
+						.borders(Borders::ALL),
+				)
+				.style(Style::default().fg(self.state.color))
+				.highlight_style(
+					Style::default()
+						.fg(Color::Reset)
+						.add_modifier(Modifier::BOLD),
+				)
+				.highlight_symbol("> "),
 			area,
 			&mut self.options.state,
 		);
