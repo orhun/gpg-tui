@@ -52,7 +52,7 @@ jobs:
           override: true
       - name: Checkout the repository
         uses: actions/checkout@master
-      - name: Run tests
+      - name: Prepare the test environment
         run: |
           test_dir="$HOME/.cache/gpg-tui/"
           mkdir -p $test_dir
@@ -62,11 +62,14 @@ jobs:
             --no-tty --passphrase-fd 0 \
             --quick-gen-key 'Test User <test@example.org>'
           echo "${{ secrets.TEST_KEY }}" | gpg --import
+      - name: Setup cargo-tarpaulin
+        run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
             grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
           tar -xzf cargo-tarpaulin-*.tar.gz
           mv cargo-tarpaulin ~/.cargo/bin/
-          cargo tarpaulin --out Xml --verbose --features gpg-tests
+      - name: Run tests
+        run: cargo tarpaulin --out Xml --verbose --features gpg-tests
       - name: Upload reports to codecov
         uses: codecov/codecov-action@v1.0.7
         with:
