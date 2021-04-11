@@ -30,7 +30,6 @@ impl FromStr for ScrollDirection {
 			Some("left") | Some("l") => Ok(Self::Left(value)),
 			Some("top") | Some("t") => Ok(Self::Top),
 			Some("bottom") | Some("b") => Ok(Self::Bottom),
-			Some("") => Ok(Self::Up(value)),
 			_ => Err(()),
 		}
 	}
@@ -204,5 +203,26 @@ mod tests {
 			)
 			.data
 		);
+		assert_eq!(
+			ScrollDirection::Right(5),
+			ScrollDirection::from_str("right 5").unwrap()
+		);
+		assert_eq!(
+			ScrollDirection::Left(9),
+			ScrollDirection::from_str("left 9").unwrap()
+		);
+		assert_eq!(
+			ScrollDirection::Down(1),
+			ScrollDirection::from_str("d").unwrap()
+		);
+		assert_eq!(
+			ScrollDirection::Top,
+			ScrollDirection::from_str("top").unwrap()
+		);
+		assert_eq!(
+			ScrollDirection::Bottom,
+			ScrollDirection::from_str("bottom").unwrap()
+		);
+		assert!(ScrollDirection::from_str("xyz").is_err());
 	}
 }
