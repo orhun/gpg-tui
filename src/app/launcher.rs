@@ -36,6 +36,37 @@ use unicode_width::UnicodeWidthStr;
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 /// Max duration of prompt messages.
 const MESSAGE_DURATION: u128 = 1750;
+/// Key bindings of the application.
+const KEY_BINDINGS: &[(&str, &str)] = &[
+	("?", "show help"),
+	("o,space,enter", "show options"),
+	("hjkl,arrow keys", "navigate"),
+	("n", "switch to normal mode"),
+	("c", "switch to copy mode"),
+	("v", "switch to visual mode"),
+	("p,C-v", "paste"),
+	("1,2,3", "set detail level"),
+	("t,tab", "toggle detail (all/selected)"),
+	("`", "toggle table margin"),
+	("m", "toggle table size"),
+	("C-s", "toggle style"),
+	("a", "toggle armored output"),
+	("x", "export key"),
+	("s", "sign key"),
+	("e", "edit key"),
+	("i", "import key"),
+	("f", "receive key"),
+	("u", "send key"),
+	("g", "generate key"),
+	("d,backspace", "delete key"),
+	("C-r", "refresh keys"),
+	("/", "search"),
+	(":", "run command"),
+	("y/n", "yes/no"),
+	("escape", "quit/cancel"),
+	("r,f5", "refresh application"),
+	("q,C-c/d", "quit application"),
+];
 
 /// Main application.
 ///
@@ -52,6 +83,8 @@ pub struct App<'a> {
 	pub tab: Tab,
 	/// Content of the options menu.
 	pub options: StatefulList<Command>,
+	/// Content of the key bindings list.
+	pub key_bindings: StatefulList<(&'a str, &'a str)>,
 	/// Public/secret keys.
 	pub keys: HashMap<KeyType, Vec<GpgKey>>,
 	/// Table of public/secret keys.
@@ -83,6 +116,7 @@ impl<'a> App<'a> {
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
+			key_bindings: StatefulList::with_items(KEY_BINDINGS.to_vec()),
 			keys,
 			keys_table,
 			keys_table_states: HashMap::new(),
@@ -150,6 +184,9 @@ impl<'a> App<'a> {
 		match command {
 			Command::ShowHelp => {
 				self.tab = Tab::Help;
+				if self.key_bindings.state.selected().is_none() {
+					self.key_bindings.state.select(Some(0));
+				}
 			}
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
@@ -398,6 +435,8 @@ impl<'a> App<'a> {
 					if self.state.show_options {
 						self.options.next();
 						show_options = true;
+					} else if Tab::Help == self.tab {
+						self.key_bindings.next();
 					} else {
 						self.keys_table.next();
 					}
@@ -406,21 +445,33 @@ impl<'a> App<'a> {
 					if self.state.show_options {
 						self.options.previous();
 						show_options = true;
+					} else if Tab::Help == self.tab {
+						self.key_bindings.previous();
 					} else {
 						self.keys_table.previous();
 					}
 				}
 				ScrollDirection::Top => {
-					self.keys_table.state.tui.select(Some(0));
+					if Tab::Help == self.tab {
+						self.key_bindings.state.select(Some(0));
+					} else {
+						self.keys_table.state.tui.select(Some(0));
+					}
 				}
 				ScrollDirection::Bottom => {
-					self.keys_table.state.tui.select(Some(
-						self.keys_table
-							.items
-							.len()
-							.checked_sub(1)
-							.unwrap_or_default(),
-					));
+					if Tab::Help == self.tab {
+						self.key_bindings
+							.state
+							.select(Some(KEY_BINDINGS.len() - 1));
+					} else {
+						self.keys_table.state.tui.select(Some(
+							self.keys_table
+								.items
+								.len()
+								.checked_sub(1)
+								.unwrap_or_default(),
+						));
+					}
 				}
 				_ => {}
 			},
@@ -871,17 +922,37 @@ impl<'a> App<'a> {
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		frame.render_widget(
-			Paragraph::new("TODO")
-				.block(
-					Block::default()
-						.borders(Borders::ALL)
-						.border_style(Style::default().fg(Color::DarkGray)),
-				)
-				.style(Style::default().fg(self.state.color))
-				.alignment(Alignment::Left)
-				.wrap(Wrap { trim: true }),
+		frame.render_stateful_widget(
+			List::new(
+				self.key_bindings
+					.items
+					.iter()
+					.map(|(key, action)| {
+						ListItem::new(Text::raw(format!(
+							"{}\n\u{2800}└─{}\n\u{2800}",
+							key.split(',').fold(
+								String::new(),
+								|acc, v| format!("{}[{}] ", acc, v)
+							),
+							action
+						)))
+					})
+					.collect::<Vec<ListItem>>(),
+			)
+			.block(
+				Block::default()
+					.borders(Borders::ALL)
+					.border_style(Style::default().fg(Color::DarkGray)),
+			)
+			.style(Style::default().fg(self.state.color))
+			.highlight_style(
+				Style::default()
+					.fg(Color::Reset)
+					.add_modifier(Modifier::BOLD),
+			)
+			.highlight_symbol("> "),
 			rect,
+			&mut self.key_bindings.state,
 		);
 	}
 
