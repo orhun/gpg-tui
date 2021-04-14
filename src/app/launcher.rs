@@ -196,12 +196,10 @@ impl<'a> App<'a> {
 				let prev_item_count = self.options.items.len();
 				self.options = StatefulList::with_items(match self.tab {
 					Tab::Keys(key_type) => {
-						let selected_key = &self.keys_table.items[self
+						let selected_key = &self
 							.keys_table
-							.state
-							.tui
 							.selected()
-							.expect("invalid selection")];
+							.expect("invalid selection");
 						vec![
 							Command::None,
 							Command::ShowHelp,
@@ -712,12 +710,8 @@ impl<'a> App<'a> {
 				}
 			}
 			Command::Copy(copy_type) => {
-				let selected_key = &self.keys_table.items[self
-					.keys_table
-					.state
-					.tui
-					.selected()
-					.expect("invalid selection")];
+				let selected_key =
+					&self.keys_table.selected().expect("invalid selection");
 				let content = match copy_type {
 					CopyType::TableRow(1) => Ok(selected_key
 						.get_subkey_info(self.state.minimized)

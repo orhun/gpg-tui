@@ -37,6 +37,11 @@ impl<T: Clone> StatefulTable<T> {
 		Self::new(items, TableState::default())
 	}
 
+	/// Returns the selected item.
+	pub fn selected(&self) -> Option<&T> {
+		self.items.get(self.state.tui.selected()?)
+	}
+
 	/// Select the next item.
 	pub fn next(&mut self) {
 		let i = match self.state.tui.selected() {
@@ -130,7 +135,7 @@ mod tests {
 		let mut table =
 			StatefulTable::with_items(vec!["data1", "data2", "data3"]);
 		table.state.tui.select(Some(1));
-		assert_eq!(Some(1), table.state.tui.selected());
+		assert_eq!(Some(&"data2"), table.selected());
 		table.next();
 		assert_eq!(Some(2), table.state.tui.selected());
 		table.previous();

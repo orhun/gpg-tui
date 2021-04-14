@@ -95,13 +95,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 				{
 					Command::Quit
 				} else {
-					match app.keys_table.items.get(
-						app.keys_table
-							.state
-							.tui
-							.selected()
-							.expect("invalid selection"),
-					) {
+					match app.keys_table.selected() {
 						Some(selected_key) => {
 							Command::Confirm(Box::new(Command::DeleteKey(
 								match app.tab {
@@ -191,13 +185,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 						(!app.state.colored).to_string(),
 					)
 				} else {
-					match app.keys_table.items.get(
-						app.keys_table
-							.state
-							.tui
-							.selected()
-							.expect("invalid selection"),
-					) {
+					match app.keys_table.selected() {
 						Some(selected_key) => {
 							Command::SignKey(selected_key.get_id())
 						}
@@ -209,13 +197,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 				}
 			}
 			Key::Char('e') | Key::Char('E') => {
-				match app.keys_table.items.get(
-					app.keys_table
-						.state
-						.tui
-						.selected()
-						.expect("invalid selection"),
-				) {
+				match app.keys_table.selected() {
 					Some(selected_key) => {
 						Command::EditKey(selected_key.get_id())
 					}
@@ -229,13 +211,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 				if app.mode == Mode::Copy {
 					Command::Copy(CopyType::Key)
 				} else {
-					match app.keys_table.items.get(
-						app.keys_table
-							.state
-							.tui
-							.selected()
-							.expect("invalid selection"),
-					) {
+					match app.keys_table.selected() {
 						Some(selected_key) => Command::ExportKeys(
 							match app.tab {
 								Tab::Keys(key_type) => key_type,
@@ -310,13 +286,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 				if app.mode == Mode::Copy {
 					Command::Copy(CopyType::KeyUserId)
 				} else {
-					match app.keys_table.items.get(
-						app.keys_table
-							.state
-							.tui
-							.selected()
-							.expect("invalid selection"),
-					) {
+					match app.keys_table.selected() {
 						Some(selected_key) => Command::Confirm(Box::new(
 							Command::SendKey(selected_key.get_id()),
 						)),
@@ -340,16 +310,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('o') | Key::Char(' ') | Key::Enter => {
 				if app.state.show_options {
-					app.options
-						.items
-						.get(
-							app.options
-								.state
-								.selected()
-								.expect("invalid selection"),
-						)
-						.cloned()
-						.unwrap_or(Command::None)
+					app.options.selected().cloned().unwrap_or(Command::None)
 				} else if !app.keys_table.items.is_empty() {
 					Command::ShowOptions
 				} else {

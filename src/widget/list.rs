@@ -19,6 +19,11 @@ impl<T> StatefulList<T> {
 		Self::new(items, ListState::default())
 	}
 
+	/// Returns the selected item.
+	pub fn selected(&self) -> Option<&T> {
+		self.items.get(self.state.selected()?)
+	}
+
 	/// Select the next item.
 	pub fn next(&mut self) {
 		let i = match self.state.selected() {
@@ -59,7 +64,7 @@ mod tests {
 		let mut list =
 			StatefulList::with_items(vec!["data1", "data2", "data3"]);
 		list.state.select(Some(1));
-		assert_eq!(Some(1), list.state.selected());
+		assert_eq!(Some(&"data2"), list.selected());
 		list.next();
 		assert_eq!(Some(2), list.state.selected());
 		list.previous();
