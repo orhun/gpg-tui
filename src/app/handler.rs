@@ -352,6 +352,11 @@ fn handle_command_execution<B: Backend>(
 			| Command::Refresh
 			| Command::Quit
 			| Command::None => {}
+			Command::Set(ref option, _) => {
+				if option != "colored" {
+					command = Command::None
+				}
+			}
 			_ => command = Command::None,
 		}
 	}

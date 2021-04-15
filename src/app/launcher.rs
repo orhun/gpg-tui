@@ -935,7 +935,13 @@ impl<'a> App<'a> {
 					self.key_bindings
 						.items
 						.iter()
-						.map(|v| v.as_list_item())
+						.enumerate()
+						.map(|(i, v)| {
+							v.as_list_item(
+								self.state.colored,
+								self.key_bindings.state.selected() == Some(i),
+							)
+						})
 						.collect::<Vec<ListItem>>(),
 				)
 				.block(
@@ -944,11 +950,13 @@ impl<'a> App<'a> {
 						.border_style(Style::default().fg(Color::DarkGray)),
 				)
 				.style(Style::default().fg(self.state.color))
-				.highlight_style(
+				.highlight_style(if self.state.colored {
+					Style::default().add_modifier(Modifier::BOLD)
+				} else {
 					Style::default()
 						.fg(Color::Reset)
-						.add_modifier(Modifier::BOLD),
-				)
+						.add_modifier(Modifier::BOLD)
+				})
 				.highlight_symbol("> "),
 				chunks[0],
 				&mut self.key_bindings.state,

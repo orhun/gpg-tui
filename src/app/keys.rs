@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use tui::style::Style;
+use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Spans, Text};
 use tui::widgets::ListItem;
 
@@ -217,7 +217,7 @@ impl<'a> Display for KeyBinding<'a> {
 			f,
 			"{}",
 			format!(
-				"{}\n\u{2800}└─{}\n\u{2800}",
+				"{}\n └─{}\n ",
 				self.key
 					.split(',')
 					.fold(String::new(), |acc, v| format!("{}[{}] ", acc, v)),
@@ -252,8 +252,41 @@ impl<'a> KeyBinding<'a> {
 	}
 
 	/// Returns the key binding as a list item.
-	pub fn as_list_item(&self) -> ListItem<'a> {
-		ListItem::new(Text::raw(self.to_string()))
+	pub fn as_list_item(
+		&self,
+		colored: bool,
+		highlighted: bool,
+	) -> ListItem<'a> {
+		let highlight_style = if highlighted {
+			Style::default().fg(Color::Reset)
+		} else {
+			Style::default()
+		};
+		ListItem::new(if colored {
+			Text::from(vec![
+				Spans::from(self.key.split(',').fold(
+					Vec::new(),
+					|mut keys, key| {
+						keys.push(Span::styled("[", highlight_style));
+						keys.push(Span::styled(
+							key,
+							Style::default()
+								.fg(Color::Green)
+								.add_modifier(Modifier::BOLD),
+						));
+						keys.push(Span::styled("] ", highlight_style));
+						keys
+					},
+				)),
+				Spans::from(vec![
+					Span::styled(" └─", Style::default().fg(Color::DarkGray)),
+					Span::styled(self.action, highlight_style),
+				]),
+				Spans::default(),
+			])
+		} else {
+			Text::raw(self.to_string())
+		})
 	}
 }
 
@@ -262,8 +295,6 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	use std::borrow::Cow::Borrowed;
-	use tui::style::{Color, Style};
-	use tui::text::{Span, Spans};
 	#[test]
 	fn test_app_keys() {
 		let key_binding =
@@ -292,16 +323,88 @@ mod tests {
 						style: Style::default(),
 					}]),
 					Spans(vec![Span {
-						content: Borrowed("\u{2800}└─quit"),
+						content: Borrowed(" └─quit"),
 						style: Style::default(),
 					}]),
 					Spans(vec![Span {
-						content: Borrowed("\u{2800}"),
+						content: Borrowed(" "),
 						style: Style::default(),
 					}]),
 				],
 			}),
-			key_binding.as_list_item()
+			key_binding.as_list_item(false, false)
+		);
+		assert_eq!(
+			ListItem::new(Text {
+				lines: vec![
+					Spans(vec![
+						Span {
+							content: Borrowed("["),
+							style: Style {
+								fg: Some(Color::Reset),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("q"),
+							style: Style {
+								fg: Some(Color::Green),
+								bg: None,
+								add_modifier: Modifier::BOLD,
+								sub_modifier: Modifier::empty(),
+							},
+						},
+						Span {
+							content: Borrowed("] "),
+							style: Style {
+								fg: Some(Color::Reset),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("["),
+							style: Style {
+								fg: Some(Color::Reset),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("esc"),
+							style: Style {
+								fg: Some(Color::Green),
+								bg: None,
+								add_modifier: Modifier::BOLD,
+								sub_modifier: Modifier::empty(),
+							},
+						},
+						Span {
+							content: Borrowed("] "),
+							style: Style {
+								fg: Some(Color::Reset),
+								..Style::default()
+							},
+						},
+					]),
+					Spans(vec![
+						Span {
+							content: Borrowed(" └─"),
+							style: Style {
+								fg: Some(Color::DarkGray),
+								..Style::default()
+							},
+						},
+						Span {
+							content: Borrowed("quit"),
+							style: Style {
+								fg: Some(Color::Reset),
+								..Style::default()
+							},
+						},
+					]),
+					Spans::default(),
+				]
+			}),
+			key_binding.as_list_item(true, true)
 		);
 	}
 }
