@@ -24,7 +24,7 @@ impl<T> StatefulList<T> {
 		self.items.get(self.state.selected()?)
 	}
 
-	/// Select the next item.
+	/// Selects the next item.
 	pub fn next(&mut self) {
 		let i = match self.state.selected() {
 			Some(i) => {
@@ -39,7 +39,7 @@ impl<T> StatefulList<T> {
 		self.state.select(Some(i));
 	}
 
-	/// Select the previous item.
+	/// Selects the previous item.
 	pub fn previous(&mut self) {
 		let i = match self.state.selected() {
 			Some(i) => {

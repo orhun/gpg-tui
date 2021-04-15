@@ -42,7 +42,7 @@ impl<T: Clone> StatefulTable<T> {
 		self.items.get(self.state.tui.selected()?)
 	}
 
-	/// Select the next item.
+	/// Selects the next item.
 	pub fn next(&mut self) {
 		let i = match self.state.tui.selected() {
 			Some(i) => {
@@ -58,7 +58,7 @@ impl<T: Clone> StatefulTable<T> {
 		self.reset_scroll();
 	}
 
-	/// Select the previous item.
+	/// Selects the previous item.
 	pub fn previous(&mut self) {
 		let i = match self.state.tui.selected() {
 			Some(i) => {
