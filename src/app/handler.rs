@@ -168,6 +168,8 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 					Command::PreviousTab
 				}
 			}
+			Key::PageUp => Command::Scroll(ScrollDirection::Top, false),
+			Key::PageDown => Command::Scroll(ScrollDirection::Bottom, false),
 			Key::Char('t') | Key::Char('T') => Command::ToggleDetail(true),
 			Key::Tab => Command::ToggleDetail(false),
 			Key::Char('`') => Command::Set(
@@ -486,6 +488,7 @@ mod tests {
 				vec![
 					KeyEvent::new(Key::Up, Modifiers::CONTROL),
 					KeyEvent::new(Key::Char('k'), Modifiers::CONTROL),
+					KeyEvent::new(Key::PageUp, Modifiers::NONE),
 				],
 			),
 			(
@@ -507,6 +510,7 @@ mod tests {
 				vec![
 					KeyEvent::new(Key::Down, Modifiers::CONTROL),
 					KeyEvent::new(Key::Char('j'), Modifiers::CONTROL),
+					KeyEvent::new(Key::PageDown, Modifiers::NONE),
 				],
 			),
 			(

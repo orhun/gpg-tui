@@ -23,12 +23,12 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
         "#,
 	},
 	KeyBinding {
-		key: "hjkl,arrow keys",
+		key: "hjkl,arrows,pgkeys",
 		action: "navigate",
 		description: r#"
         Scrolls the current widget or selects the next/previous tab.
         M-<key>: scroll the table rows
-        C-<key>: scroll to top/bottom
+        C-<key>,pgup,pgdown: scroll to top/bottom
         :scroll (row) up/down/left/right <amount>
         "#,
 	},
