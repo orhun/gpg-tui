@@ -420,14 +420,26 @@ impl<'a> App<'a> {
 					}
 				}
 				ScrollDirection::Top => {
-					if Tab::Help == self.tab {
+					if self.state.show_options {
+						self.options.state.select(Some(0));
+						show_options = true;
+					} else if Tab::Help == self.tab {
 						self.key_bindings.state.select(Some(0));
 					} else {
 						self.keys_table.state.tui.select(Some(0));
 					}
 				}
 				ScrollDirection::Bottom => {
-					if Tab::Help == self.tab {
+					if self.state.show_options {
+						self.options.state.select(Some(
+							self.options
+								.items
+								.len()
+								.checked_sub(1)
+								.unwrap_or_default(),
+						));
+						show_options = true;
+					} else if Tab::Help == self.tab {
 						self.key_bindings
 							.state
 							.select(Some(KEY_BINDINGS.len() - 1));
