@@ -1,5 +1,6 @@
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
+use crate::app::keys::{KeyBinding, KEY_BINDINGS};
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
 use crate::app::state::State;
@@ -18,7 +19,7 @@ use copypasta_ext::prelude::ClipboardProvider;
 use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::collections::HashMap;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
@@ -36,37 +37,6 @@ use unicode_width::UnicodeWidthStr;
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 /// Max duration of prompt messages.
 const MESSAGE_DURATION: u128 = 1750;
-/// Key bindings of the application.
-const KEY_BINDINGS: &[(&str, &str)] = &[
-	("?", "show help"),
-	("o,space,enter", "show options"),
-	("hjkl,arrow keys", "navigate"),
-	("n", "switch to normal mode"),
-	("c", "switch to copy mode"),
-	("v", "switch to visual mode"),
-	("p,C-v", "paste"),
-	("1,2,3", "set detail level"),
-	("t,tab", "toggle detail (all/selected)"),
-	("`", "toggle table margin"),
-	("m", "toggle table size"),
-	("C-s", "toggle style"),
-	("a", "toggle armored output"),
-	("x", "export key"),
-	("s", "sign key"),
-	("e", "edit key"),
-	("i", "import key"),
-	("f", "receive key"),
-	("u", "send key"),
-	("g", "generate key"),
-	("d,backspace", "delete key"),
-	("C-r", "refresh keys"),
-	("/", "search"),
-	(":", "run command"),
-	("y/n", "yes/no"),
-	("escape", "quit/cancel"),
-	("r,f5", "refresh application"),
-	("q,C-c/d", "quit application"),
-];
 
 /// Main application.
 ///
@@ -84,7 +54,7 @@ pub struct App<'a> {
 	/// Content of the options menu.
 	pub options: StatefulList<Command>,
 	/// Content of the key bindings list.
-	pub key_bindings: StatefulList<(&'a str, &'a str)>,
+	pub key_bindings: StatefulList<KeyBinding<'a>>,
 	/// Public/secret keys.
 	pub keys: HashMap<KeyType, Vec<GpgKey>>,
 	/// Table of public/secret keys.
@@ -817,7 +787,7 @@ impl<'a> App<'a> {
 		self.render_command_prompt(frame, chunks[1]);
 		match self.tab {
 			Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
-			Tab::Help => self.render_help_page(frame, chunks[0]),
+			Tab::Help => self.render_help_tab(frame, chunks[0]),
 		}
 		if self.state.show_options {
 			self.render_options_menu(frame, rect);
@@ -911,43 +881,91 @@ impl<'a> App<'a> {
 	}
 
 	/// Renders the help tab.
-	fn render_help_page<B: Backend>(
+	fn render_help_tab<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
 		rect: Rect,
 	) {
-		frame.render_stateful_widget(
-			List::new(
-				self.key_bindings
-					.items
-					.iter()
-					.map(|(key, action)| {
-						ListItem::new(Text::raw(format!(
-							"{}\n\u{2800}└─{}\n\u{2800}",
-							key.split(',').fold(
-								String::new(),
-								|acc, v| format!("{}[{}] ", acc, v)
-							),
-							action
-						)))
-					})
-					.collect::<Vec<ListItem>>(),
-			)
-			.block(
-				Block::default()
-					.borders(Borders::ALL)
-					.border_style(Style::default().fg(Color::DarkGray)),
-			)
-			.style(Style::default().fg(self.state.color))
-			.highlight_style(
-				Style::default()
-					.fg(Color::Reset)
-					.add_modifier(Modifier::BOLD),
-			)
-			.highlight_symbol("> "),
+		frame.render_widget(
+			Block::default()
+				.borders(Borders::ALL)
+				.border_style(Style::default().fg(Color::DarkGray)),
 			rect,
-			&mut self.key_bindings.state,
 		);
+		let chunks = Layout::default()
+			.direction(Direction::Horizontal)
+			.margin(1)
+			.constraints(
+				[Constraint::Percentage(50), Constraint::Percentage(50)]
+					.as_ref(),
+			)
+			.split(rect);
+		{
+			let description = self
+				.key_bindings
+				.selected()
+				.map(|v| {
+					v.get_description_text(
+						Style::default()
+							.fg(Color::DarkGray)
+							.add_modifier(Modifier::ITALIC),
+					)
+				})
+				.unwrap_or_default();
+			let description_height = u16::try_from(
+				self.key_bindings
+					.selected()
+					.map(|v| v.description.lines().count())
+					.unwrap_or_default(),
+			)
+			.unwrap_or(1) + 2;
+			let chunks = Layout::default()
+				.direction(Direction::Vertical)
+				.margin(1)
+				.constraints(
+					[
+						Constraint::Min(chunks[0].height - description_height),
+						Constraint::Min(description_height),
+					]
+					.as_ref(),
+				)
+				.split(chunks[0]);
+			frame.render_stateful_widget(
+				List::new(
+					self.key_bindings
+						.items
+						.iter()
+						.map(|v| v.as_list_item())
+						.collect::<Vec<ListItem>>(),
+				)
+				.block(
+					Block::default()
+						.borders(Borders::RIGHT)
+						.border_style(Style::default().fg(Color::DarkGray)),
+				)
+				.style(Style::default().fg(self.state.color))
+				.highlight_style(
+					Style::default()
+						.fg(Color::Reset)
+						.add_modifier(Modifier::BOLD),
+				)
+				.highlight_symbol("> "),
+				chunks[0],
+				&mut self.key_bindings.state,
+			);
+			frame.render_widget(
+				Paragraph::new(description)
+					.block(
+						Block::default()
+							.borders(Borders::RIGHT)
+							.border_style(Style::default().fg(Color::DarkGray)),
+					)
+					.style(Style::default().fg(self.state.color))
+					.alignment(Alignment::Left)
+					.wrap(Wrap { trim: true }),
+				chunks[1],
+			);
+		}
 	}
 
 	/// Renders the options menu.

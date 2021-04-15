@@ -26,3 +26,6 @@ pub mod clipboard;
 
 /// Style helper.
 pub mod style;
+
+/// Key bindings helper.
+pub mod keys;
