@@ -157,6 +157,8 @@ mod tests {
 			"ScrollAmount { vertical: 2, horizontal: 1 }",
 			&format!("{:?}", table.state.scroll)
 		);
+		table.reset_state();
+		assert_eq!(Some(0), table.state.tui.selected());
 		assert_eq!(table.default_items, table.items);
 	}
 }
