@@ -20,6 +20,7 @@ use copypasta_ext::x11_fork::ClipboardContext;
 use std::cmp;
 use std::collections::HashMap;
 use std::convert::{TryFrom, TryInto};
+use std::path::Path;
 use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
@@ -467,6 +468,25 @@ impl<'a> App<'a> {
 					self.prompt.text = value;
 				} else {
 					self.prompt.set_output(match option.as_str() {
+						"output" => {
+							let path = Path::new(&value);
+							if path.exists() {
+								self.gpgme.config.output_dir =
+									path.to_path_buf();
+								(
+									OutputType::Success,
+									format!(
+										"output directory: {:?}",
+										self.gpgme.config.output_dir
+									),
+								)
+							} else {
+								(
+									OutputType::Failure,
+									String::from("path does not exist"),
+								)
+							}
+						}
 						"mode" => {
 							if let Ok(mode) = Mode::from_str(&value) {
 								self.mode = mode;
@@ -609,6 +629,13 @@ impl<'a> App<'a> {
 			}
 			Command::Get(option) => {
 				self.prompt.set_output(match option.as_str() {
+					"output" => (
+						OutputType::Success,
+						format!(
+							"output directory: {:?}",
+							self.gpgme.config.output_dir.as_os_str()
+						),
+					),
 					"mode" => (
 						OutputType::Success,
 						format!(
