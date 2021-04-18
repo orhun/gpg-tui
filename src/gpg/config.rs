@@ -38,6 +38,34 @@ impl GpgConfig {
 		})
 	}
 
+	/// Returns general information about the library configuration.
+	pub fn get_info(&mut self) -> Result<String> {
+		let engine_info = self.inner.engine_info()?;
+		match engine_info.get(gpgme::Protocol::OpenPgp) {
+			Some(engine) => Ok(format!(
+				r#"
+				GPGME version: {}
+				GPGME protocol: {}
+				GPGME engine: "{}"
+				GPGME engine version: {} (>{})
+				GnuPG home directory: "{}"
+				GnuPG data directory: "{}"
+				{} output directory: {:?}
+				"#,
+				self.inner.version(),
+				engine.protocol(),
+				engine.path().unwrap_or("?"),
+				engine.version().unwrap_or("?"),
+				engine.required_version().unwrap_or("?"),
+				self.get_dir_info("homedir").unwrap_or("?"),
+				self.get_dir_info("datadir").unwrap_or("?"),
+				env!("CARGO_PKG_NAME"),
+				self.output_dir.as_os_str()
+			)),
+			None => Err(anyhow!("failed to get engine information")),
+		}
+	}
+
 	/// Returns the directory information for the given value.
 	pub fn get_dir_info(&self, dir: &str) -> Result<&str> {
 		self.inner.get_dir_info(dir).map_err(|e| anyhow!("{:?}", e))

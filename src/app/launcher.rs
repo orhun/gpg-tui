@@ -1013,6 +1013,28 @@ impl<'a> App<'a> {
 				chunks[1],
 			);
 		}
+		{
+			let information = match self.gpgme.config.get_info() {
+				Ok(text) => text,
+				Err(e) => e.to_string(),
+			};
+			frame.render_widget(
+				Paragraph::new(if self.state.colored {
+					style::get_colored_info(&information)
+				} else {
+					Text::raw(information)
+				})
+				.block(
+					Block::default()
+						.borders(Borders::NONE)
+						.border_style(Style::default().fg(Color::DarkGray)),
+				)
+				.style(Style::default().fg(self.state.color))
+				.alignment(Alignment::Left)
+				.wrap(Wrap { trim: true }),
+				chunks[1],
+			);
+		}
 	}
 
 	/// Renders the options menu.
