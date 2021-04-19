@@ -355,6 +355,11 @@ impl<'a> App<'a> {
 						os_command.arg("--edit-key").arg(&key)
 					}
 					Command::SignKey(key) => {
+						if let Some(default_key) =
+							&self.gpgme.config.default_key
+						{
+							os_command.arg("--default-key").arg(default_key);
+						}
 						os_command.arg("--sign-key").arg(&key)
 					}
 					Command::ImportKeys(keys, _) => {

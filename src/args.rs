@@ -25,6 +25,9 @@ pub struct Args {
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "dir")]
 	pub homedir: Option<String>,
+	/// Sets the default key to sign with.
+	#[structopt(short, long, value_name = "key")]
+	pub default_key: Option<String>,
 	/// Sets the output directory.
 	#[structopt(short, long, value_name = "dir")]
 	pub output: Option<PathBuf>,

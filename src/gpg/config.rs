@@ -10,6 +10,8 @@ pub struct GpgConfig {
 	inner: Gpgme,
 	/// Flag for using ASCII armored output.
 	pub armor: bool,
+	/// Default key for signing operations.
+	pub default_key: Option<String>,
 	/// Output directory.
 	pub output_dir: PathBuf,
 }
@@ -34,6 +36,7 @@ impl GpgConfig {
 		Ok(Self {
 			inner: gpgme,
 			armor: args.armor,
+			default_key: args.default_key.as_ref().cloned(),
 			output_dir,
 		})
 	}
@@ -50,7 +53,8 @@ impl GpgConfig {
 				GPGME engine version: {} (>{})
 				GnuPG home directory: "{}"
 				GnuPG data directory: "{}"
-				{} output directory: {:?}
+				Output directory: {:?}
+				Default signing key: {}
 				"#,
 				self.inner.version(),
 				engine.protocol(),
@@ -59,8 +63,11 @@ impl GpgConfig {
 				engine.required_version().unwrap_or("?"),
 				self.get_dir_info("homedir").unwrap_or("?"),
 				self.get_dir_info("datadir").unwrap_or("?"),
-				env!("CARGO_PKG_NAME"),
-				self.output_dir.as_os_str()
+				self.output_dir.as_os_str(),
+				self.default_key
+					.as_ref()
+					.cloned()
+					.unwrap_or_else(|| String::from("not specified")),
 			)),
 			None => Err(anyhow!("failed to get engine information")),
 		}
