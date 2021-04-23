@@ -968,7 +968,12 @@ impl<'a> App<'a> {
 				.margin(1)
 				.constraints(
 					[
-						Constraint::Min(chunks[0].height - description_height),
+						Constraint::Min(
+							chunks[0]
+								.height
+								.checked_sub(description_height)
+								.unwrap_or_default(),
+						),
 						Constraint::Min(description_height),
 					]
 					.as_ref(),
