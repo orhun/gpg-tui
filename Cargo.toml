@@ -1,6 +1,9 @@
 [package]
 name = "gpg-tui"
 version = "0.1.0"
+description = "Manage your GnuPG keys with ease!"
+homepage = "https://github.com/orhun/gpg-tui"
+repository = "https://github.com/orhun/gpg-tui"
 authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
 edition = "2018"
 
