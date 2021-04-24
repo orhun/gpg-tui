@@ -29,3 +29,6 @@ pub mod style;
 
 /// Key bindings helper.
 pub mod keys;
+
+/// Application banner text.
+pub mod banner;

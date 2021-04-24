@@ -1,3 +1,4 @@
+use crate::app::banner::Banner;
 use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::keys::{KeyBinding, KEY_BINDINGS};
@@ -1028,9 +1029,44 @@ impl<'a> App<'a> {
 				Ok(text) => text,
 				Err(e) => e.to_string(),
 			};
+			let information_height =
+				u16::try_from(information.lines().count()).unwrap_or(1);
+			let chunks = Layout::default()
+				.direction(Direction::Vertical)
+				.margin(1)
+				.constraints(
+					[
+						Constraint::Min(
+							chunks[1]
+								.height
+								.checked_sub(information_height)
+								.unwrap_or_default(),
+						),
+						Constraint::Min(information_height),
+					]
+					.as_ref(),
+				)
+				.split(chunks[1]);
+			let banner = Banner::get(chunks[0]);
 			frame.render_widget(
 				Paragraph::new(if self.state.colored {
-					style::get_colored_info(&information)
+					style::get_colored_info(&banner, Color::Magenta)
+				} else {
+					Text::raw(banner)
+				})
+				.block(
+					Block::default()
+						.borders(Borders::BOTTOM)
+						.border_style(Style::default().fg(Color::DarkGray)),
+				)
+				.style(Style::default().fg(self.state.color))
+				.alignment(Alignment::Left)
+				.wrap(Wrap { trim: false }),
+				chunks[0],
+			);
+			frame.render_widget(
+				Paragraph::new(if self.state.colored {
+					style::get_colored_info(&information, Color::Cyan)
 				} else {
 					Text::raw(information)
 				})

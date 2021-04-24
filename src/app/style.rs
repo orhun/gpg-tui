@@ -149,12 +149,13 @@ pub fn get_colored_table_row<'a>(
 ///
 /// It adds colors to:
 /// * parts separated by ':' character. (e.g. `version: 2`)
-pub fn get_colored_info(info: &str) -> Text<'_> {
+/// Skips the lines that starts with ' '.
+pub fn get_colored_info(info: &str, color: Color) -> Text<'_> {
 	Text::from(
 		info.lines()
 			.map(|v| {
 				let mut values = v.split(':').collect::<Vec<&str>>();
-				Spans::from(if values.len() >= 2 {
+				Spans::from(if values.len() >= 2 && !v.starts_with(' ') {
 					vec![
 						Span::styled(
 							values[0],
@@ -163,11 +164,11 @@ pub fn get_colored_info(info: &str) -> Text<'_> {
 						Span::styled(":", Style::default().fg(Color::DarkGray)),
 						Span::styled(
 							values.drain(1..).collect::<Vec<&str>>().join(":"),
-							Style::default().fg(Color::Cyan),
+							Style::default().fg(color),
 						),
 					]
 				} else {
-					vec![Span::raw(v)]
+					vec![Span::styled(v, Style::default().fg(Color::Reset))]
 				})
 			})
 			.collect::<Vec<Spans>>(),
@@ -412,14 +413,14 @@ mod tests {
 						Span {
 							content: Borrowed(" xyz "),
 							style: Style {
-								fg: Some(Color::Cyan),
+								fg: Some(Color::LightRed),
 								..Style::default()
 							},
 						},
 					]),
 					Spans(vec![
 						Span {
-							content: Borrowed(" test2"),
+							content: Borrowed("test2"),
 							style: Style {
 								fg: Some(Color::Reset),
 								..Style::default()
@@ -435,14 +436,34 @@ mod tests {
 						Span {
 							content: Borrowed(" abc"),
 							style: Style {
-								fg: Some(Color::Cyan),
+								fg: Some(Color::LightRed),
 								..Style::default()
 							},
 						},
 					]),
+					Spans(vec![Span {
+						content: Borrowed(" skip this line"),
+						style: Style {
+							fg: Some(Color::Reset),
+							..Style::default()
+						},
+					}]),
+					Spans(vec![Span {
+						content: Borrowed("reset"),
+						style: Style {
+							fg: Some(Color::Reset),
+							..Style::default()
+						},
+					}]),
 				],
 			},
-			get_colored_info("test: xyz \n test2: abc")
+			get_colored_info(
+				"test: xyz \n\
+				test2: abc\n \
+				skip this line\n\
+				reset",
+				Color::LightRed
+			)
 		)
 	}
 }
