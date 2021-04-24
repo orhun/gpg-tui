@@ -20,7 +20,7 @@ const BANNERS: &[&str] = &[
  /hh`-/shy` ohhyyyo-  yhs //mms
  /hh`  +hy` ohs       yds   dms
  .yho:/yho  sdy       omd+/smm/
-  .+syyo:`  +so        -shdhs- 
+  .+syyo:`  +so        -shdhs-
  `----------` `..... ..  .. `.`
  :ssssssssss- /ydmys dd  dd /m/
                 ym`  hd..dd /m/
@@ -47,17 +47,17 @@ const BANNERS: &[&str] = &[
                          ``       `     ``
 "#,
 	r#"
-   /ydmmdy:    ddddddho-    .sdmmmh+`                       
-  ymmdssdmmy   mmmyyymmmo  :mmmysydhy.                      
- -mmd`  `mmm-  mmm.  `mmm. hmm/   +hho                      
- -mmd`   hhh-  mmd.   hdh- shh:   :yho                      
- -mmd`         hhh.   yhh- shh:                             
- -mmh`:sssss.  hhh:--+hhy` ymm/`hyysy+ /yyyyyyyy+           
- -dhy`:sshhh-  hhhhhhdds.  hdd:`sshmms +dddddddds           
- -hhy`   yhh-  hhh/::-`    shh:   omms  :yyyyyy/ss.  ss`oy- 
- -hhy`   hhh.  hhh.        ymm/   omms  ./+mmo/-mm-  mm-hm/ 
-  shhs//shhs`  ddd.        /mmhoosmmm:     mm.  dm/ -mm.hm/ 
-   :syhhys/`   yyy.         .odmmmds.      mm.  -ymmmh/ hm/ 
+   /ydmmdy:    ddddddho-    .sdmmmh+`
+  ymmdssdmmy   mmmyyymmmo  :mmmysydhy.
+ -mmd`  `mmm-  mmm.  `mmm. hmm/   +hho
+ -mmd`   hhh-  mmd.   hdh- shh:   :yho
+ -mmd`         hhh.   yhh- shh:
+ -mmh`:sssss.  hhh:--+hhy` ymm/`hyysy+ /yyyyyyyy+
+ -dhy`:sshhh-  hhhhhhdds.  hdd:`sshmms +dddddddds
+ -hhy`   yhh-  hhh/::-`    shh:   omms  :yyyyyy/ss.  ss`oy-
+ -hhy`   hhh.  hhh.        ymm/   omms  ./+mmo/-mm-  mm-hm/
+  shhs//shhs`  ddd.        /mmhoosmmm:     mm.  dm/ -mm.hm/
+   :syhhys/`   yyy.         .odmmmds.      mm.  -ymmmh/ hm/
       ```                      ```         ``     ```   ``` 
 "#,
 	r#"
