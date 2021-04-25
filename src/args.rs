@@ -16,29 +16,33 @@ use structopt::StructOpt;
         AppSettings::ColorAuto,
         AppSettings::ColoredHelp,
         AppSettings::DeriveDisplayOrder,
-    ])
+    ]),
+	rename_all_env = "screaming-snake",
 )]
 pub struct Args {
 	/// Enables ASCII armored output.
-	#[structopt(short, long)]
+	#[structopt(short, long, env)]
 	pub armor: bool,
 	/// Sets the GnuPG home directory.
-	#[structopt(long, value_name = "dir")]
+	#[structopt(long, value_name = "dir", env)]
 	pub homedir: Option<String>,
 	/// Sets the default key to sign with.
-	#[structopt(short, long, value_name = "key")]
+	#[structopt(short, long, value_name = "key", env)]
 	pub default_key: Option<String>,
 	/// Sets the output directory.
-	#[structopt(short, long, value_name = "dir")]
+	#[structopt(short, long, value_name = "dir", env)]
 	pub output: Option<PathBuf>,
 	/// Sets the tick rate of the terminal.
-	#[structopt(short, long, value_name = "ms", default_value = "250")]
+	#[structopt(short, long, value_name = "ms", default_value = "250", env)]
 	pub tick_rate: u64,
 	/// Sets the accent color of the terminal.
-	#[structopt(short, long, default_value = "gray", parse(from_str))]
+	#[structopt(short, long, default_value = "gray", parse(from_str), env)]
 	pub color: Color,
 	/// Sets the style of the terminal.
-	#[structopt(short, long, possible_values = &["plain", "colored"], default_value = "plain")]
+	#[structopt(
+		short, long, possible_values = &["plain", "colored"],
+		default_value = "plain", env
+	)]
 	pub style: String,
 }
 
