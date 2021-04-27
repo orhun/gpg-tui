@@ -1294,6 +1294,17 @@ mod tests {
 	use tui::backend::TestBackend;
 	use tui::buffer::Buffer;
 	use tui::Terminal;
+	fn assert_buffer(mut buffer: Buffer, terminal: &Terminal<TestBackend>) {
+		assert_eq!(buffer.area, terminal.backend().size().unwrap());
+		for x in 0..buffer.area().width {
+			for y in 0..buffer.area().height {
+				buffer
+					.get_mut(x, y)
+					.set_style(terminal.backend().buffer().get(x, y).style());
+			}
+		}
+		terminal.backend().assert_buffer(&buffer);
+	}
 	#[test]
 	fn test_app_launcher() -> Result<()> {
 		env::set_var(
@@ -1310,15 +1321,18 @@ mod tests {
 		let mut app = App::new(&mut context, &args)?;
 		let backend = TestBackend::new(70, 10);
 		let mut terminal = Terminal::new(backend)?;
+		let test_key = format!(
+			"│> [sc--] rsa3072/{} [u] test@example.org              │",
+			app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()[0]
+				.get_id()
+		)
+		.replace("0x", "");
+		app.run_command(Command::ListKeys(KeyType::Public))?;
 		terminal.draw(|f| app.render(f))?;
-		let mut expected = Buffer::with_lines(vec![
+		assert_buffer(
+			Buffer::with_lines(vec![
 			"┌────────────────────────────────────────────────────────────────────┐",
-			format!(
-				"│> [sc--] rsa3072/{} [u] test@example.org              │",
-				app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()[0]
-					.get_id()
-			)
-			.replace("0x", "").as_ref(),
+			&test_key,
 			"│                                                                    │",
 			"│  [sc--] rsa4096/53F218C35C1DC8B1 [?] menyoki.cli@protonmail.com    │",
 			"│                                                                    │",
@@ -1327,16 +1341,50 @@ mod tests {
 			"│                                                                    │",
 			"└────────────────────────────────────────────────────────────────────┘",
 			"                                                    < list pub (1/2) >",
-		]);
-		assert_eq!(expected.area, terminal.backend().size().unwrap());
-		for x in 0..expected.area().width {
-			for y in 0..expected.area().height {
-				expected
-					.get_mut(x, y)
-					.set_style(terminal.backend().buffer().get(x, y).style());
-			}
-		}
-		terminal.backend().assert_buffer(&expected);
+		]),
+			&terminal,
+		);
+		app.run_command(Command::ShowOptions)?;
+		terminal.draw(|f| app.render(f))?;
+		assert_buffer(
+			Buffer::with_lines(vec![
+			"┌────────────────────────────────────────────────────────────────────┐",
+			&test_key,
+			"│               ┌Options─────────────────────────────┐               │",
+			"│  [sc--] rsa409│> close menu                        │tonmail.com    │",
+			"│               │  show help                         │               │",
+			"│               │  refresh application               │               │",
+			"│               │  refresh the keyring               │               │",
+			"│               └────────────────────────────────────┘               │",
+			"└────────────────────────────────────────────────────────────────────┘",
+			"                                                    < list pub (1/2) >",
+			]),
+			&terminal,
+		);
+		app.run_command(Command::ShowHelp)?;
+		terminal.draw(|f| app.render(f))?;
+		let gpg_info = app
+			.gpgme
+			.config
+			.get_info()?
+			.lines()
+			.map(String::from)
+			.collect::<Vec<String>>();
+		assert_buffer(
+			Buffer::with_lines(vec![
+			"┌────────────────────────────────────────────────────────────────────┐",
+			"│                                                                    │",
+			"│                                │                                   │",
+			&format!("│ Use arrow keys / hjkl to       │  {}            │", gpg_info[1]),
+			&format!("│ navigate through the key       │  {}          │", gpg_info[2]),
+			&format!("│ bindings.                      │  {}     │", gpg_info[3]),
+			&format!("│ Corresponding commands and     │  {}     │", &gpg_info[4][0..32]),
+			"│                                                                    │",
+			"└────────────────────────────────────────────────────────────────────┘",
+			"                                                              < help >",
+			]),
+			&terminal,
+		);
 		Ok(())
 	}
 }
