@@ -1328,6 +1328,7 @@ mod tests {
 		)
 		.replace("0x", "");
 		app.run_command(Command::ListKeys(KeyType::Public))?;
+		app.refresh()?;
 		terminal.draw(|f| app.render(f))?;
 		assert_buffer(
 			Buffer::with_lines(vec![
