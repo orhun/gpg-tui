@@ -29,8 +29,8 @@ impl SplashScreen {
 	/// Constructs a new instance of `SplashScreen`.
 	pub fn new(image_path: &str) -> Result<Self> {
 		match Assets::get(image_path) {
-			Some(path) => Ok(Self {
-				image: image::load_from_memory(path.as_ref())?,
+			Some(asset) => Ok(Self {
+				image: image::load_from_memory(asset.as_ref())?,
 				data: HashMap::new(),
 				step: 12,
 			}),
