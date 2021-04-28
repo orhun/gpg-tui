@@ -412,6 +412,7 @@ fn handle_command_execution<B: Backend>(
 	Ok(())
 }
 
+#[cfg(feature = "gpg-tests")]
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -420,8 +421,17 @@ mod tests {
 	use crate::gpg::config::GpgConfig;
 	use crate::gpg::context::GpgContext;
 	use pretty_assertions::assert_eq;
+	use std::env;
 	#[test]
 	fn test_app_handler() -> Result<()> {
+		env::set_var(
+			"GNUPGHOME",
+			dirs::cache_dir()
+				.unwrap()
+				.join(env!("CARGO_PKG_NAME"))
+				.to_str()
+				.unwrap(),
+		);
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
