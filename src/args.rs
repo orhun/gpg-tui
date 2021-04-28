@@ -21,7 +21,7 @@ use structopt::StructOpt;
 )]
 pub struct Args {
 	/// Enables ASCII armored output.
-	#[structopt(short, long, env)]
+	#[structopt(short, long)]
 	pub armor: bool,
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "dir", env)]
