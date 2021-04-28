@@ -14,7 +14,7 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.9.2"
 crossterm = "0.19.0"
-anyhow = "1.0.38"
+anyhow = "1.0.40"
 chrono = "0.4.19"
 unicode-width = "0.1.8"
 copypasta-ext = "0.3.4"
@@ -37,8 +37,8 @@ default-features = false
 features = ["jpeg"]
 
 [dev-dependencies]
-pretty_assertions = "0.6.1"
-dirs = "3.0.1"
+pretty_assertions = "0.7.2"
+dirs = "3.0.2"
 
 [profile.dev]
 opt-level = 0
