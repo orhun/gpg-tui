@@ -23,6 +23,9 @@ pub struct Args {
 	/// Enables ASCII armored output.
 	#[structopt(short, long)]
 	pub armor: bool,
+	/// Shows the splash screen on startup.
+	#[structopt(long)]
+	pub splash: bool,
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "dir", env)]
 	pub homedir: Option<String>,

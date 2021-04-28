@@ -17,6 +17,8 @@ pub struct State {
 	pub minimize_threshold: u16,
 	/// Is the options menu (popup) showing?
 	pub show_options: bool,
+	/// Is the splash screen showing?
+	pub show_splash: bool,
 }
 
 impl Default for State {
@@ -28,6 +30,7 @@ impl Default for State {
 			color: Color::default().get(),
 			minimize_threshold: 90,
 			show_options: false,
+			show_splash: false,
 		}
 	}
 }
@@ -37,6 +40,7 @@ impl<'a> From<&'a Args> for State {
 		State {
 			colored: args.style == *"colored",
 			color: args.color.get(),
+			show_splash: args.splash,
 			..Self::default()
 		}
 	}
@@ -65,5 +69,6 @@ mod tests {
 		assert_eq!(TuiColor::Gray, state.color);
 		assert_eq!(90, state.minimize_threshold);
 		assert_eq!(false, state.show_options);
+		assert_eq!(false, state.show_splash);
 	}
 }

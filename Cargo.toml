@@ -19,6 +19,7 @@ chrono = "0.4.19"
 unicode-width = "0.1.8"
 copypasta-ext = "0.3.4"
 colorsys = "0.6.3"
+rust-embed = "5.9.0"
 
 [dependencies.structopt]
 version = "0.3.21"
@@ -29,6 +30,11 @@ features = ["suggestions", "color", "wrap_help"]
 version = "0.14.0"
 default-features = false
 features = ["crossterm"]
+
+[dependencies.image]
+version = "0.23.14"
+default-features = false
+features = ["jpeg"]
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"

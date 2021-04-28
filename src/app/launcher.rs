@@ -4,6 +4,7 @@ use crate::app::command::Command;
 use crate::app::keys::{KeyBinding, KEY_BINDINGS};
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
+use crate::app::splash::SplashScreen;
 use crate::app::state::State;
 use crate::app::style;
 use crate::app::tab::Tab;
@@ -30,6 +31,7 @@ use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Modifier, Style};
 use tui::terminal::Frame;
 use tui::text::{Span, Spans, Text};
+use tui::widgets::canvas::{Canvas, Points};
 use tui::widgets::{
 	Block, Borders, Clear, List, ListItem, Paragraph, Row, Table, Wrap,
 };
@@ -55,6 +57,8 @@ pub struct App<'a> {
 	pub tab: Tab,
 	/// Content of the options menu.
 	pub options: StatefulList<Command>,
+	/// Splash screen of the application.
+	pub splash_screen: SplashScreen,
 	/// Content of the key bindings list.
 	pub key_bindings: StatefulList<KeyBinding<'a>>,
 	/// Public/secret keys.
@@ -88,6 +92,7 @@ impl<'a> App<'a> {
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
+			splash_screen: SplashScreen::new("splash.jpg")?,
 			key_bindings: StatefulList::with_items(KEY_BINDINGS.to_vec()),
 			keys,
 			keys_table,
@@ -823,23 +828,60 @@ impl<'a> App<'a> {
 		if self.state.minimize_threshold != 0 {
 			self.state.minimized = rect.width < self.state.minimize_threshold;
 		}
-		let chunks = Layout::default()
-			.direction(Direction::Vertical)
-			.constraints(
-				[Constraint::Min(rect.height - 1), Constraint::Min(1)].as_ref(),
-			)
-			.split(rect);
-		self.render_command_prompt(frame, chunks[1]);
-		match self.tab {
-			Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
-			Tab::Help => self.render_help_tab(frame, chunks[0]),
-		}
-		if self.state.show_options {
-			self.render_options_menu(frame, rect);
+		if self.state.show_splash {
+			self.render_splash_screen(frame, rect);
+		} else {
+			let chunks = Layout::default()
+				.direction(Direction::Vertical)
+				.constraints(
+					[Constraint::Min(rect.height - 1), Constraint::Min(1)]
+						.as_ref(),
+				)
+				.split(rect);
+			self.render_command_prompt(frame, chunks[1]);
+			match self.tab {
+				Tab::Keys(_) => self.render_keys_table(frame, chunks[0]),
+				Tab::Help => self.render_help_tab(frame, chunks[0]),
+			}
+			if self.state.show_options {
+				self.render_options_menu(frame, rect);
+			}
 		}
 	}
 
-	/// Renders the command prompt. (widget)
+	/// Renders the splash screen.
+	fn render_splash_screen<B: Backend>(
+		&mut self,
+		frame: &mut Frame<'_, B>,
+		rect: Rect,
+	) {
+		self.state.show_splash = self.splash_screen.step != 0;
+		let data = self.splash_screen.get(self.state.colored);
+		frame.render_widget(
+			Canvas::default()
+				.x_bounds([
+					0.0,
+					(self.splash_screen.image.to_rgb8().width() - 1) as f64,
+				])
+				.y_bounds([
+					0.0,
+					(self.splash_screen.image.to_rgb8().height() - 1) as f64,
+				])
+				.paint(|p| {
+					for rgb in data.keys() {
+						if let Some(coords) = data.get(&rgb) {
+							p.draw(&Points {
+								coords,
+								color: Color::Rgb(rgb.0, rgb.1, rgb.2),
+							})
+						}
+					}
+				}),
+			rect,
+		);
+	}
+
+	/// Renders the command prompt.
 	fn render_command_prompt<B: Backend>(
 		&mut self,
 		frame: &mut Frame<'_, B>,
