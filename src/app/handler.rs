@@ -341,6 +341,9 @@ fn handle_command_execution<B: Backend>(
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
+	if app.state.show_splash && command != Command::Quit {
+		command = Command::None;
+	}
 	if let Tab::Help = app.tab {
 		match command {
 			Command::ShowOptions
