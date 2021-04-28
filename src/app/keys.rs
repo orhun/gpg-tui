@@ -206,8 +206,11 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 /// Representation of an individual key binding.
 #[derive(Clone, Copy, Debug)]
 pub struct KeyBinding<'a> {
+	/// Key binding.
 	key: &'a str,
+	/// Brief description of the key binding action.
 	action: &'a str,
+	/// Full description of the action along with the commands.
 	pub description: &'a str,
 }
 

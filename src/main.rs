@@ -1,4 +1,5 @@
 //! dead simple TUI for GnuPG (WIP)
+#![warn(missing_docs)]
 
 pub mod app;
 pub mod args;

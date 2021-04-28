@@ -1,8 +1,10 @@
 use colorsys::Rgb;
 use tui::style::Color as TuiColor;
 
+/// Wrapper for widget colors.
 #[derive(Clone, Copy, Debug)]
 pub struct Color {
+	/// Inner widget color type.
 	inner: TuiColor,
 }
 
