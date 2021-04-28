@@ -1,4 +1,5 @@
 use crate::app::launcher::App;
+use crate::app::renderer;
 use crate::term::event::EventHandler;
 use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -81,10 +82,10 @@ impl<B: Backend> Tui<B> {
 	/// [`Draw`] the terminal interface by [`rendering`] the widgets.
 	///
 	/// [`Draw`]: tui::Terminal::draw
-	/// [`rendering`]: crate::app::launcher::App::render
+	/// [`rendering`]: crate::app::renderer::render
 	pub fn draw(&mut self, app: &mut App) -> Result<()> {
 		self.terminal
-			.draw(|f| app.render(f))
+			.draw(|frame| renderer::render(app, frame))
 			.context("failed to draw TUI")
 	}
 

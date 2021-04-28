@@ -3,6 +3,9 @@
 /// Application launcher.
 pub mod launcher;
 
+/// Renderer for the interface.
+pub mod renderer;
+
 /// Application state.
 pub mod state;
 
