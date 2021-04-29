@@ -19,13 +19,16 @@ use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
+/// Minimum required version of the GPGME library.
+pub const GPGME_REQUIRED_VERSION: &str = "1.7.0";
+
 /// Entry-point of the application.
 fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
 	// Initialize GPGME library.
 	let config = GpgConfig::new(&args)?;
-	config.check_gpgme_version("1.7.0");
+	config.check_gpgme_version(GPGME_REQUIRED_VERSION);
 	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.
 	let mut app = App::new(&mut gpgme, &args)?;

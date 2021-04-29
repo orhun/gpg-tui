@@ -88,11 +88,12 @@ impl GpgConfig {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::GPGME_REQUIRED_VERSION;
 	#[test]
 	fn test_gpg_config() -> Result<()> {
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
-		config.check_gpgme_version("1.7.0");
+		config.check_gpgme_version(GPGME_REQUIRED_VERSION);
 		Ok(())
 	}
 }
