@@ -29,8 +29,8 @@ const MESSAGE_DURATION: u128 = 1750;
 
 /// Main application.
 ///
-/// It operates the TUI via rendering the widgets
-/// and updating the application state.
+/// It is responsible for running the commands
+/// for changing the state of the interface.
 pub struct App<'a> {
 	/// Application state.
 	pub state: State,
