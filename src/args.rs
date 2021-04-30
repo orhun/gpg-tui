@@ -1,5 +1,6 @@
 //! Command-line argument parser.
 
+use crate::app::banner::BANNERS;
 use crate::widget::style::Color;
 use std::path::PathBuf;
 use structopt::clap::AppSettings;
@@ -12,6 +13,7 @@ use structopt::StructOpt;
     version = env!("CARGO_PKG_VERSION"),
     author = env!("CARGO_PKG_AUTHORS"),
     about = env!("CARGO_PKG_DESCRIPTION"),
+	before_help = BANNERS[2],
     global_settings(&[
         AppSettings::ColorAuto,
         AppSettings::ColoredHelp,

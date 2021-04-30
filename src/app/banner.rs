@@ -1,7 +1,7 @@
 use tui::layout::Rect;
 
 /// Application banners that ordered from small to big.
-const BANNERS: &[&str] = &[
+pub const BANNERS: &[&str] = &[
 	env!("CARGO_PKG_NAME"),
 	r#"
  .ydhh/ +mdhh: :hddy.
