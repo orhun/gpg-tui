@@ -16,6 +16,7 @@ use tui::Terminal;
 /// handler can be accessed via [`events`] field.
 ///
 /// [`events`]: Tui::events
+#[derive(Debug)]
 pub struct Tui<B: Backend> {
 	/// Interface to the Terminal.
 	terminal: Terminal<B>,

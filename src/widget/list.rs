@@ -1,6 +1,7 @@
 use tui::widgets::ListState;
 
 /// List widget with TUI controlled states.
+#[derive(Debug)]
 pub struct StatefulList<T> {
 	/// List items (states).
 	pub items: Vec<T>,

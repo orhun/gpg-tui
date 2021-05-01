@@ -1,5 +1,5 @@
 //! dead simple TUI for GnuPG (WIP)
-#![warn(missing_docs)]
+#![warn(missing_docs, clippy::unwrap_used)]
 
 pub mod app;
 pub mod args;

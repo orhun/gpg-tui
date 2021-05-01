@@ -10,6 +10,7 @@ use std::fs::{self, File};
 use std::io::Write;
 
 /// A context for cryptographic operations.
+#[derive(Debug)]
 pub struct GpgContext {
 	/// GPGME context type.
 	inner: Context,
