@@ -266,7 +266,7 @@ fn render_help_tab<B: Backend>(
 			Err(e) => e.to_string(),
 		};
 		let information_height =
-			u16::try_from(information.lines().count()).unwrap_or(1);
+			u16::try_from(information.lines().count()).unwrap_or(1) + 1;
 		let chunks = Layout::default()
 			.direction(Direction::Vertical)
 			.margin(1)
