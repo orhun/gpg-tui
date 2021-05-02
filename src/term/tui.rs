@@ -87,7 +87,8 @@ impl<B: Backend> Tui<B> {
 	pub fn draw(&mut self, app: &mut App) -> Result<()> {
 		self.terminal
 			.draw(|frame| renderer::render(app, frame))
-			.context("failed to draw TUI")
+			.context("failed to draw TUI")?;
+		Ok(())
 	}
 
 	/// Exits the terminal interface.
