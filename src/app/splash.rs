@@ -98,3 +98,36 @@ impl SplashScreen {
 		data
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use image::{Rgb, RgbImage};
+	use pretty_assertions::assert_eq;
+	#[test]
+	fn test_app_splash() {
+		let image = RgbImage::from_fn(2, 2, |x, y| {
+			if (x + y) % 2 == 0 {
+				Rgb([0, 0, 0])
+			} else {
+				Rgb([128, 64, 32])
+			}
+		});
+		let mut splash_screen = SplashScreen {
+			image: DynamicImage::ImageRgb8(image),
+			data: HashMap::new(),
+			step: 2,
+			steps: 2,
+		};
+		assert_eq!(
+			[
+				((75, 75, 75), vec![(1.0, 1.0), (0.0, 0.0)]),
+				((0, 0, 0), vec![(0.0, 1.0), (1.0, 0.0,)]),
+			]
+			.iter()
+			.cloned()
+			.collect::<HashMap<ColorTuple, Vec<Point>>>(),
+			splash_screen.get(false)
+		);
+	}
+}
