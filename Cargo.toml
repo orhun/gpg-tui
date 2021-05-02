@@ -2,9 +2,11 @@
 name = "gpg-tui"
 version = "0.1.0"
 description = "Manage your GnuPG keys with ease!"
+authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
 homepage = "https://github.com/orhun/gpg-tui"
 repository = "https://github.com/orhun/gpg-tui"
-authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
+keywords = ["gnupg", "gpg", "tui", "key", "management"]
+categories = ["command-line-utilities"]
 edition = "2018"
 
 [features]
