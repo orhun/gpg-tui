@@ -1,4 +1,4 @@
-//! dead simple TUI for GnuPG (WIP)
+//! A terminal user interface for managing GnuPG keys.
 #![warn(missing_docs, clippy::unwrap_used)]
 
 pub mod app;
