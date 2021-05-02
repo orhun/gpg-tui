@@ -23,16 +23,19 @@ pub struct SplashScreen {
 	data: HashMap<ColorTuple, Vec<Point>>,
 	/// Rendering step of the splash screen.
 	pub step: i32,
+	/// Number of the rendering steps.
+	steps: i32,
 }
 
 impl SplashScreen {
 	/// Constructs a new instance of `SplashScreen`.
-	pub fn new(image_path: &str) -> Result<Self> {
+	pub fn new(image_path: &str, steps: i32) -> Result<Self> {
 		match Assets::get(image_path) {
 			Some(asset) => Ok(Self {
 				image: image::load_from_memory(asset.as_ref())?,
 				data: HashMap::new(),
-				step: 12,
+				step: steps,
+				steps,
 			}),
 			None => Err(anyhow!(
 				"cannot find the splash screen asset: {}",
@@ -49,12 +52,12 @@ impl SplashScreen {
 	/// Image is returned as grayscale if `colored` argument is `false`.
 	pub fn get(&mut self, colored: bool) -> HashMap<ColorTuple, Vec<Point>> {
 		self.step -= 1;
-		match self.step.cmp(&6) {
+		match self.step.cmp(&(self.steps / 2)) {
 			Ordering::Greater => {
 				if !colored {
 					self.image = self.image.grayscale()
 				}
-				let value = self.step - 6;
+				let value = self.step - (self.steps / 2);
 				self.group_image_colors(
 					self.image
 						.brighten(value * -20)

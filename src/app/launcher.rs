@@ -77,7 +77,7 @@ impl<'a> App<'a> {
 			prompt: Prompt::default(),
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
-			splash_screen: SplashScreen::new("splash.jpg")?,
+			splash_screen: SplashScreen::new("splash.jpg", 12)?,
 			key_bindings: StatefulList::with_items(KEY_BINDINGS.to_vec()),
 			keys,
 			keys_table,
