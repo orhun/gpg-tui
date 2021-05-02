@@ -812,13 +812,99 @@ impl<'a> App<'a> {
 mod tests {
 	use super::*;
 	use crate::gpg::config::GpgConfig;
+	use pretty_assertions::assert_eq;
+	use std::convert::TryInto;
+	use std::thread;
+	use std::time::Duration;
 	#[test]
 	fn test_app_launcher() -> Result<()> {
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
 		let mut app = App::new(&mut context, &args)?;
-		app.refresh()?;
-		Ok(())
+		app.run_command(Command::Refresh)?;
+
+		app.run_command(Command::ShowHelp)?;
+		assert_eq!(Tab::Help, app.tab);
+		app.run_command(Command::ShowOptions)?;
+		assert!(app.state.show_options);
+
+		app.run_command(Command::ListKeys(KeyType::Public))?;
+		app.run_command(Command::ToggleDetail(false))?;
+		let mut detail = app.keys_table_detail.clone();
+		detail.increase();
+		app.run_command(Command::ToggleDetail(true))?;
+		assert_eq!(detail, app.keys_table_detail);
+
+		let prompt_text = format!("{}test", COMMAND_PREFIX);
+		app.run_command(Command::Set(
+			String::from("prompt"),
+			prompt_text.to_string(),
+		))?;
+		assert_eq!(prompt_text, app.prompt.text);
+
+		let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
+		app.run_command(Command::Set(
+			String::from("output"),
+			home_dir.to_string(),
+		))?;
+		app.run_command(Command::Get(String::from("output")))?;
+		assert!(app.prompt.text.contains(&home_dir));
+
+		for (option, value) in vec![
+			("mode", "normal"),
+			("armor", "true"),
+			("minimized", "false"),
+			("minimize", "10"),
+			("detail", "full"),
+			("margin", "2"),
+			("colored", "true"),
+			("color", "#123123"),
+		] {
+			app.run_command(Command::Set(
+				option.to_string(),
+				value.to_string(),
+			))?;
+			app.run_command(Command::Get(option.to_string()))?;
+			assert!(
+				(app.prompt.text == format!("{}: {}", option, value))
+					|| app.prompt.text.contains(value)
+			);
+		}
+
+		app.mode = Mode::Normal;
+		app.run_command(Command::SwitchMode(Mode::Visual))?;
+		assert_eq!(Mode::Visual, app.mode);
+
+		app.run_command(Command::EnableInput)?;
+		assert!(app.prompt.is_command_input_enabled());
+		assert_eq!(COMMAND_PREFIX.to_string(), app.prompt.text);
+
+		app.run_command(Command::Search(Some(String::from("x"))))?;
+		assert!(app.prompt.is_search_enabled());
+		assert_eq!(format!("{}x", SEARCH_PREFIX), app.prompt.text);
+
+		app.tab = Tab::Keys(KeyType::Public);
+		app.run_command(Command::NextTab)?;
+		assert_eq!(Tab::Keys(KeyType::Secret), app.tab);
+		app.run_command(Command::NextTab)?;
+		assert_eq!(Tab::Keys(KeyType::Public), app.tab);
+
+		app.tick();
+		app.run_command(Command::ShowOutput(
+			OutputType::Success,
+			String::from("test"),
+		))?;
+		assert_eq!("test", app.prompt.text);
+		thread::sleep(Duration::from_millis(
+			(MESSAGE_DURATION + 10).try_into().unwrap(),
+		));
+		app.tick();
+		assert_eq!("", app.prompt.text);
+
+		app.run_command(Command::Quit)?;
+		assert!(!app.state.running);
+
+		app.run_command(Command::None)
 	}
 }
