@@ -116,9 +116,19 @@ mod tests {
 		let mut splash_screen = SplashScreen {
 			image: DynamicImage::ImageRgb8(image),
 			data: HashMap::new(),
-			step: 2,
-			steps: 2,
+			step: 4,
+			steps: 4,
 		};
+		assert_eq!(
+			[
+				((28, 28, 28), vec![(1.0, 1.0), (0.0, 0.0)]),
+				((27, 27, 27), vec![(0.0, 1.0), (1.0, 0.0,)]),
+			]
+			.iter()
+			.cloned()
+			.collect::<HashMap<ColorTuple, Vec<Point>>>(),
+			splash_screen.get(false)
+		);
 		assert_eq!(
 			[
 				((75, 75, 75), vec![(1.0, 1.0), (0.0, 0.0)]),
