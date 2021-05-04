@@ -62,7 +62,7 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 	},
 	KeyBinding {
 		key: "p,C-v",
-		action: "Paste from clipboard",
+		action: "paste from clipboard",
 		description: ":paste",
 	},
 	KeyBinding {
