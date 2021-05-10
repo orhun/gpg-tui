@@ -542,7 +542,7 @@ mod tests {
 	fn test_app_renderer() -> Result<()> {
 		env::set_var(
 			"GNUPGHOME",
-			dirs::cache_dir()
+			dirs_next::cache_dir()
 				.unwrap()
 				.join(env!("CARGO_PKG_NAME"))
 				.to_str()
