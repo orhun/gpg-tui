@@ -18,11 +18,13 @@ pub fn get_colored_table_row<'a>(
 	};
 	let mut row = Vec::new();
 	for line in row_data.iter() {
+		let (first_bracket, second_bracket) = (
+			line.find('[').unwrap_or_default(),
+			line.find(']').unwrap_or_default(),
+		);
 		row.push(
 			// Colorize inside the brackets to start.
-			if let (Some(first_bracket), Some(second_bracket)) =
-				(line.find('['), line.find(']'))
-			{
+			if second_bracket > first_bracket + 1 {
 				let data = line[first_bracket + 1..second_bracket].to_string();
 				let mut colored_line = vec![Span::styled(
 					line[..first_bracket + 1].to_string(),
@@ -270,6 +272,7 @@ mod tests {
 		let row_data = r#"
 [u] kmon releases <kmonlinux@protonmail.com>
 	├─[13] selfsig (2020-07-29)
+	├─][ test
 	└─[10] B928720AEC532117 orhun <orhunparmaksiz@gmail.com> (2020-07-29)
 				"#
 		.to_string()
@@ -342,6 +345,10 @@ mod tests {
 							style: Style::default(),
 						},
 					]),
+					Spans(vec![Span {
+						content: Borrowed("\t├─][ test"),
+						style: Style::default(),
+					}]),
 					Spans(vec![
 						Span {
 							content: Borrowed("\t└─["),
