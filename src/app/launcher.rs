@@ -843,11 +843,8 @@ mod tests {
 		))?;
 		assert_eq!(prompt_text, app.prompt.text);
 
-		let home_dir = dirs_next::home_dir()
-			.unwrap()
-			.to_str()
-			.unwrap()
-			.to_string();
+		let home_dir =
+			dirs_next::home_dir().unwrap().to_str().unwrap().to_string();
 		app.run_command(Command::Set(
 			String::from("output"),
 			home_dir.to_string(),
