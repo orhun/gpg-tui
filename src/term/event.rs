@@ -27,12 +27,10 @@ pub enum Event {
 
 /// Basic event handler for terminal [`events`].
 ///
-/// Event types are handled in a common [`handler`] thread
-/// and returned to a [`receiver`].
+/// Event types are handled in a common handler thread
+/// and returned to a receiver.
 ///
 /// [`events`]: Event
-/// [`handler`]: EventHandler::handler
-/// [`receiver`]: EventHandler::receiver
 #[derive(Debug)]
 pub struct EventHandler {
 	/// Event sender.
