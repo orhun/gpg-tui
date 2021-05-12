@@ -299,10 +299,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 					}
 				}
 			}
-			Key::Char('m') | Key::Char('M') => Command::Set(
-				String::from("minimized"),
-				(!app.state.minimized).to_string(),
-			),
+			Key::Char('m') | Key::Char('M') => Command::ToggleTableSize,
 			Key::Char('y') | Key::Char('Y') => {
 				if let Some(command) = &app.prompt.command {
 					command.clone()
@@ -573,7 +570,7 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('f'), Modifiers::NONE)],
 			),
 			(
-				Command::Set(String::from("minimized"), String::from("true")),
+				Command::ToggleTableSize,
 				vec![KeyEvent::new(Key::Char('m'), Modifiers::NONE)],
 			),
 			(

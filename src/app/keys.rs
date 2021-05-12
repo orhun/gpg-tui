@@ -164,7 +164,7 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 	KeyBinding {
 		key: "t,tab",
 		action: "toggle detail (all/selected)",
-		description: ":toggle (all)",
+		description: ":toggle detail (all)",
 	},
 	KeyBinding {
 		key: "`",
@@ -174,7 +174,7 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 	KeyBinding {
 		key: "m",
 		action: "toggle table size",
-		description: ":set minimized <true/false>",
+		description: ":toggle",
 	},
 	KeyBinding {
 		key: "C-s",

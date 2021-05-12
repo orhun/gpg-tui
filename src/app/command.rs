@@ -43,6 +43,8 @@ pub enum Command {
 	Copy(CopyType),
 	/// Toggle the detail level.
 	ToggleDetail(bool),
+	/// Toggle the table size.
+	ToggleTableSize,
 	/// Scroll the currrent widget.
 	Scroll(ScrollDirection, bool),
 	/// Set the value of an option.
@@ -106,6 +108,7 @@ impl Display for Command {
 					"toggle detail ({})",
 					if *all { "all" } else { "selected" }
 				),
+				Command::ToggleTableSize => String::from("toggle table size"),
 				Command::Set(option, ref value) => {
 					let action =
 						if value == "true" { "enable" } else { "disable" };
@@ -120,13 +123,6 @@ impl Display for Command {
 								String::from("receive key(s) from keyserver")
 							} else {
 								format!("set prompt text to {}", value)
-							}
-						}
-						"minimized" => {
-							if value == "true" {
-								String::from("minimize the table")
-							} else {
-								String::from("maximize the table")
 							}
 						}
 						_ => format!("set {} to {}", option, value),
@@ -218,9 +214,15 @@ impl FromStr for Command {
 					Ok(Self::SwitchMode(Mode::Copy))
 				}
 			}
-			"toggle" | "t" => Ok(Command::ToggleDetail(
-				args.first() == Some(&String::from("all")),
-			)),
+			"toggle" | "t" => {
+				if args.first() == Some(&String::from("detail")) {
+					Ok(Command::ToggleDetail(
+						args.get(1) == Some(&String::from("all")),
+					))
+				} else {
+					Ok(Command::ToggleTableSize)
+				}
+			}
 			"scroll" => {
 				let scroll_row = args.first() == Some(&String::from("row"));
 				Ok(Command::Scroll(
@@ -368,10 +370,14 @@ mod tests {
 			Command::RefreshKeys,
 			Command::from_str(":refresh keys").unwrap()
 		);
-		for cmd in &[":toggle all", ":t all"] {
+		for cmd in &[":toggle detail all", ":t detail all"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::ToggleDetail(true), command);
 		}
+		assert_eq!(
+			Command::ToggleTableSize,
+			Command::from_str(":toggle").unwrap()
+		);
 		for cmd in &[":scroll up 1", ":scroll u 1"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(Command::Scroll(ScrollDirection::Up(1), false), command);
@@ -468,6 +474,7 @@ mod tests {
 			"toggle detail (selected)",
 			Command::ToggleDetail(false).to_string()
 		);
+		assert_eq!("toggle table size", Command::ToggleTableSize.to_string());
 		assert_eq!(
 			"disable armored output",
 			Command::Set(String::from("armor"), String::from("false"))
@@ -495,21 +502,6 @@ mod tests {
 		assert_eq!(
 			"set prompt text to xyz",
 			Command::Set(String::from("prompt"), String::from("xyz"))
-				.to_string()
-		);
-		assert_eq!(
-			"minimize the table",
-			Command::Set(String::from("minimized"), String::from("true"))
-				.to_string()
-		);
-		assert_eq!(
-			"maximize the table",
-			Command::Set(String::from("minimized"), String::from("false"))
-				.to_string()
-		);
-		assert_eq!(
-			"minimize the table",
-			Command::Set(String::from("minimized"), String::from("true"))
 				.to_string()
 		);
 		assert_eq!(

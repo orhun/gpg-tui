@@ -4,6 +4,7 @@ use crate::app::prompt::OutputType;
 use crate::app::style;
 use crate::app::tab::Tab;
 use crate::widget::row::RowItem;
+use crate::widget::table::TableSize;
 use std::cmp;
 use std::convert::{TryFrom, TryInto};
 use tui::backend::Backend;
@@ -17,14 +18,16 @@ use tui::widgets::{
 };
 use unicode_width::UnicodeWidthStr;
 
-/// Lengths of keys row in minimized/maximized mode.
+/// Lengths of keys row in minimized/normal mode.
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 
 /// Renders all the widgets thus the user interface.
 pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
 	let rect = frame.size();
-	if app.state.minimize_threshold != 0 {
-		app.state.minimized = rect.width < app.state.minimize_threshold;
+	if app.keys_table.state.minimize_threshold != 0 {
+		app.keys_table.state.size.set_minimized(
+			rect.width < app.keys_table.state.minimize_threshold,
+		);
 	}
 	if app.state.show_splash {
 		render_splash_screen(app, frame, rect);
@@ -395,17 +398,16 @@ fn render_keys_table<B: Backend>(
 	frame: &mut Frame<'_, B>,
 	rect: Rect,
 ) {
+	let keys_row_length = if app.keys_table.state.size != TableSize::Normal {
+		KEYS_ROW_LENGTH.0
+	} else {
+		KEYS_ROW_LENGTH.1
+	};
 	frame.render_stateful_widget(
 		Table::new(get_keys_table_rows(
 			app,
 			rect.width
-				.checked_sub(
-					if app.state.minimized {
-						KEYS_ROW_LENGTH.0
-					} else {
-						KEYS_ROW_LENGTH.1
-					} + 7,
-				)
+				.checked_sub(keys_row_length + 7)
 				.unwrap_or(rect.width),
 			rect.height.checked_sub(2).unwrap_or(rect.height),
 		))
@@ -424,11 +426,7 @@ fn render_keys_table<B: Backend>(
 				.border_style(Style::default().fg(Color::DarkGray)),
 		)
 		.widths(&[
-			Constraint::Min(if app.state.minimized {
-				KEYS_ROW_LENGTH.0
-			} else {
-				KEYS_ROW_LENGTH.1
-			}),
+			Constraint::Min(keys_row_length),
 			Constraint::Percentage(100),
 		])
 		.column_spacing(1),
@@ -451,8 +449,12 @@ fn get_keys_table_rows<'a>(
 		.into_iter()
 		.enumerate()
 		.filter(|(i, key)| {
-			let subkey_info = key.get_subkey_info(app.state.minimized);
-			let user_info = key.get_user_info(app.state.minimized);
+			let subkey_info = key.get_subkey_info(
+				app.keys_table.state.size != TableSize::Normal,
+			);
+			let user_info = key.get_user_info(
+				app.keys_table.state.size == TableSize::Minimized,
+			);
 			if app.prompt.is_search_enabled() {
 				let search_term =
 					app.prompt.text.replacen("/", "", 1).to_lowercase();

@@ -7,14 +7,10 @@ use tui::style::Color as TuiColor;
 pub struct State {
 	/// Is app running?
 	pub running: bool,
-	/// Is app minimized?
-	pub minimized: bool,
 	/// Is app colored?
 	pub colored: bool,
 	/// Accent color of the app.
 	pub color: TuiColor,
-	/// Threshold value (width) for minimizing.
-	pub minimize_threshold: u16,
 	/// Is the options menu (popup) showing?
 	pub show_options: bool,
 	/// Is the splash screen showing?
@@ -25,10 +21,8 @@ impl Default for State {
 	fn default() -> Self {
 		Self {
 			running: true,
-			minimized: false,
 			colored: false,
 			color: Color::default().get(),
-			minimize_threshold: 90,
 			show_options: false,
 			show_splash: false,
 		}
@@ -64,10 +58,8 @@ mod tests {
 		let mut state = State::default();
 		state.refresh();
 		assert_eq!(true, state.running);
-		assert_eq!(false, state.minimized);
 		assert_eq!(false, state.colored);
 		assert_eq!(TuiColor::Gray, state.color);
-		assert_eq!(90, state.minimize_threshold);
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);
 	}

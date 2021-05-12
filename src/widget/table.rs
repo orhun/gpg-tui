@@ -1,13 +1,59 @@
 use crate::widget::row::{ScrollAmount, ScrollDirection};
 use tui::widgets::TableState as TuiState;
 
+/// Table size mode.
+#[derive(Clone, Debug, PartialEq)]
+pub enum TableSize {
+	/// Normal sized table.
+	Normal,
+	/// Compact table with some rows truncated.
+	Compact,
+	/// Minimized table with all rows truncated.
+	Minimized,
+}
+
+impl TableSize {
+	/// Sets the table size to minimized.
+	pub fn set_minimized(&mut self, minimized: bool) {
+		*self = if minimized {
+			Self::Minimized
+		} else {
+			Self::Normal
+		}
+	}
+
+	/// Returns the next mode.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::Normal => Self::Compact,
+			Self::Compact => Self::Minimized,
+			_ => Self::Normal,
+		}
+	}
+}
+
 /// State of the table widget.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct TableState {
 	/// State that can be modified by TUI.
 	pub tui: TuiState,
 	/// Scroll amount of the table.
 	pub scroll: ScrollAmount,
+	/// Table size.
+	pub size: TableSize,
+	/// Threshold value (width) for minimizing.
+	pub minimize_threshold: u16,
+}
+
+impl Default for TableState {
+	fn default() -> Self {
+		Self {
+			tui: TuiState::default(),
+			scroll: ScrollAmount::default(),
+			size: TableSize::Normal,
+			minimize_threshold: 90,
+		}
+	}
 }
 
 /// Table widget with TUI controlled states.

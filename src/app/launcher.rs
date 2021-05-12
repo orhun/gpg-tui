@@ -12,7 +12,7 @@ use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use crate::widget::list::StatefulList;
 use crate::widget::row::ScrollDirection;
 use crate::widget::style::Color as WidgetColor;
-use crate::widget::table::{StatefulTable, TableState};
+use crate::widget::table::{StatefulTable, TableSize, TableState};
 use anyhow::{anyhow, Error as AnyhowError, Result};
 use colorsys::Rgb;
 use copypasta_ext::prelude::ClipboardProvider;
@@ -211,10 +211,7 @@ impl<'a> App<'a> {
 									"1"
 								}),
 							),
-							Command::Set(
-								String::from("minimized"),
-								(!self.state.minimized).to_string(),
-							),
+							Command::ToggleTableSize,
 							Command::Set(
 								String::from("colored"),
 								(!self.state.colored).to_string(),
@@ -395,6 +392,18 @@ impl<'a> App<'a> {
 					}
 				}
 			}
+			Command::ToggleTableSize => {
+				self.keys_table.state.minimize_threshold = 0;
+				self.keys_table.state.size = self.keys_table.state.size.next();
+				self.prompt.set_output((
+					OutputType::Success,
+					format!(
+						"table size: {}",
+						format!("{:?}", self.keys_table.state.size)
+							.to_lowercase()
+					),
+				));
+			}
 			Command::Scroll(direction, false) => match direction {
 				ScrollDirection::Down(_) => {
 					if self.state.show_options {
@@ -517,23 +526,14 @@ impl<'a> App<'a> {
 								)
 							}
 						}
-						"minimized" => {
-							self.state.minimize_threshold = 0;
-							self.state.minimized =
-								FromStr::from_str(&value).unwrap_or_default();
-							(
-								OutputType::Success,
-								format!("minimized: {}", self.state.minimized),
-							)
-						}
 						"minimize" => {
-							self.state.minimize_threshold =
+							self.keys_table.state.minimize_threshold =
 								value.parse().unwrap_or_default();
 							(
 								OutputType::Success,
 								format!(
 									"minimize threshold: {}",
-									self.state.minimize_threshold
+									self.keys_table.state.minimize_threshold
 								),
 							)
 						}
@@ -643,15 +643,11 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						format!("armor: {}", self.gpgme.config.armor),
 					),
-					"minimized" => (
-						OutputType::Success,
-						format!("minimized: {}", self.state.minimized),
-					),
 					"minimize" => (
 						OutputType::Success,
 						format!(
 							"minimize threshold: {}",
-							self.state.minimize_threshold
+							self.keys_table.state.minimize_threshold
 						),
 					),
 					"detail" => {
@@ -719,10 +715,14 @@ impl<'a> App<'a> {
 					&self.keys_table.selected().expect("invalid selection");
 				let content = match copy_type {
 					CopyType::TableRow(1) => Ok(selected_key
-						.get_subkey_info(self.state.minimized)
+						.get_subkey_info(
+							self.keys_table.state.size != TableSize::Normal,
+						)
 						.join("\n")),
 					CopyType::TableRow(2) => Ok(selected_key
-						.get_user_info(self.state.minimized)
+						.get_user_info(
+							self.keys_table.state.size == TableSize::Minimized,
+						)
 						.join("\n")),
 					CopyType::TableRow(_) => Err(anyhow!("invalid row number")),
 					CopyType::Key => {
@@ -855,7 +855,6 @@ mod tests {
 		for (option, value) in vec![
 			("mode", "normal"),
 			("armor", "true"),
-			("minimized", "false"),
 			("minimize", "10"),
 			("detail", "full"),
 			("margin", "2"),
