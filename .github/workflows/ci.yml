@@ -75,7 +75,7 @@ jobs:
         with:
           name: code-coverage-report
           file: cobertura.xml
-          flags: unit-testss
+          flags: unit-tests
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
