@@ -206,5 +206,9 @@ mod tests {
 		table.reset_state();
 		assert_eq!(Some(0), table.state.tui.selected());
 		assert_eq!(table.default_items, table.items);
+		assert_eq!(TableSize::Normal, table.state.size);
+		table.state.size = TableSize::Minimized;
+		table.state.size.set_minimized(false);
+		assert_eq!(TableSize::Compact, table.state.size.next());
 	}
 }
