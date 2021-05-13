@@ -221,10 +221,11 @@ impl GpgKey {
 					} else if truncate {
 						sig.signer_key_id().unwrap_or("[?]").to_string()
 					} else {
+						let user_id = sig.signer_user_id().unwrap_or("[-]");
 						format!(
 							"{} {}",
 							sig.signer_key_id().unwrap_or("[?]"),
-							sig.signer_user_id().unwrap_or("[?]")
+							if user_id.is_empty() { "[?]" } else { user_id }
 						)
 					},
 					handler::get_signature_time(
