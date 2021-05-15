@@ -853,6 +853,7 @@ mod tests {
 		assert!(app.prompt.text.contains(&home_dir));
 
 		for (option, value) in vec![
+			("output", "/tmp"),
 			("mode", "normal"),
 			("armor", "true"),
 			("minimize", "10"),
