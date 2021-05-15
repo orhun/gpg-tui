@@ -284,7 +284,7 @@ impl<'a> App<'a> {
 							self.refresh()?;
 							self.prompt.set_output((
 								OutputType::Success,
-								format!("{} keys imported", key_count),
+								format!("{} key(s) imported", key_count),
 							))
 						}
 						Err(e) => self.prompt.set_output((
