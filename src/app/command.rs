@@ -158,10 +158,18 @@ impl FromStr for Command {
 				Command::from_str(&args.join(" "))?
 			}))),
 			"help" | "h" => Ok(Command::ShowHelp),
-			"output" | "out" => Ok(Self::ShowOutput(
-				OutputType::from(args.first().cloned().unwrap_or_default()),
-				args[1..].join(" "),
-			)),
+			"output" | "out" => {
+				if !args.is_empty() {
+					Ok(Self::ShowOutput(
+						OutputType::from(
+							args.first().cloned().unwrap_or_default(),
+						),
+						args[1..].join(" "),
+					))
+				} else {
+					Err(())
+				}
+			}
 			"options" | "opt" => Ok(Command::ShowOptions),
 			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
