@@ -29,7 +29,7 @@ pub struct Args {
 	#[structopt(long)]
 	pub splash: bool,
 	/// Sets the GnuPG home directory.
-	#[structopt(long, value_name = "dir", env)]
+	#[structopt(long, value_name = "dir", env = "GNUPGHOME")]
 	pub homedir: Option<String>,
 	/// Sets the default key to sign with.
 	#[structopt(short, long, value_name = "key", env)]
