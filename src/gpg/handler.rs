@@ -71,7 +71,7 @@ pub fn get_signature_time(signature: UserIdSignature, format: &str) -> String {
 		} else {
 			""
 		},
-		if signature.is_invalid() { " [inv]" } else { "" },
+		if signature.is_invalid() { " [i]" } else { "" },
 		if !signature.is_exportable() {
 			" [!x]"
 		} else {
