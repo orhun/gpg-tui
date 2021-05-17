@@ -338,6 +338,9 @@ impl<'a> App<'a> {
 			| Command::SignKey(_)
 			| Command::ImportKeys(_, true) => {
 				let mut os_command = OsCommand::new("gpg");
+				os_command
+					.arg("--homedir")
+					.arg(self.gpgme.config.home_dir.as_os_str());
 				let os_command = match command {
 					Command::EditKey(key) => {
 						os_command.arg("--edit-key").arg(&key)

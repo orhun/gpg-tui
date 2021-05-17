@@ -12,6 +12,8 @@ pub struct GpgConfig {
 	pub armor: bool,
 	/// Default key for signing operations.
 	pub default_key: Option<String>,
+	/// Home directory.
+	pub home_dir: PathBuf,
 	/// Output directory.
 	pub output_dir: PathBuf,
 }
@@ -20,16 +22,15 @@ impl GpgConfig {
 	/// Constructs a new instance of `GpgConfig`.
 	pub fn new(args: &Args) -> Result<Self> {
 		let gpgme = gpgme::init();
-		let mut output_dir =
-			PathBuf::from(if let Some(home_dir) = &args.homedir {
-				gpgme.set_engine_home_dir(Protocol::OpenPgp, home_dir)?;
-				home_dir
-			} else {
-				gpgme
-					.get_dir_info(Gpgme::HOME_DIR)
-					.expect("failed to get homedir")
-			})
-			.join("out");
+		let home_dir = PathBuf::from(if let Some(home_dir) = &args.homedir {
+			gpgme.set_engine_home_dir(Protocol::OpenPgp, home_dir)?;
+			home_dir
+		} else {
+			gpgme
+				.get_dir_info(Gpgme::HOME_DIR)
+				.expect("failed to get homedir")
+		});
+		let mut output_dir = home_dir.join("out");
 		if let Some(output) = &args.output {
 			output_dir = output.to_path_buf();
 		}
@@ -37,6 +38,7 @@ impl GpgConfig {
 			inner: gpgme,
 			armor: args.armor,
 			default_key: args.default_key.as_ref().cloned(),
+			home_dir,
 			output_dir,
 		})
 	}
@@ -51,7 +53,7 @@ impl GpgConfig {
 				GPGME protocol: {}
 				GPGME engine: "{}"
 				GPGME engine version: {} (>{})
-				GnuPG home directory: "{}"
+				GnuPG home directory: {:?}
 				GnuPG data directory: "{}"
 				Output directory: {:?}
 				Default signing key: {}
@@ -61,7 +63,7 @@ impl GpgConfig {
 				engine.path().unwrap_or("?"),
 				engine.version().unwrap_or("?"),
 				engine.required_version().unwrap_or("?"),
-				self.get_dir_info("homedir").unwrap_or("?"),
+				self.home_dir,
 				self.get_dir_info("datadir").unwrap_or("?"),
 				self.output_dir.as_os_str(),
 				self.default_key
