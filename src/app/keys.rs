@@ -69,7 +69,7 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 		key: "x",
 		action: "export key",
 		description: r#"
-        Exports the key to $GNUPGHOME/out or specified path via `--output`
+        Exports the key to "$GNUPGHOME/out" or specified path via `--outdir`
         :export <pub/sec> <keyids>
         "#,
 	},

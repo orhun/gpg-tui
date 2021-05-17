@@ -31,7 +31,7 @@ impl GpgConfig {
 				.expect("failed to get homedir")
 		});
 		let mut output_dir = home_dir.join("out");
-		if let Some(output) = &args.output {
+		if let Some(output) = &args.outdir {
 			output_dir = output.to_path_buf();
 		}
 		Ok(Self {

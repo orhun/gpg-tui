@@ -31,12 +31,12 @@ pub struct Args {
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "dir", env = "GNUPGHOME")]
 	pub homedir: Option<String>,
+	/// Sets the output directory.
+	#[structopt(short, long, value_name = "dir", env)]
+	pub outdir: Option<PathBuf>,
 	/// Sets the default key to sign with.
 	#[structopt(short, long, value_name = "key", env)]
 	pub default_key: Option<String>,
-	/// Sets the output directory.
-	#[structopt(short, long, value_name = "dir", env)]
-	pub output: Option<PathBuf>,
 	/// Sets the tick rate of the terminal.
 	#[structopt(short, long, value_name = "ms", default_value = "250", env)]
 	pub tick_rate: u64,
