@@ -11,10 +11,20 @@
 It aims to ease the key management operations such as listing/exporting/signing by providing an interface along with the command-line fallback for more complex operations. It is not trying to be a full-fledged interface for _all_ the features that [gpg](https://linux.die.net/man/1/gpg) provides but it tries to bring a more interactive approach to key management.
 
 <details>
+  <summary>Showcase</summary>
+
+![](demo/gpg-tui-showcase.gif)
+
+<pre>
+<b>gpg-tui</b> --style <span style="color: #036A9BFF"><i>colored</i></span> --splash --homedir <span style="color: #036A9BFF"><i>/etc/pacman.d/gnupg</i></span>
+</pre>
+
+</details>
+
+<details>
   <summary>Table of Contents</summary>
 
 - [About](#about)
-- [Showcase](#showcase)
 - [Requirements](#requirements)
 - [Installation](#installation)
   - [Cargo](#cargo)
@@ -67,14 +77,6 @@ It aims to ease the key management operations such as listing/exporting/signing 
 - [Copyright](#copyright)
 
 </details>
-
-## Showcase
-
-![](demo/gpg-tui-showcase.gif)
-
-<pre>
-<b>gpg-tui</b> --style <span style="color: #036A9BFF"><i>colored</i></span> --splash --homedir <span style="color: #036A9BFF"><i>/etc/pacman.d/gnupg</i></span>
-</pre>
 
 ## Requirements
 
