@@ -519,7 +519,7 @@ gpg-tui --splash --style colored
 
 ### Command-Line Fallback
 
-Some of the features of **gpg-tui** require the execution of the CLI program `gpg` in order to operate. This is due to the fact that designing a TUI for the menus that `gpg` already provides is redundant and time-consuming. Also, in case these menus will change in the future, it is better to rely on the `gpg` rather than implementing these options using GPGME. On the other hand, `gpg` has some commands that GPGME doesn't directly provide. (e.g `--refresh-keys`) So it is more convenient to utilize `gpg` for these cases.
+Some of the features of **gpg-tui** require the execution of the CLI program `gpg` in order to operate. This is due to the fact that designing a TUI for the menus that gpg already provides is redundant and time-consuming. Also, in case these menus will change in the future, it is better to rely on the gpg rather than implementing these options using GPGME. On the other hand, gpg has some commands that GPGME doesn't directly provide. (e.g `--refresh-keys`) So it is more convenient to utilize gpg for these cases.
 
 The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_, depending on whether if it is more convenient for the user.
 
