@@ -2,6 +2,7 @@
 /.git/
 /.github/
 /target/
+/demo/
 
 # Files
 .editorconfig
