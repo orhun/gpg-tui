@@ -133,5 +133,7 @@ jobs:
         uses: actions/checkout@master
       - name: Check the links
         uses: lycheeverse/lychee-action@v1
+        with:
+          args: --exclude "patreon.com|mailto:+|%7Buser%7D" -v *.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
