@@ -3,6 +3,7 @@
 /.github/
 /target/
 /demo/
+/man/
 
 # Files
 .editorconfig
