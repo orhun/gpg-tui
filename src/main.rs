@@ -1,33 +1,21 @@
-//! A terminal user interface for managing GnuPG keys.
-#![warn(missing_docs, clippy::unwrap_used)]
-
-pub mod app;
-pub mod args;
-pub mod gpg;
-pub mod term;
-pub mod widget;
-
-use self::app::launcher::App;
-use self::args::Args;
-use crate::app::handler;
-use crate::gpg::config::GpgConfig;
-use crate::gpg::context::GpgContext;
-use crate::term::event::{Event, EventHandler};
-use crate::term::tui::Tui;
 use anyhow::Result;
+use gpg_tui::app::handler;
+use gpg_tui::app::launcher::App;
+use gpg_tui::args::Args;
+use gpg_tui::gpg::config::GpgConfig;
+use gpg_tui::gpg::context::GpgContext;
+use gpg_tui::term::event::{Event, EventHandler};
+use gpg_tui::term::tui::Tui;
+use gpg_tui::GPGME_REQUIRED_VERSION;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
-/// Minimum required version of the GPGME library.
-pub const GPGME_REQUIRED_VERSION: &str = "1.7.0";
-
-/// Entry-point of the application.
 fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
 	// Initialize GPGME library.
-	let config = GpgConfig::new(&args)?;
+	let config = GpgConfig::new(&args).unwrap();
 	config.check_gpgme_version(GPGME_REQUIRED_VERSION);
 	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.
