@@ -1,0 +1,223 @@
+.\" Manpage for gpg-tui.
+.TH GPG-TUI "1" "May 2021" "gpg-tui 0.1.0" "User Commands"
+.SH NAME
+gpg-tui \- manage your GnuPG keys with ease
+
+.SH SYNOPSIS
+.B gpg-tui
+[FLAGS] [OPTIONS]
+
+.SH DESCRIPTION
+.PP
+\f[B]gpg-tui\f[R] is a Terminal User Interface for GnuPG.
+.PP
+It aims to ease the key management operations such as
+listing/exporting/signing by providing an interface along with the
+command-line fallback for more complex operations.
+It is not trying to be a full-fledged interface for all the features
+that \f[B]gpg\f[R] provides but it tries to bring a more interactive
+approach to key management.
+
+.SH USAGE
+.SS FLAGS
+.TP
+\fB\-a\fR, \fB\-\-armor\fR
+Enables ASCII armored output
+.TP
+\fB\-\-splash\fR
+Shows the splash screen on startup
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Prints help information
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Prints version information
+
+.SS OPTIONS
+.TP
+\fB\-\-homedir\fR <dir>
+Sets the GnuPG home directory [env: GNUPGHOME=]
+.TP
+\fB\-o\fR, \fB\-\-outdir\fR <dir>
+Sets the output directory [env: OUTDIR=]
+.TP
+\fB\-d\fR, \fB\-\-default\-key\fR <key>
+Sets the default key to sign with [env: DEFAULT_KEY=]
+.TP
+\fB\-t\fR, \fB\-\-tick\-rate\fR <ms>
+Sets the tick rate of the terminal [env: TICK_RATE=]  [default: 250]
+.TP
+\fB\-c\fR, \fB\-\-color\fR <color>
+Sets the accent color of the terminal [env: COLOR=]  [default: gray]
+.TP
+\fB\-s\fR, \fB\-\-style\fR <style>
+Sets the style of the terminal [env: STYLE=]  [default: plain]  [possible values: plain, colored]
+
+.SH KEY BINDINGS
+.SS USER INTERFACE
+.PP
+.TS
+tab(@);
+l l.
+T{
+Key Binding
+T}@T{
+Action
+T}
+_
+T{
+\f[C]?\f[R]
+T}@T{
+show help
+T}
+T{
+\f[C]o,space,enter\f[R]
+T}@T{
+show options
+T}
+T{
+\f[C]hjkl,arrows,pgkeys\f[R]
+T}@T{
+navigate
+T}
+T{
+\f[C]n\f[R]
+T}@T{
+switch to normal mode
+T}
+T{
+\f[C]v\f[R]
+T}@T{
+switch to visual mode
+T}
+T{
+\f[C]c\f[R]
+T}@T{
+switch to copy mode
+T}
+T{
+\f[C]p,C-v\f[R]
+T}@T{
+paste from clipboard
+T}
+T{
+\f[C]a\f[R]
+T}@T{
+toggle armored output
+T}
+T{
+\f[C]1,2,3\f[R]
+T}@T{
+set detail level
+T}
+T{
+\f[C]t,tab\f[R]
+T}@T{
+toggle detail (all/selected)
+T}
+T{
+\f[C]\[ga]\f[R]
+T}@T{
+toggle table margin
+T}
+T{
+\f[C]m\f[R]
+T}@T{
+toggle table size
+T}
+T{
+\f[C]C-s\f[R]
+T}@T{
+toggle style
+T}
+T{
+\f[C]/\f[R]
+T}@T{
+search
+T}
+T{
+\f[C]:\f[R]
+T}@T{
+run command
+T}
+T{
+\f[C]r,f5\f[R]
+T}@T{
+refresh application
+T}
+T{
+\f[C]q,C-c/d,escape\f[R]
+T}@T{
+quit application
+T}
+.TE
+
+.SS KEY MANAGEMENT
+.PP
+.TS
+tab(@);
+l l.
+T{
+Key Binding
+T}@T{
+Action
+T}
+_
+T{
+\f[C]x\f[R]
+T}@T{
+export key
+T}
+T{
+\f[C]s\f[R]
+T}@T{
+sign key
+T}
+T{
+\f[C]e\f[R]
+T}@T{
+edit key
+T}
+T{
+\f[C]i\f[R]
+T}@T{
+import key(s)
+T}
+T{
+\f[C]f\f[R]
+T}@T{
+receive key
+T}
+T{
+\f[C]u\f[R]
+T}@T{
+send key
+T}
+T{
+\f[C]g\f[R]
+T}@T{
+generate key
+T}
+T{
+\f[C]d,backspace\f[R]
+T}@T{
+delete key
+T}
+T{
+\f[C]C-r\f[R]
+T}@T{
+refresh keys
+T}
+.TE
+
+.SH BUGS
+Report bugs at <https://github.com/orhun/gpg-tui/issues> or contact the author via email.
+
+.SH AUTHOR
+Orhun Parmaksız <orhunparmaksiz@gmail.com>
+
+.SH ABOUT
+.P
+\f[I]gpg-tui\f[R] is maintained by Orhun Parmaksız, and released under the MIT license.
+.PP
+See the project homepage at <https://github.com/orhun/gpg-tui> for full documentation.
