@@ -1,4 +1,4 @@
-[![Logo](https://user-images.githubusercontent.com/24392180/117026304-56a41380-ad04-11eb-9ffa-a5ec2cff0af0.jpg)](https://github.com/orhun/gpg-tui)
+[![Logo](assets/logo.jpg)](https://github.com/orhun/gpg-tui)
 
 [![Coverage](https://img.shields.io/codecov/c/gh/orhun/gpg-tui?style=flat&labelColor=1d1d1d&color=424242&logo=Codecov&logoColor=white)](https://codecov.io/gh/orhun/gpg-tui)
 [![Continuous Integration](https://img.shields.io/github/workflow/status/orhun/gpg-tui/Continuous%20Integration/master?style=flat&labelColor=1d1d1d&color=424242&logo=GitHub%20Actions&logoColor=white)](https://github.com/orhun/gpg-tui/actions?query=workflow%3A%22Continuous+Integration%22)
