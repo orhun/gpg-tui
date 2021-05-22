@@ -57,6 +57,7 @@ impl GpgConfig {
 				GnuPG data directory: "{}"
 				Output directory: {:?}
 				Default signing key: {}
+				Armored output: {}
 				"#,
 				self.inner.version(),
 				engine.protocol(),
@@ -70,6 +71,7 @@ impl GpgConfig {
 					.as_ref()
 					.cloned()
 					.unwrap_or_else(|| String::from("not specified")),
+				self.armor,
 			)),
 			None => Err(anyhow!("failed to get engine information")),
 		}
