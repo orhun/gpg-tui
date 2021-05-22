@@ -61,7 +61,7 @@ jobs:
             --pinentry-mode loopback \
             --no-tty --passphrase-fd 0 \
             --quick-gen-key 'Test User <test@example.org>'
-          echo "${{ secrets.TEST_KEY }}" | gpg --import
+          echo "${{secrets.TEST_KEY}}" | gpg --import
       - name: Setup cargo-tarpaulin
         run: |
           curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
@@ -78,7 +78,7 @@ jobs:
           flags: unit-tests
           fail_ci_if_error: true
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{secrets.CODECOV_TOKEN}}
 
   clippy:
     name: Lints
@@ -136,4 +136,4 @@ jobs:
         with:
           args: --exclude "patreon.com|mailto:+|%7Buser%7D" -v *.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
