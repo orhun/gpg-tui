@@ -11,7 +11,7 @@
 It aims to ease the key management operations such as listing/exporting/signing by providing an interface along with the command-line fallback for more complex operations. It is not trying to be a full-fledged interface for _all_ the features that [gpg](https://linux.die.net/man/1/gpg) provides but it tries to bring a more interactive approach to key management.
 
 <details>
-  <summary>Demo</summary>
+  <summary><b>Demo</b></summary>
 
 ![](demo/gpg-tui-showcase.gif)
 
