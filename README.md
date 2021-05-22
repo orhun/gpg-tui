@@ -530,6 +530,7 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 * [Code of Conduct](./CODE_OF_CONDUCT.md)
 * [Contribution Guidelines](./CONTRIBUTING.md)
+* [Changelog](./CHANGELOG.md)
 * [List of Commands](./COMMANDS.md)
 
 ### External Links
