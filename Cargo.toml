@@ -11,6 +11,7 @@ repository = "https://github.com/orhun/gpg-tui"
 keywords = ["gnupg", "gpg", "tui", "key", "management"]
 categories = ["command-line-utilities"]
 edition = "2018"
+default-run = "gpg-tui"
 
 [features]
 tui-tests = []
