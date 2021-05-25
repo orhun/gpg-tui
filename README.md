@@ -88,7 +88,11 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ### Cargo
 
-TODO
+**gpg-tui** is available on [crates.io](https://crates.io/crates/gpg-tui/):
+
+```sh
+cargo install gpg-tui
+```
 
 ### Docker
 
@@ -127,7 +131,7 @@ cargo install --root "$HOME/.cargo" --path .
 
 #### Binary releases
 
-TODO
+See available [releases](https://github.com/orhun/gpg-tui/releases) that are automated by [Continuous Deployment](.github/workflows/cd.yml) workflow.
 
 ## Usage
 
