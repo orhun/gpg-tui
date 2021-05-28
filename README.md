@@ -4,6 +4,7 @@
 [![Crate Release](https://img.shields.io/crates/v/gpg-tui?style=flat&labelColor=1d1d1d&color=424242&logo=Rust&logoColor=white)](https://crates.io/crates/gpg-tui/)
 [![Coverage](https://img.shields.io/codecov/c/gh/orhun/gpg-tui?style=flat&labelColor=1d1d1d&color=424242&logo=Codecov&logoColor=white)](https://codecov.io/gh/orhun/gpg-tui)
 [![Continuous Integration](https://img.shields.io/github/workflow/status/orhun/gpg-tui/Continuous%20Integration/master?style=flat&labelColor=1d1d1d&color=424242&logo=GitHub%20Actions&logoColor=white)](https://github.com/orhun/gpg-tui/actions?query=workflow%3A%22Continuous+Integration%22)
+[![Continuous Deployment](https://img.shields.io/github/workflow/status/orhun/gpg-tui/Continuous%20Deployment?style=flat&labelColor=1d1d1d&color=424242&logo=GitHub%20Actions&logoColor=white&label=deploy)](https://github.com/orhun/gpg-tui/actions?query=workflow%3A%22Continuous+Deployment%22)
 [![Docker Builds](https://img.shields.io/docker/cloud/build/orhunp/gpg-tui?style=flat&labelColor=1d1d1d&color=424242&label=docker&logo=Docker&logoColor=white)](https://hub.docker.com/r/orhunp/gpg-tui)
 
 ## About
