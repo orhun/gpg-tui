@@ -238,6 +238,7 @@ impl GpgKey {
 	}
 }
 
+#[cfg(feature = "gpg-tests")]
 #[cfg(test)]
 mod tests {
 	use super::*;
