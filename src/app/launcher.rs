@@ -855,16 +855,19 @@ mod tests {
 		app.run_command(Command::Get(String::from("output")))?;
 		assert!(app.prompt.text.contains(&home_dir));
 
-		for (option, value) in vec![
+		let mut test_values = vec![
 			("output", "/tmp"),
 			("mode", "normal"),
 			("armor", "true"),
 			("minimize", "10"),
-			("detail", "full"),
 			("margin", "2"),
 			("colored", "true"),
 			("color", "#123123"),
-		] {
+		];
+		if cfg!(feature = "gpg-tests") {
+			test_values.push(("detail", "full"));
+		}
+		for (option, value) in test_values {
 			app.run_command(Command::Set(
 				option.to_string(),
 				value.to_string(),
