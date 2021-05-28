@@ -57,7 +57,7 @@ jobs:
       - name: Prepare the release note
         run: echo -e "$image\n$text" > RELEASE.txt
         env:
-          image: "[![Logo](assets/logo.jpg)](https://github.com/orhun/gpg-tui)"
+          image: "<a href="https://github.com/orhun/gpg-tui"><img src="assets/logo.jpg" width="600"></a>"
           text: "See [**CHANGELOG.md**](./CHANGELOG.md) for release notes."
       - name: Upload the release
         uses: softprops/action-gh-release@v1
