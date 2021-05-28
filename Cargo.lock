@@ -291,7 +291,7 @@ dependencies = [
 
 [[package]]
 name = "gpg-tui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
