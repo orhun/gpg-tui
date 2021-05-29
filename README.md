@@ -32,6 +32,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
 - [Requirements](#requirements)
 - [Installation](#installation)
   - [Cargo](#cargo)
+  - [Arch Linux](#arch-linux)
   - [Docker](#docker)
     - [Docker Hub](#docker-hub)
     - [Using the Dockerfile](#using-the-dockerfile)
@@ -96,6 +97,22 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ```sh
 cargo install gpg-tui
+```
+
+### Arch Linux
+
+**gpg-tui** can be installed using available [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) with an [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers):
+
+```
+paru gpg-tui
+```
+
+Or if you prefer, you can clone the [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) and compile them with [makepkg](https://wiki.archlinux.org/index.php/Makepkg):
+
+```
+git clone https://aur.archlinux.org/gpg-tui.git
+cd gpg-tui/
+makepkg -si
 ```
 
 ### Docker
@@ -524,6 +541,8 @@ gpg-tui --splash --style colored
 **gpg-tui** is tested on Linux systems during the development phase. It should be tested on other platforms such as Microsoft Windows and macOS and found issues should be reported for future compatibility with these platforms.
 
 ### Packaging
+
+[![Packaging status](https://img.shields.io/repology/repositories/gpg-tui?label=in%20repositories&style=flat&labelColor=424242&color=1d1d1d&logoColor=white)](https://repology.org/project/gpg-tui/versions)
 
 **gpg-tui** should be more and easily accessible for other platforms/distributions. Thus, it should be packaged for package managers such as [Homebrew](https://brew.sh/) and [APT](https://en.wikipedia.org/wiki/APT_(software)). If you're a packager and want to contribute, feel free to [submit an issue](https://github.com/orhun/gpg-tui/issues/new/choose) or [start a discussion](https://github.com/orhun/gpg-tui/discussions/new)!
 
