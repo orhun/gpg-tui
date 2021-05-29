@@ -1,10 +1,9 @@
 name: Security Audit
 
 on:
-  push:
-    paths:
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
+  schedule:
+    - cron: '0 0 * * 0'
+
 jobs:
   audit:
     name: Audit
@@ -14,29 +13,5 @@ jobs:
         uses: actions/checkout@master
       - name: Run cargo-audit
         uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  bloat:
-    name: Bloat
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            --no-install-recommends \
-            --allow-unauthenticated libgpgme-dev \
-            libxcb-shape0-dev libxcb-xfixes0-dev
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - name: Checkout the repository
-        uses: actions/checkout@master
-      - name: Run cargo-bloat
-        uses: orf/cargo-bloat-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
