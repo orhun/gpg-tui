@@ -103,15 +103,17 @@ cargo install gpg-tui
 
 **gpg-tui** can be installed using available [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) with an [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers):
 
-```
+```sh
 paru gpg-tui
 ```
 
 Or if you prefer, you can clone the [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) and compile them with [makepkg](https://wiki.archlinux.org/index.php/Makepkg):
 
-```
-git clone https://aur.archlinux.org/gpg-tui.git
-cd gpg-tui/
+```sh
+# clone the AUR repository
+git clone https://aur.archlinux.org/gpg-tui.git && cd gpg-tui/
+
+# build the package
 makepkg -si
 ```
 
