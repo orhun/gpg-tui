@@ -161,6 +161,33 @@ docker build -t gpg-tui .
 docker run -it gpg-tui
 ```
 
+### FreeBSD
+
+All required dependencies are automatically fetched and installed independently of the installation method chosen.
+
+#### Building from source
+
+```sh
+# using a port
+cd /usr/ports/security/gpg-tui
+make install
+```
+
+```sh
+# alternative method using portmaster
+portmaster security/gpg-tui
+```
+
+#### Binary releases
+
+```sh
+# update repository catalogue (if outdated)
+pkg update
+
+# fetch and install the package
+pkg install gpg-tui
+```
+
 ### Manually
 
 #### Building from source
