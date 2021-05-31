@@ -85,9 +85,17 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ## Requirements
 
-- Rust: `>=1.46.0`
+- [Rust](https://www.rust-lang.org/): `>=1.46.0`
 - Core dependencies: `gnupg`, `gpgme>=1.7.0`, `libgpg-error`
 - Other dependencies: `libxcb`
+
+Pleases note that the name of these dependencies (packages) might change depending on the distribution/platform.([*](https://github.com/orhun/gpg-tui/issues/10))
+
+For installing these dependencies:
+
+- on Arch Linux, run `pacman -S gpgme libx11`
+- on Debian, Ubuntu, run `apt-get install libgpgme-dev libx11-dev libxcb-shape0-dev libxcb-xfixes0-dev`
+- on Fedora, run `dnf install gpgme-devel libX11-devel`
 
 ## Installation
 
