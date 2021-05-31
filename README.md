@@ -33,6 +33,8 @@ It aims to ease the key management operations such as listing/exporting/signing 
 - [Installation](#installation)
   - [Cargo](#cargo)
   - [Arch Linux](#arch-linux)
+    - [Community](#community)
+    - [AUR](#aur)
   - [Docker](#docker)
     - [Docker Hub](#docker-hub)
     - [Using the Dockerfile](#using-the-dockerfile)
@@ -109,17 +111,27 @@ cargo install gpg-tui
 
 ### Arch Linux
 
-**gpg-tui** can be installed using available [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) with an [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers):
+#### Community
+
+**gpg-tui** can be installed from the [community repository](https://archlinux.org/packages/community/x86_64/gpg-tui/) using [Pacman](https://wiki.archlinux.org/title/Pacman):
 
 ```sh
-paru gpg-tui
+pacman -S gpg-tui
+```
+
+#### AUR
+
+**gpg-tui** is also available on [AUR](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) and it can be installed with an [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers):
+
+```sh
+paru -S gpg-tui-git
 ```
 
 Or if you prefer, you can clone the [AUR packages](https://aur.archlinux.org/packages/?O=0&SeB=b&K=gpg-tui&outdated=&SB=n&SO=a&PP=50&do_Search=Go) and compile them with [makepkg](https://wiki.archlinux.org/index.php/Makepkg):
 
 ```sh
 # clone the AUR repository
-git clone https://aur.archlinux.org/gpg-tui.git && cd gpg-tui/
+git clone https://aur.archlinux.org/gpg-tui-git.git && cd gpg-tui-git/
 
 # build the package
 makepkg -si
