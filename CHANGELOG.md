@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2021-05-31
+### Added
+- Add dependency installation instructions for Void Linux (#11)
+
+### Changed
+- Mention distribution-specific dependencies in README.md (#10)
+- Update the formatting of requirements in README.md
+- Update README.md about installation for Arch Linux
+
 ## [0.1.4] - 2021-05-29
 ### Removed
 - Remove cargo-bloat workflow
@@ -17,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update link checker job to exclude AUR links
 - Split audit workflow into two
 
-## [0.1.2] - 2021-05-28
+## [0.1.2] - 2021-05-29
 ### Fixed
 - Mark test_gpg_key as gpg-tests
 - Test the detail commands if gpg-tests feature is enabled
