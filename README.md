@@ -94,7 +94,7 @@ Pleases note that the name of these dependencies (packages) might change dependi
 For installing these dependencies:
 
 - on Arch Linux, run `pacman -S gpgme libx11`
-- on Debian, Ubuntu, run `apt-get install libgpgme-dev libx11-dev libxcb-shape0-dev libxcb-xfixes0-dev`
+- on Debian/Ubuntu, run `apt-get install libgpgme-dev libx11-dev libxcb-shape0-dev libxcb-xfixes0-dev`
 - on Fedora, run `dnf install gpgme-devel libX11-devel`
 
 ## Installation
