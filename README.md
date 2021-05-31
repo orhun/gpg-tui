@@ -98,6 +98,7 @@ For installing these dependencies:
 - on Arch Linux, run `pacman -S gpgme libx11`
 - on Debian/Ubuntu, run `apt-get install libgpgme-dev libx11-dev libxcb-shape0-dev libxcb-xfixes0-dev`
 - on Fedora, run `dnf install gpgme-devel libX11-devel`
+- on Void Linux, run `xbps-install -S gpgme-devel libxcb-devel libgpg-error-devel gnupg`
 
 ## Installation
 
