@@ -161,6 +161,33 @@ docker build -t gpg-tui .
 docker run -it gpg-tui
 ```
 
+### FreeBSD
+
+All required dependencies are automatically fetched and installed independently of the installation method chosen.
+
+#### Building from source
+
+```sh
+# using a port
+cd /usr/ports/security/gpg-tui
+make install
+```
+
+```sh
+# alternative method using portmaster
+portmaster security/gpg-tui
+```
+
+#### Binary releases
+
+```sh
+# update repository catalogue (if outdated)
+pkg update
+
+# fetch and install the package
+pkg install gpg-tui
+```
+
 ### Manually
 
 #### Building from source
@@ -259,7 +286,7 @@ The level of detail that an individual table row shows is determined by [detail 
 ```
 [sc--] rsa3072/B14085A20355B74DE0CE0FA1E19F76D037BD65B6  │  [u] Example Key <example@key>
 |      └─(2021-05-14)                                    │   └─[u] Other User ID <example@key>
-[--e-] rsa3072/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5  │ 
+[--e-] rsa3072/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5  │
        └─(2021-05-14)
 ```
 
@@ -447,7 +474,7 @@ Also you can switch between command mode and search by pressing `Tab`.
 
 #### List
 
-Available keys in the keyring are listed on a table as default. They can be [scrolled](#scrolling) or the listing type (public/secret keys) can be changed by changing the tab via arrow keys. 
+Available keys in the keyring are listed on a table as default. They can be [scrolled](#scrolling) or the listing type (public/secret keys) can be changed by changing the tab via arrow keys.
 
 See the [approach](#approach) section for more information about the meaning of the table rows.
 
@@ -513,7 +540,7 @@ Press `Backspace` followed by `y` (for confirmation) to delete the selected key 
 
 Press `Ctrl-y` for refreshing the keyring.
 
-This feature uses `gpg` fallback and runs `gpg --refresh-keys` command. 
+This feature uses `gpg` fallback and runs `gpg --refresh-keys` command.
 
 ![](demo/gpg-tui-refresh_keys.gif)
 
