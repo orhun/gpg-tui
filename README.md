@@ -544,7 +544,11 @@ This feature uses `gpg` fallback and runs `gpg --edit-key` command. It presents 
 
 #### Import/Receive
 
-Import operation is done by using the `:import` command. So press `i` to switch to command mode (which will automatically add the import command) and then give it your file(s) to import.
+Import operation uses [xplr](https://github.com/sayanarijit/xplr) for selecting the key(s) to import if the xplr binary is [installed](https://github.com/sayanarijit/xplr/wiki/Quickstart). Press `i` to launch xplr, and select the key file(s) to import:
+
+![](demo/gpg-tui-import_key_xplr.gif)
+
+If `xplr` is not installed, import operation is done by using the `:import` command. So press `i` to switch to command mode (which will automatically add the import command) and then give it your file(s) to import.
 
 ![](demo/gpg-tui-import_key.gif)
 
