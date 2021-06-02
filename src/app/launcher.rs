@@ -87,7 +87,7 @@ impl<'a> App<'a> {
 			clipboard: match ClipboardContext::new() {
 				Ok(clipboard) => Some(clipboard),
 				Err(e) => {
-					println!("failed to initialize clipboard: {:?}", e);
+					eprintln!("failed to initialize clipboard: {:?}", e);
 					None
 				}
 			},
