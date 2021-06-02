@@ -35,6 +35,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
   - [Arch Linux](#arch-linux)
     - [Community](#community)
     - [AUR](#aur)
+  - [Homebrew](#homebrew)
   - [Docker](#docker)
     - [Docker Hub](#docker-hub)
     - [Using the Dockerfile](#using-the-dockerfile)
@@ -139,6 +140,20 @@ git clone https://aur.archlinux.org/gpg-tui-git.git && cd gpg-tui-git/
 
 # build the package
 makepkg -si
+```
+
+### Homebrew
+
+To install the [Homebrew package](https://formulae.brew.sh/formula/gpg-tui), run:
+
+```sh
+brew install gpg-tui
+```
+
+To update, run:
+
+```sh
+brew upgrade gpg-tui
 ```
 
 ### Docker
