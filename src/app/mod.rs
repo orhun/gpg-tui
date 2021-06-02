@@ -38,3 +38,6 @@ pub mod banner;
 
 /// Application splash screen.
 pub mod splash;
+
+/// Utilities.
+pub mod util;

@@ -4,6 +4,7 @@ use crate::app::launcher::App;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::app::tab::Tab;
+use crate::app::util;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -374,6 +375,15 @@ fn handle_command_execution<B: Backend>(
 					Ok(Mode::Normal) => tui.enable_mouse_capture()?,
 					Ok(Mode::Visual) => tui.disable_mouse_capture()?,
 					_ => {}
+				}
+			} else if option == "prompt" && value == ":import " {
+				tui.toggle_pause()?;
+				toggle_pause = true;
+				match util::run_xplr() {
+					Ok(files) => {
+						command = Command::ImportKeys(files, false);
+					}
+					Err(e) => println!("{:?}", e),
 				}
 			}
 		}
