@@ -397,12 +397,12 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **0**: Validity of the user.
 
-* `q`: undefined
-* `n`: never
-* `m`: marginal
-* `f`: full
-* `u`: ultimate
-* `?`: unknown
+* `[q]`: undefined
+* `[n]`: never
+* `[m]`: marginal
+* `[f]`: full
+* `[u]`: ultimate
+* `[?]`: unknown
 
 **1**: User ID. (`name` + `email`)
 
@@ -410,10 +410,10 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **3**: Certification level of the signature.
 
-* `10`: no indication
-* `11`: personal belief but no verification
-* `12`: casual verification
-* `13`: extensive verification
+* `[10]`: no indication
+* `[11]`: personal belief but no verification
+* `[12]`: casual verification
+* `[13]`: extensive verification
 
 **4**: Indicates that this is a self signature, whereby the users' own private key was used to sign their public key.
 
