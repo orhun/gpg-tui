@@ -1,5 +1,5 @@
 use crate::gpg::handler;
-use gpgme::{Key, Subkey, UserId, UserIdSignature};
+use gpgme::{Key, SignatureNotation, Subkey, UserId, UserIdSignature};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
@@ -194,44 +194,82 @@ impl GpgKey {
 		user_index: usize,
 		truncate: bool,
 	) -> Vec<String> {
+		let mut user_signatures = Vec::new();
 		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
-		signatures
+		for (i, sig) in signatures.iter().enumerate() {
+			let padding = if user_count == 1 {
+				" "
+			} else if user_index == user_count - 1 {
+				"    "
+			} else if user_index == 0 {
+				"│"
+			} else {
+				"│   "
+			};
+			user_signatures.push(format!(
+				" {}  {}[{:x}] {} {}",
+				padding,
+				if i == signatures.len() - 1 {
+					"└─"
+				} else {
+					"├─"
+				},
+				sig.cert_class(),
+				if sig.signer_key_id() == self.inner.id() {
+					String::from("selfsig")
+				} else if truncate {
+					sig.signer_key_id().unwrap_or("[?]").to_string()
+				} else {
+					let user_id = sig.signer_user_id().unwrap_or("[-]");
+					format!(
+						"{} {}",
+						sig.signer_key_id().unwrap_or("[?]"),
+						if user_id.is_empty() { "[?]" } else { user_id }
+					)
+				},
+				handler::get_signature_time(
+					*sig,
+					if truncate { "%Y" } else { "%F" }
+				)
+			));
+			let notations = sig.notations().collect::<Vec<SignatureNotation>>();
+			if !notations.is_empty() {
+				user_signatures.extend(self.get_signature_notations(
+					notations,
+					format!(" {}  ", padding),
+				));
+			}
+		}
+		user_signatures
+	}
+
+	/// Returns the notations of the given signature.
+	fn get_signature_notations(
+		&self,
+		notations: Vec<SignatureNotation>,
+		padding: String,
+	) -> Vec<String> {
+		notations
 			.iter()
 			.enumerate()
-			.map(|(i, sig)| {
+			.map(|(i, notation)| {
 				format!(
-					" {}  {}[{:x}] {} {}",
-					if user_count == 1 {
-						" "
-					} else if user_index == user_count - 1 {
-						"    "
-					} else if user_index == 0 {
-						"│"
-					} else {
-						"│   "
-					},
-					if i == signatures.len() - 1 {
+					"{}   {}[{}] {}={}",
+					padding,
+					if i == notations.len() - 1 {
 						"└─"
 					} else {
 						"├─"
 					},
-					sig.cert_class(),
-					if sig.signer_key_id() == self.inner.id() {
-						String::from("selfsig")
-					} else if truncate {
-						sig.signer_key_id().unwrap_or("[?]").to_string()
+					if notation.is_critical() {
+						"!"
+					} else if notation.is_human_readable() {
+						"h"
 					} else {
-						let user_id = sig.signer_user_id().unwrap_or("[-]");
-						format!(
-							"{} {}",
-							sig.signer_key_id().unwrap_or("[?]"),
-							if user_id.is_empty() { "[?]" } else { user_id }
-						)
+						"?"
 					},
-					handler::get_signature_time(
-						*sig,
-						if truncate { "%Y" } else { "%F" }
-					)
+					notation.name().unwrap_or("?"),
+					notation.value().unwrap_or("?"),
 				)
 			})
 			.collect()

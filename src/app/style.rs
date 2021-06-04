@@ -72,16 +72,16 @@ pub fn get_colored_table_row<'a>(
 							"m" => Style::default().fg(Color::Blue),
 							// GPGME_VALIDITY_FULL
 							"f" => Style::default().fg(Color::Magenta),
-							// GPGME_VALIDITY_ULTIMATE
-							"u" => Style::default().fg(Color::Green),
+							// GPGME_VALIDITY_ULTIMATE | GPGME_SIG_NOTATION_HUMAN_READABLE
+							"u" | "h" => Style::default().fg(Color::Green),
 							// can_sign
 							"s" => Style::default().fg(Color::LightGreen),
 							// can_certify
 							"c" => Style::default().fg(Color::LightBlue),
 							// can_encrypt
 							"e" => Style::default().fg(Color::Yellow),
-							// can_authenticate
-							"a" => Style::default().fg(Color::LightRed),
+							// can_authenticate | GPGME_SIG_NOTATION_CRITICAL
+							"a" | "!" => Style::default().fg(Color::LightRed),
 							_ => Style::default(),
 						};
 						colored_line.push(Span::styled(c, style))
