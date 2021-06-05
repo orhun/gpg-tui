@@ -1,0 +1,5 @@
+version: "3.6"
+services:
+  app:
+    image: orhunp/gpg-tui:${IMAGE_TAG:-latest}
+    build: .
