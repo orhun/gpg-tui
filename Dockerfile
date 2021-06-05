@@ -5,7 +5,7 @@ RUN apt-get update && \
     pkg-config python3 libgpgme-dev \
     libxcb-shape0-dev libxcb-xfixes0-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-WORKDIR /app/
+WORKDIR /src
 COPY Cargo.toml Cargo.toml
 RUN mkdir src/ && echo "fn main() {println!(\"failed to build\")}" > src/main.rs
 RUN cargo build --release --verbose
@@ -21,6 +21,7 @@ RUN apt-get update && \
     libgpgme-dev \
     libxcb-shape0-dev libxcb-xfixes0-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-WORKDIR /root/
-COPY --from=builder /app/build-out/gpg-tui .
+WORKDIR /app
+COPY --from=builder /src/build-out/gpg-tui .
+USER nobody
 CMD ["./gpg-tui"]
