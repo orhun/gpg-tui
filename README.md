@@ -109,6 +109,13 @@ For installing these dependencies:
 
 ## Installation
 
+<details>
+  <summary>Packaging status</summary>
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/gpg-tui.svg)](https://repology.org/project/gpg-tui/versions)
+
+</details>
+
 ### Cargo
 
 **gpg-tui** is available on [crates.io](https://crates.io/crates/gpg-tui/):
