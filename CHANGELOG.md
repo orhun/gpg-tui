@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2021-06-05
+### Added
+- Add packaging status badge to README.md
+- Add Matrix room link to social media section in README.md
+
+### Changed
+- Display notations of the signatures (#8)
+- Update README.md about Docker alias
+- Update README.md about the format of notations
+- Update the example notation in README.md
+- Update the style of flags
+
+### Fixed
+- Run container process as unprivileged user
+
 ## [0.2.0] - 2021-06-02
 ### Added
 - Add installation instructions for FreeBSD
