@@ -334,13 +334,14 @@ The level of detail that an individual table row shows is determined by [detail 
        └─(2021-05-14)
 ```
 
-3. **Full**: shows signatures.
+3. **Full**: shows signatures and notations.
 
 ```
 [sc--] rsa3072/B14085A20355B74DE0CE0FA1E19F76D037BD65B6  │  [u] Example Key <example@key>
 |      └─(2021-05-14)                                    │   │  └─[13] selfsig (2021-05-16)
-[--e-] rsa3072/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5  │   └─[u] Other User ID <example@key>
-       └─(2021-05-14)                                              ├─[13] selfsig (2021-05-16)
+[--e-] rsa3072/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5  │   │     └─[h] test@notation=xyz
+       └─(2021-05-14)                                    |   └─[u] Other User ID <example@key>
+                                                                   ├─[13] selfsig (2021-05-16)
                                                                    └─[10] 84C39331F6F85326 Other Signer Key <example@signer> (2021-05-16)
 ```
 
@@ -383,11 +384,12 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 
 ### User Information
 
-An example table entry for the detail level `full` (which includes other user IDs and signatures) is explained via reference numbers below.
+An example table entry for the detail level `full` (which includes other user IDs, signatures and notations) is explained via reference numbers below.
 
 <pre>
 [u]<b>⁰</b> Test Key &lt;test@test&gt;<b>¹</b>
  │<b>²</b>  └─[13]<b>³</b> selfsig<b>⁴</b> (2021-05-16)<b>⁶</b>
+ │             └─[h]<b>⁹</b> test@notation=xyz<b>⁸</b>
  └─[u]<b>⁰</b> Test Key2 &lt;test2@test2&gt;<b>¹</b>
         ├─[13]<b>³</b> selfsig<b>⁴</b> (2021-05-16)<b>⁶</b>
         └─[10]<b>³</b> 84C39331F6F85326 Test Key 2 &lt;test2@example.com&gt;<b>⁵</b> (2021-05-16)<b>⁶</b> [!x]<b>⁷</b>
@@ -395,12 +397,12 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **0**: Validity of the user.
 
-* `q`: undefined
-* `n`: never
-* `m`: marginal
-* `f`: full
-* `u`: ultimate
-* `?`: unknown
+* `[q]`: undefined
+* `[n]`: never
+* `[m]`: marginal
+* `[f]`: full
+* `[u]`: ultimate
+* `[?]`: unknown
 
 **1**: User ID. (`name` + `email`)
 
@@ -408,10 +410,10 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **3**: Certification level of the signature.
 
-* `10`: no indication
-* `11`: personal belief but no verification
-* `12`: casual verification
-* `13`: extensive verification
+* `[10]`: no indication
+* `[11]`: personal belief but no verification
+* `[12]`: casual verification
+* `[13]`: extensive verification
 
 **4**: Indicates that this is a self signature, whereby the users' own private key was used to sign their public key.
 
@@ -428,6 +430,13 @@ An example table entry for the detail level `full` (which includes other user ID
 * `[rev]`: revoked
 * `[i]`: invalid
 * `[!x]`: non-exportable
+
+**8**: Notation data.
+
+**9**: Flags associated with the notation data.
+
+* `[h]`: the notation data is in human readable form
+* `[!]`: the notation data is critical
 
 ## Features
 

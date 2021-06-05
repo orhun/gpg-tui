@@ -22,8 +22,9 @@ impl GpgContext {
 	/// Constructs a new instance of `GpgContext`.
 	pub fn new(config: GpgConfig) -> Result<Self> {
 		let mut context = Context::from_protocol(Protocol::OpenPgp)?;
-		context.set_key_list_mode(KeyListMode::LOCAL)?;
-		context.set_key_list_mode(KeyListMode::SIGS)?;
+		context.set_key_list_mode(
+			KeyListMode::LOCAL | KeyListMode::SIGS | KeyListMode::SIG_NOTATIONS,
+		)?;
 		context.set_armor(config.armor);
 		context.set_offline(false);
 		context.set_pinentry_mode(PinentryMode::Ask)?;
