@@ -687,6 +687,7 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 ## Social Media
 
+* [![Join Matrix Room](https://img.shields.io/matrix/gpg-tui:matrix.org?style=flat&labelColor=1d1d1d&logo=matrix&logoColor=white&color=424242&label=join%20matrix)](https://matrix.to/#/!WRksRGtlvyEvEDByqt:matrix.org?via=matrix.org)
 * [![Follow @gpg_tui](https://img.shields.io/twitter/follow/gpg_tui?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/gpg_tui)
 * [![https://orhun.dev](https://img.shields.io/badge/author-orhun-000000?style=flat&labelColor=1d1d1d&color=424242&logo=Rust&logoColor=white)](https://orhun.dev)
   * [![Follow @orhun](https://img.shields.io/github/followers/orhun?label=follow%20%40orhun&style=flat&labelColor=1d1d1d&logo=GitHub&logoColor=white&color=424242)](https://github.com/orhun)
