@@ -221,6 +221,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 								_ => KeyType::Public,
 							},
 							vec![selected_key.get_id()],
+							false,
 						),
 						None => Command::ShowOutput(
 							OutputType::Failure,
@@ -387,7 +388,7 @@ fn handle_command_execution<B: Backend>(
 				}
 			}
 		}
-		Command::ExportKeys(_, _)
+		Command::ExportKeys(_, _, _)
 		| Command::DeleteKey(_, _)
 		| Command::GenerateKey
 		| Command::RefreshKeys
@@ -464,7 +465,11 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('u'), Modifiers::NONE)],
 			),
 			(
-				Command::ExportKeys(KeyType::Public, vec![key_id.to_string()]),
+				Command::ExportKeys(
+					KeyType::Public,
+					vec![key_id.to_string()],
+					false,
+				),
 				vec![KeyEvent::new(Key::Char('x'), Modifiers::NONE)],
 			),
 			(

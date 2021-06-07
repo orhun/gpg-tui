@@ -26,7 +26,7 @@ pub enum Command {
 	/// Import public/secret keys from files or a keyserver.
 	ImportKeys(Vec<String>, bool),
 	/// Export the public/secret keys.
-	ExportKeys(KeyType, Vec<String>),
+	ExportKeys(KeyType, Vec<String>, bool),
 	/// Delete the public/secret key.
 	DeleteKey(KeyType, String),
 	/// Send the key to the default keyserver.
@@ -87,9 +87,11 @@ impl Display for Command {
 						format!("{:?}", key_type).to_lowercase()
 					)
 				}
-				Command::ExportKeys(key_type, patterns) => {
+				Command::ExportKeys(key_type, patterns, ref export_subkeys) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
+					} else if *export_subkeys {
+						format!("export the selected subkeys ({})", key_type)
 					} else {
 						format!("export the selected key ({})", key_type)
 					}
@@ -182,19 +184,28 @@ impl FromStr for Command {
 					.collect(),
 				command.as_str() == "receive",
 			)),
-			"export" | "exp" => Ok(Command::ExportKeys(
-				KeyType::from_str(
-					&args
-						.first()
-						.cloned()
-						.unwrap_or_else(|| String::from("pub")),
-				)?,
-				if !args.is_empty() {
+			"export" | "exp" => {
+				let mut patterns = if !args.is_empty() {
 					args[1..].to_vec()
 				} else {
 					Vec::new()
-				},
-			)),
+				};
+				let export_subkeys =
+					patterns.last() == Some(&String::from("subkey"));
+				if export_subkeys {
+					patterns.truncate(patterns.len() - 1)
+				}
+				Ok(Command::ExportKeys(
+					KeyType::from_str(
+						&args
+							.first()
+							.cloned()
+							.unwrap_or_else(|| String::from("pub")),
+					)?,
+					patterns,
+					export_subkeys,
+				))
+			}
 			"delete" | "del" => {
 				let key_id = args.get(1).cloned().unwrap_or_default();
 				Ok(Command::DeleteKey(
@@ -322,21 +333,30 @@ mod tests {
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(
-				Command::ExportKeys(KeyType::Public, Vec::new()),
+				Command::ExportKeys(KeyType::Public, Vec::new(), false),
 				command
 			);
 		}
 		assert_eq!(
 			Command::ExportKeys(
 				KeyType::Public,
-				vec![String::from("test1"), String::from("test2")]
+				vec![String::from("test1"), String::from("test2")],
+				false
 			),
 			Command::from_str(":export pub test1 test2").unwrap()
+		);
+		assert_eq!(
+			Command::ExportKeys(
+				KeyType::Secret,
+				vec![String::from("test3"), String::from("test4")],
+				true
+			),
+			Command::from_str(":export sec test3 test4 subkey").unwrap()
 		);
 		for cmd in &[":export sec", ":exp sec"] {
 			let command = Command::from_str(cmd).unwrap();
 			assert_eq!(
-				Command::ExportKeys(KeyType::Secret, Vec::new()),
+				Command::ExportKeys(KeyType::Secret, Vec::new(), false),
 				command
 			);
 		}
@@ -347,7 +367,8 @@ mod tests {
 					String::from("test1"),
 					String::from("test2"),
 					String::from("test3")
-				]
+				],
+				false
 			),
 			Command::from_str(":export sec test1 test2 test3").unwrap()
 		);
@@ -445,11 +466,16 @@ mod tests {
 		);
 		assert_eq!(
 			"export all the keys (sec)",
-			Command::ExportKeys(KeyType::Secret, Vec::new()).to_string()
+			Command::ExportKeys(KeyType::Secret, Vec::new(), false).to_string()
+		);
+		assert_eq!(
+			"export the selected subkeys (sec)",
+			Command::ExportKeys(KeyType::Secret, vec![String::new()], true)
+				.to_string()
 		);
 		assert_eq!(
 			"export the selected key (pub)",
-			Command::ExportKeys(KeyType::Public, vec![String::new()])
+			Command::ExportKeys(KeyType::Public, vec![String::new()], false)
 				.to_string()
 		);
 		assert_eq!(
