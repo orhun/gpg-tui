@@ -178,8 +178,18 @@ impl<'a> App<'a> {
 							Command::ExportKeys(
 								key_type,
 								vec![selected_key.get_id()],
+								false,
 							),
-							Command::ExportKeys(key_type, Vec::new()),
+							if key_type == KeyType::Secret {
+								Command::ExportKeys(
+									key_type,
+									vec![selected_key.get_id()],
+									true,
+								)
+							} else {
+								Command::None
+							},
+							Command::ExportKeys(key_type, Vec::new(), false),
 							Command::Confirm(Box::new(Command::DeleteKey(
 								key_type,
 								selected_key.get_id(),
@@ -223,6 +233,17 @@ impl<'a> App<'a> {
 							},
 							Command::Quit,
 						]
+						.into_iter()
+						.enumerate()
+						.filter(|(i, c)| {
+							if c == &Command::None {
+								*i == 0
+							} else {
+								true
+							}
+						})
+						.map(|(_, c)| c)
+						.collect()
 					}
 					Tab::Help => {
 						vec![
@@ -294,7 +315,7 @@ impl<'a> App<'a> {
 					}
 				}
 			}
-			Command::ExportKeys(key_type, ref patterns) => {
+			Command::ExportKeys(key_type, ref patterns, false) => {
 				self.prompt.set_output(
 					match self
 						.gpgme
@@ -336,25 +357,42 @@ impl<'a> App<'a> {
 			| Command::RefreshKeys
 			| Command::EditKey(_)
 			| Command::SignKey(_)
-			| Command::ImportKeys(_, true) => {
+			| Command::ImportKeys(_, true)
+			| Command::ExportKeys(_, _, true) => {
+				let mut success_msg = None;
 				let mut os_command = OsCommand::new("gpg");
 				os_command
 					.arg("--homedir")
 					.arg(self.gpgme.config.home_dir.as_os_str());
+				if self.gpgme.config.armor {
+					os_command.arg("--armor");
+				}
 				let os_command = match command {
-					Command::EditKey(key) => {
-						os_command.arg("--edit-key").arg(&key)
+					Command::EditKey(ref key) => {
+						os_command.arg("--edit-key").arg(key)
 					}
-					Command::SignKey(key) => {
+					Command::SignKey(ref key) => {
 						if let Some(default_key) =
 							&self.gpgme.config.default_key
 						{
 							os_command.arg("--default-key").arg(default_key);
 						}
-						os_command.arg("--sign-key").arg(&key)
+						os_command.arg("--sign-key").arg(key)
 					}
-					Command::ImportKeys(keys, _) => {
-						os_command.arg("--receive-keys").args(&keys)
+					Command::ImportKeys(ref keys, _) => {
+						os_command.arg("--receive-keys").args(keys)
+					}
+					Command::ExportKeys(key_type, ref keys, true) => {
+						let path = self
+							.gpgme
+							.get_output_file(key_type, keys.to_vec())?;
+						success_msg =
+							Some(format!("export: {}", path.to_string_lossy()));
+						os_command
+							.arg("--output")
+							.arg(path)
+							.arg("--export-secret-subkeys")
+							.args(keys)
 					}
 					Command::RefreshKeys => os_command.arg("--refresh-keys"),
 					_ => os_command.arg("--full-gen-key"),
@@ -363,6 +401,9 @@ impl<'a> App<'a> {
 					Ok(mut child) => {
 						child.wait()?;
 						self.refresh()?;
+						if let Some(msg) = success_msg {
+							self.prompt.set_output((OutputType::Success, msg))
+						}
 					}
 					Err(e) => self.prompt.set_output((
 						OutputType::Failure,
