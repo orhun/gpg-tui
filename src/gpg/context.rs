@@ -8,6 +8,7 @@ use gpgme::{
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Write;
+use std::path::PathBuf;
 
 /// A context for cryptographic operations.
 #[derive(Debug)]
@@ -37,6 +38,32 @@ impl GpgContext {
 	/// Applies the current configuration values to the context.
 	pub fn apply_config(&mut self) {
 		self.inner.set_armor(self.config.armor);
+	}
+
+	/// Returns the configured file path.
+	///
+	/// [`output_dir`] is used for output directory.
+	///
+	/// [`output_dir`]: GpgConfig::output_dir
+	pub fn get_output_file(
+		&self,
+		key_type: KeyType,
+		patterns: Vec<String>,
+	) -> Result<PathBuf> {
+		let path = self.config.output_dir.join(format!(
+			"{}_{}.{}",
+			key_type,
+			if patterns.len() == 1 {
+				&patterns[0]
+			} else {
+				"out"
+			},
+			if self.config.armor { "asc" } else { "pgp" }
+		));
+		if !path.exists() {
+			fs::create_dir_all(path.parent().expect("path has no parent"))?;
+		}
+		Ok(path)
 	}
 
 	/// Returns the public/secret key with the specified ID.
@@ -130,31 +157,14 @@ impl GpgContext {
 	}
 
 	/// Exports keys and saves them to the specified/default path.
-	///
-	/// File name is determined via given patterns.
-	/// [`output_dir`] is used for output directory.
-	///
-	/// [`output_dir`]: GpgConfig::output_dir
 	pub fn export_keys(
 		&mut self,
 		key_type: KeyType,
 		patterns: Option<Vec<String>>,
 	) -> Result<String> {
 		let output = self.get_exported_keys(key_type, patterns.clone())?;
-		let patterns = patterns.unwrap_or_default();
-		let path = self.config.output_dir.join(format!(
-			"{}_{}.{}",
-			key_type,
-			if patterns.len() == 1 {
-				&patterns[0]
-			} else {
-				"out"
-			},
-			if self.config.armor { "asc" } else { "pgp" }
-		));
-		if !path.exists() {
-			fs::create_dir_all(path.parent().expect("path has no parent"))?;
-		}
+		let path =
+			self.get_output_file(key_type, patterns.unwrap_or_default())?;
 		File::create(&path)?.write_all(&output)?;
 		Ok(path.to_string_lossy().to_string())
 	}
@@ -235,6 +245,12 @@ mod tests {
 			.is_ok());
 		let key_id = keys.get(&KeyType::Public).unwrap()[1].get_id();
 		assert!(context.get_key(KeyType::Public, key_id.clone()).is_ok());
+		assert_eq!(
+			context.config.output_dir.join(String::from("sec_0x0.asc")),
+			context
+				.get_output_file(KeyType::Secret, vec![String::from("0x0")])
+				.unwrap()
+		);
 		let output_file = context.export_keys(KeyType::Public, None)?;
 		context.delete_key(KeyType::Public, key_id)?;
 		assert_eq!(
