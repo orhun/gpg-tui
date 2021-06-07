@@ -548,6 +548,10 @@ Additionally, you can enable/disable armored output by pressing `a`.
 
 ![](demo/gpg-tui-export_key.gif)
 
+Also, you can export the secret subkeys by using the options menu:
+
+![](demo/gpg-tui-export_subkeys.gif)
+
 #### Sign
 
 Press `s` to sign the selected key with the default secret key. This key can be specified with `--default-key` argument.
