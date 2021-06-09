@@ -32,7 +32,7 @@ impl GpgConfig {
 		});
 		let mut output_dir = home_dir.join("out");
 		if let Some(output) = &args.outdir {
-			output_dir = output.to_path_buf();
+			output_dir = PathBuf::from(output);
 		}
 		Ok(Self {
 			inner: gpgme,

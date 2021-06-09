@@ -2,7 +2,6 @@
 
 use crate::app::banner::BANNERS;
 use crate::widget::style::Color;
-use std::path::PathBuf;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -29,11 +28,11 @@ pub struct Args {
 	#[structopt(long)]
 	pub splash: bool,
 	/// Sets the GnuPG home directory.
-	#[structopt(long, value_name = "dir", env = "GNUPGHOME")]
+	#[structopt(long, value_name = "dir", env = "GNUPGHOME", parse(from_str = Args::parse_dir))]
 	pub homedir: Option<String>,
 	/// Sets the output directory.
-	#[structopt(short, long, value_name = "dir", env)]
-	pub outdir: Option<PathBuf>,
+	#[structopt(short, long, value_name = "dir", env, parse(from_str = Args::parse_dir))]
+	pub outdir: Option<String>,
 	/// Sets the default key to sign with.
 	#[structopt(short, long, value_name = "key", env)]
 	pub default_key: Option<String>,
@@ -52,6 +51,16 @@ pub struct Args {
 }
 
 impl Args {
+	/// Custom string parser for directories.
+	///
+	/// Expands the tilde (`~`) character in the beginning of the
+	/// input string into contents of the path returned by [`home_dir`].
+	///
+	/// [`home_dir`]: dirs_next::home_dir
+	fn parse_dir(dir: &str) -> String {
+		shellexpand::tilde(dir).to_string()
+	}
+
 	/// Parses the command-line arguments.
 	///
 	/// See [`StructOpt::from_args`].
