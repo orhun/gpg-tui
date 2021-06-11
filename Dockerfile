@@ -9,7 +9,7 @@ WORKDIR /src
 COPY Cargo.toml Cargo.toml
 RUN mkdir src/ && echo "fn main() {println!(\"failed to build\")}" > src/main.rs
 RUN cargo build --release --verbose
-RUN rm -f target/release/deps/gpg-tui*
+RUN rm -f target/release/deps/gpg_tui*
 COPY . .
 RUN cargo build --locked --release --verbose
 RUN mkdir -p build-out && cp target/release/gpg-tui build-out/
