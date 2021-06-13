@@ -554,7 +554,7 @@ Also, you can export the secret subkeys by using the options menu:
 
 #### Sign
 
-Press `s` to sign the selected key with the default secret key. This key can be specified with `--default-key` argument.
+Press `s` to sign the selected key with the default secret key. This key can be specified with `--default-key` argument or using the options menu.
 
 This feature uses `gpg` fallback and runs `gpg --sign-key` command.
 
