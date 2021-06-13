@@ -198,6 +198,14 @@ impl<'a> App<'a> {
 								selected_key.get_id(),
 							))),
 							Command::EditKey(selected_key.get_id()),
+							if key_type == KeyType::Secret {
+								Command::Set(
+									String::from("signer"),
+									selected_key.get_id(),
+								)
+							} else {
+								Command::None
+							},
 							Command::SignKey(selected_key.get_id()),
 							Command::GenerateKey,
 							Command::Set(
@@ -570,6 +578,11 @@ impl<'a> App<'a> {
 								)
 							}
 						}
+						"signer" => {
+							self.gpgme.config.default_key =
+								Some(value.to_string());
+							(OutputType::Success, format!("signer: {}", value))
+						}
 						"minimize" => {
 							self.keys_table.state.minimize_threshold =
 								value.parse().unwrap_or_default();
@@ -686,6 +699,13 @@ impl<'a> App<'a> {
 					"armor" => (
 						OutputType::Success,
 						format!("armor: {}", self.gpgme.config.armor),
+					),
+					"signer" => (
+						OutputType::Success,
+						match &self.gpgme.config.default_key {
+							Some(key) => format!("signer: {}", key),
+							None => format!("signer key is not specified"),
+						},
 					),
 					"minimize" => (
 						OutputType::Success,
@@ -900,6 +920,7 @@ mod tests {
 			("output", "/tmp"),
 			("mode", "normal"),
 			("armor", "true"),
+			("signer", "0x0"),
 			("minimize", "10"),
 			("margin", "2"),
 			("colored", "true"),
