@@ -704,7 +704,7 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						match &self.gpgme.config.default_key {
 							Some(key) => format!("signer: {}", key),
-							None => format!("signer key is not specified"),
+							None => String::from("signer key is not specified"),
 						},
 					),
 					"minimize" => (

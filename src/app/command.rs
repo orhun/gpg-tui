@@ -116,9 +116,7 @@ impl Display for Command {
 						if value == "true" { "enable" } else { "disable" };
 					match option.as_ref() {
 						"armor" => format!("{} armored output", action),
-						"signer" => {
-							format!("set as the signing key")
-						}
+						"signer" => String::from("set as the signing key"),
 						"colored" => format!("{} colors", action),
 						"margin" => String::from("toggle table margin"),
 						"prompt" => {
