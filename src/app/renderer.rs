@@ -69,7 +69,7 @@ fn render_splash_screen<B: Backend>(
 			])
 			.paint(|p| {
 				for rgb in data.keys() {
-					if let Some(coords) = data.get(&rgb) {
+					if let Some(coords) = data.get(rgb) {
 						p.draw(&Points {
 							coords,
 							color: Color::Rgb(rgb.0, rgb.1, rgb.2),
