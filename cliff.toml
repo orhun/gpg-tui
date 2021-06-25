@@ -1,0 +1,46 @@
+# https://github.com/orhun/git-cliff
+
+[changelog]
+header = """
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+"""
+body = """
+{% if version %}\
+    ## [{{ version | replace(from="v", to="") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | upper_first }}\
+    {% endfor %}
+{% endfor %}\n
+"""
+trim = true
+footer = """
+## [0.1.0] - 2021-05-28
+Initial release.
+"""
+
+[git]
+conventional_commits = true
+commit_parsers = [
+    { message = "^*: Add*", group = "Added"},
+    { message = "^*: Support*", group = "Added"},
+    { message = "^*: Remove*", group = "Removed"},
+    { message = "^*: Delete*", group = "Removed"},
+    { message = "^test: Add*", group = "Added"},
+    { message = "^test: *", group = "Fixed"},
+    { message = "^chore: Prepare*", skip = true},
+    { message = "^fix: *", group = "Fixed"},
+    { message = "^*: Fix*", group = "Fixed"},
+    { message = "^*", group = "Changed"},
+]
+filter_commits = true
+tag_pattern = "v[0-9]*"
+skip_tags = "v0.1.0"
