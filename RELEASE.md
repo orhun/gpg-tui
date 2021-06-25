@@ -7,6 +7,6 @@
 3. Ensure [CHANGELOG.md](CHANGELOG.md) is updated according to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 4. Commit and push the changes.
 5. Check if [Continuous Integration](https://github.com/orhun/gpg-tui/actions) workflow is completed successfully.
-6. Create a new tag: `git tag -s -a v[X.Y.Z]` ([signed](http://keys.gnupg.net/pks/lookup?search=0x1BC755D9FBD24068))
+6. Create a new tag: `git tag -s -a v[X.Y.Z]` ([signed](https://keyserver.ubuntu.com/pks/lookup?search=0x1BC755D9FBD24068&op=vindex))
 7. Push the tag: `git push --tags`
 8. Wait for [Continuous Deployment](https://github.com/orhun/gpg-tui/actions) workflow to finish.
