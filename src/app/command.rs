@@ -25,6 +25,8 @@ pub enum Command {
 	ListKeys(KeyType),
 	/// Import public/secret keys from files or a keyserver.
 	ImportKeys(Vec<String>, bool),
+	/// Import public/secret keys from clipboard.
+	ImportClipboard,
 	/// Export the public/secret keys.
 	ExportKeys(KeyType, Vec<String>, bool),
 	/// Delete the public/secret key.
@@ -87,6 +89,9 @@ impl Display for Command {
 						format!("{:?}", key_type).to_lowercase()
 					)
 				}
+				Command::ImportClipboard => {
+					String::from("import key(s) from clipboard")
+				}
 				Command::ExportKeys(key_type, patterns, ref export_subkeys) => {
 					if patterns.is_empty() {
 						format!("export all the keys ({})", key_type)
@@ -121,7 +126,7 @@ impl Display for Command {
 						"margin" => String::from("toggle table margin"),
 						"prompt" => {
 							if value == ":import " {
-								String::from("import key(s)")
+								String::from("import key(s) from a file")
 							} else if value == ":receive " {
 								String::from("receive key(s) from keyserver")
 							} else {
@@ -155,7 +160,7 @@ impl FromStr for Command {
 		let command = values.first().cloned().unwrap_or_default();
 		let args = values.drain(1..).collect::<Vec<String>>();
 		match command.as_str() {
-			"confirm" => Ok(Self::Confirm(Box::new(if args.is_empty() {
+			"confirm" => Ok(Command::Confirm(Box::new(if args.is_empty() {
 				Command::None
 			} else {
 				Command::from_str(&args.join(" "))?
@@ -163,7 +168,7 @@ impl FromStr for Command {
 			"help" | "h" => Ok(Command::ShowHelp),
 			"output" | "out" => {
 				if !args.is_empty() {
-					Ok(Self::ShowOutput(
+					Ok(Command::ShowOutput(
 						OutputType::from(
 							args.first().cloned().unwrap_or_default(),
 						),
@@ -174,7 +179,7 @@ impl FromStr for Command {
 				}
 			}
 			"options" | "opt" => Ok(Command::ShowOptions),
-			"list" | "ls" => Ok(Self::ListKeys(KeyType::from_str(
+			"list" | "ls" => Ok(Command::ListKeys(KeyType::from_str(
 				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
 			)?)),
 			"import" | "receive" => Ok(Command::ImportKeys(
@@ -185,6 +190,7 @@ impl FromStr for Command {
 					.collect(),
 				command.as_str() == "receive",
 			)),
+			"import-clipboard" => Ok(Command::ImportClipboard),
 			"export" | "exp" => {
 				let mut patterns = if !args.is_empty() {
 					args[1..].to_vec()
@@ -229,9 +235,9 @@ impl FromStr for Command {
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
-					Ok(Self::Copy(CopyType::from_str(&arg)?))
+					Ok(Command::Copy(CopyType::from_str(&arg)?))
 				} else {
-					Ok(Self::SwitchMode(Mode::Copy))
+					Ok(Command::SwitchMode(Mode::Copy))
 				}
 			}
 			"toggle" | "t" => {
@@ -262,25 +268,25 @@ impl FromStr for Command {
 			"get" | "g" => {
 				Ok(Command::Get(args.get(0).cloned().unwrap_or_default()))
 			}
-			"mode" | "m" => Ok(Self::SwitchMode(Mode::from_str(
+			"mode" | "m" => Ok(Command::SwitchMode(Mode::from_str(
 				&args.first().cloned().ok_or(())?,
 			)?)),
-			"normal" | "n" => Ok(Self::SwitchMode(Mode::Normal)),
-			"visual" | "v" => Ok(Self::SwitchMode(Mode::Visual)),
-			"paste" | "p" => Ok(Self::Paste),
-			"input" => Ok(Self::EnableInput),
-			"search" => Ok(Self::Search(args.first().cloned())),
-			"next" => Ok(Self::NextTab),
-			"previous" | "prev" => Ok(Self::PreviousTab),
+			"normal" | "n" => Ok(Command::SwitchMode(Mode::Normal)),
+			"visual" | "v" => Ok(Command::SwitchMode(Mode::Visual)),
+			"paste" | "p" => Ok(Command::Paste),
+			"input" => Ok(Command::EnableInput),
+			"search" => Ok(Command::Search(args.first().cloned())),
+			"next" => Ok(Command::NextTab),
+			"previous" | "prev" => Ok(Command::PreviousTab),
 			"refresh" | "r" => {
 				if args.first() == Some(&String::from("keys")) {
-					Ok(Self::RefreshKeys)
+					Ok(Command::RefreshKeys)
 				} else {
-					Ok(Self::Refresh)
+					Ok(Command::Refresh)
 				}
 			}
-			"quit" | "q" | "q!" => Ok(Self::Quit),
-			"none" => Ok(Self::None),
+			"quit" | "q" | "q!" => Ok(Command::Quit),
+			"none" => Ok(Command::None),
 			_ => Err(()),
 		}
 	}
@@ -330,6 +336,10 @@ mod tests {
 		assert_eq!(
 			Command::ImportKeys(vec![String::from("Test"),], true),
 			Command::from_str(":receive Test").unwrap()
+		);
+		assert_eq!(
+			Command::ImportClipboard,
+			Command::from_str(":import-clipboard").unwrap()
 		);
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
 			let command = Command::from_str(cmd).unwrap();

@@ -171,6 +171,7 @@ impl<'a> App<'a> {
 								String::from("prompt"),
 								String::from(":import "),
 							),
+							Command::ImportClipboard,
 							Command::Set(
 								String::from("prompt"),
 								String::from(":receive "),
@@ -301,14 +302,25 @@ impl<'a> App<'a> {
 				}
 				self.tab = Tab::Keys(key_type);
 			}
-			Command::ImportKeys(keys, false) => {
+			Command::ImportKeys(_, false) | Command::ImportClipboard => {
+				let mut keys = Vec::new();
+				if let Command::ImportKeys(ref key_files, _) = command {
+					keys = key_files.clone();
+				} else if let Some(clipboard) = self.clipboard.as_mut() {
+					keys = vec![clipboard
+						.get_contents()
+						.expect("failed to get clipboard contents")];
+				}
 				if keys.is_empty() {
 					self.prompt.set_output((
 						OutputType::Failure,
 						String::from("no files given"),
 					))
 				} else {
-					match self.gpgme.import_keys(keys) {
+					match self
+						.gpgme
+						.import_keys(keys, command != Command::ImportClipboard)
+					{
 						Ok(key_count) => {
 							self.refresh()?;
 							self.prompt.set_output((

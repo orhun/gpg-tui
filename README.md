@@ -578,6 +578,10 @@ If `xplr` is not installed, import operation is done by using the `:import` comm
 
 ![](demo/gpg-tui-import_key.gif)
 
+You can also import keys from clipboard using `:import-clipboard` command or the options menu.
+
+![](demo/gpg-tui-import_key_clipboard.gif)
+
 Similar to import, receive operation is also done by using a command which is `:receive`. So press `f` (for **f**etching keys from a keyserver) and give it your key ID(s).
 
 This feature uses `gpg` fallback and runs `gpg --receive-keys` command.

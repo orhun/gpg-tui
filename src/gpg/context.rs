@@ -117,13 +117,21 @@ impl GpgContext {
 		Ok(keys)
 	}
 
-	/// Reads the keys from given files and adds them to the keyring.
-	pub fn import_keys(&mut self, files: Vec<String>) -> Result<u32> {
+	/// Adds the given keys to the keyring.
+	pub fn import_keys(
+		&mut self,
+		keys: Vec<String>,
+		read_from_file: bool,
+	) -> Result<u32> {
 		let mut imported_keys = 0;
-		for file in files {
-			let input = File::open(file)?;
-			let mut data = Data::from_seekable_stream(input)?;
-			imported_keys += self.inner.import(&mut data)?.imported();
+		for key in keys {
+			if read_from_file {
+				let input = File::open(key)?;
+				let mut data = Data::from_seekable_stream(input)?;
+				imported_keys += self.inner.import(&mut data)?.imported();
+			} else {
+				imported_keys += self.inner.import(key)?.imported();
+			}
 		}
 		Ok(imported_keys)
 	}
@@ -260,7 +268,7 @@ mod tests {
 		assert_eq!(
 			1,
 			context
-				.import_keys(vec![output_file.clone()])
+				.import_keys(vec![output_file.clone()], true)
 				.unwrap_or_default()
 		);
 		assert_eq!(
