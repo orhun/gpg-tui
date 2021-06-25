@@ -535,9 +535,13 @@ mod tests {
 			Command::Set(String::from("margin"), String::new()).to_string()
 		);
 		assert_eq!(
-			"import key(s)",
+			"import key(s) from a file",
 			Command::Set(String::from("prompt"), String::from(":import "))
 				.to_string()
+		);
+		assert_eq!(
+			"import key(s) from clipboard",
+			Command::ImportClipboard.to_string()
 		);
 		assert_eq!(
 			"receive key(s) from keyserver",
