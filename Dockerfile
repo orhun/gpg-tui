@@ -21,7 +21,10 @@ RUN apt-get update && \
     libgpgme-dev \
     libxcb-shape0-dev libxcb-xfixes0-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN groupadd -r gpg && \
+    useradd -r -g gpg -d /app -s /sbin/nologin gpg-user
 WORKDIR /app
 COPY --from=builder /src/build-out/gpg-tui .
-USER nobody
+RUN chown -R gpg-user:gpg /app
+USER gpg-user
 CMD ["./gpg-tui"]
