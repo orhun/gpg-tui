@@ -190,7 +190,7 @@ docker pull orhunp/gpg-tui:[tag]
 You can also use the following alias for a quick launch:
 
 ```sh
-alias gpg-tui='docker run -it -v "$HOME/.gnupg":/root/.gnupg orhunp/gpg-tui'
+alias gpg-tui='docker run -it orhunp/gpg-tui'
 ```
 
 #### Using the Dockerfile
