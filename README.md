@@ -35,6 +35,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
   - [Arch Linux](#arch-linux)
     - [Community](#community)
     - [AUR](#aur)
+  - [Gentoo](#gentoo)
   - [Homebrew](#homebrew)
   - [Docker](#docker)
     - [Docker Hub](#docker-hub)
@@ -150,6 +151,16 @@ git clone https://aur.archlinux.org/gpg-tui-git.git && cd gpg-tui-git/
 
 # build the package
 makepkg -si
+```
+
+### Gentoo
+
+Available in [dm9pZCAq overlay](https://github.com/gentoo-mirror/dm9pZCAq)
+
+```sh
+eselect repository enable dm9pZCAq
+emerge --sync dm9pZCAq
+emerge app-crypt/gpg-tui::dm9pZCAq
 ```
 
 ### Homebrew
