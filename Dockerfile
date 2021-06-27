@@ -27,4 +27,4 @@ WORKDIR /app
 COPY --from=builder /src/build-out/gpg-tui .
 RUN chown -R gpg-user:gpg /app
 USER gpg-user
-CMD ["./gpg-tui"]
+ENTRYPOINT ["./gpg-tui"]
