@@ -187,10 +187,10 @@ See available [tags](https://hub.docker.com/r/orhunp/gpg-tui/tags).
 docker pull orhunp/gpg-tui:[tag]
 ```
 
-You can also use the following alias for a quick launch:
+You can also use the following command for a quick launch:
 
 ```sh
-alias gpg-tui='docker run -it orhunp/gpg-tui'
+docker run --rm -it -v "$HOME/.gnupg":/app/.gnupg --user 1000:1000 orhunp/gpg-tui --homedir /app/.gnupg
 ```
 
 #### Using the Dockerfile
