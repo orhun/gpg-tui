@@ -1,8 +1,8 @@
-use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::launcher::App;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
+use crate::app::selection::Selection;
 use crate::app::tab::Tab;
 use crate::app::util;
 use crate::gpg::key::KeyType;
@@ -212,7 +212,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('x') | Key::Char('X') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::Key)
+					Command::Copy(Selection::Key)
 				} else {
 					match app.keys_table.selected() {
 						Some(selected_key) => Command::ExportKeys(
@@ -245,7 +245,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('1') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::TableRow(1))
+					Command::Copy(Selection::TableRow(1))
 				} else {
 					Command::Set(
 						String::from("detail"),
@@ -255,7 +255,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('2') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::TableRow(2))
+					Command::Copy(Selection::TableRow(2))
 				} else {
 					Command::Set(
 						String::from("detail"),
@@ -268,7 +268,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('i') | Key::Char('I') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyId)
+					Command::Copy(Selection::KeyId)
 				} else {
 					Command::Set(
 						String::from("prompt"),
@@ -278,7 +278,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('f') | Key::Char('F') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyFingerprint)
+					Command::Copy(Selection::KeyFingerprint)
 				} else {
 					Command::Set(
 						String::from("prompt"),
@@ -288,7 +288,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			Key::Char('u') | Key::Char('U') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(CopyType::KeyUserId)
+					Command::Copy(Selection::KeyUserId)
 				} else {
 					match app.keys_table.selected() {
 						Some(selected_key) => Command::Confirm(Box::new(
@@ -398,7 +398,7 @@ fn handle_command_execution<B: Backend>(
 			tui.toggle_pause()?;
 			toggle_pause = true;
 		}
-		Command::Copy(CopyType::Key) => {
+		Command::Copy(Selection::Key) => {
 			if app.gpgme.config.armor {
 				tui.toggle_pause()?;
 				toggle_pause = true;

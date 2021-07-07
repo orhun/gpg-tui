@@ -1,8 +1,8 @@
-use crate::app::clipboard::CopyType;
 use crate::app::command::Command;
 use crate::app::keys::{KeyBinding, KEY_BINDINGS};
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
+use crate::app::selection::Selection;
 use crate::app::splash::SplashScreen;
 use crate::app::state::State;
 use crate::app::tab::Tab;
@@ -213,12 +213,12 @@ impl<'a> App<'a> {
 								String::from("armor"),
 								(!self.gpgme.config.armor).to_string(),
 							),
-							Command::Copy(CopyType::Key),
-							Command::Copy(CopyType::KeyId),
-							Command::Copy(CopyType::KeyFingerprint),
-							Command::Copy(CopyType::KeyUserId),
-							Command::Copy(CopyType::TableRow(1)),
-							Command::Copy(CopyType::TableRow(2)),
+							Command::Copy(Selection::Key),
+							Command::Copy(Selection::KeyId),
+							Command::Copy(Selection::KeyFingerprint),
+							Command::Copy(Selection::KeyUserId),
+							Command::Copy(Selection::TableRow(1)),
+							Command::Copy(Selection::TableRow(2)),
 							Command::Paste,
 							Command::ToggleDetail(false),
 							Command::ToggleDetail(true),
@@ -790,18 +790,20 @@ impl<'a> App<'a> {
 				let selected_key =
 					&self.keys_table.selected().expect("invalid selection");
 				let content = match copy_type {
-					CopyType::TableRow(1) => Ok(selected_key
+					Selection::TableRow(1) => Ok(selected_key
 						.get_subkey_info(
 							self.keys_table.state.size != TableSize::Normal,
 						)
 						.join("\n")),
-					CopyType::TableRow(2) => Ok(selected_key
+					Selection::TableRow(2) => Ok(selected_key
 						.get_user_info(
 							self.keys_table.state.size == TableSize::Minimized,
 						)
 						.join("\n")),
-					CopyType::TableRow(_) => Err(anyhow!("invalid row number")),
-					CopyType::Key => {
+					Selection::TableRow(_) => {
+						Err(anyhow!("invalid row number"))
+					}
+					Selection::Key => {
 						match self.gpgme.get_exported_keys(
 							match self.tab {
 								Tab::Keys(key_type) => key_type,
@@ -815,11 +817,11 @@ impl<'a> App<'a> {
 							Err(e) => Err(e),
 						}
 					}
-					CopyType::KeyId => Ok(selected_key.get_id()),
-					CopyType::KeyFingerprint => {
+					Selection::KeyId => Ok(selected_key.get_id()),
+					Selection::KeyFingerprint => {
 						Ok(selected_key.get_fingerprint())
 					}
-					CopyType::KeyUserId => Ok(selected_key.get_user_id()),
+					Selection::KeyUserId => Ok(selected_key.get_user_id()),
 				};
 				match content {
 					Ok(content) => {

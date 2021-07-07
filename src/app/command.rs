@@ -1,6 +1,6 @@
-use crate::app::clipboard::CopyType;
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
+use crate::app::selection::Selection;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -42,7 +42,7 @@ pub enum Command {
 	/// Refresh the keyring.
 	RefreshKeys,
 	/// Copy a property to clipboard.
-	Copy(CopyType),
+	Copy(Selection),
 	/// Toggle the detail level.
 	ToggleDetail(bool),
 	/// Toggle the table size.
@@ -235,7 +235,9 @@ impl FromStr for Command {
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
-					Ok(Command::Copy(CopyType::from_str(&arg).map_err(|_| ())?))
+					Ok(Command::Copy(
+						Selection::from_str(&arg).map_err(|_| ())?,
+					))
 				} else {
 					Ok(Command::SwitchMode(Mode::Copy))
 				}
@@ -508,7 +510,7 @@ mod tests {
 		assert_eq!("generate a new key pair", Command::GenerateKey.to_string());
 		assert_eq!(
 			"copy exported key",
-			Command::Copy(CopyType::Key).to_string()
+			Command::Copy(Selection::Key).to_string()
 		);
 		assert_eq!("paste from clipboard", Command::Paste.to_string());
 		assert_eq!(

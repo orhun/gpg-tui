@@ -24,8 +24,8 @@ pub mod tab;
 /// Input and command handler.
 pub mod handler;
 
-/// Clipboard helper.
-pub mod clipboard;
+/// Selection helper.
+pub mod selection;
 
 /// Style helper.
 pub mod style;
