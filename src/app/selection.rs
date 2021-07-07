@@ -43,7 +43,7 @@ impl FromStr for Selection {
 			"key_fingerprint" | "key_fpr" | "fingerprint" | "fpr" => {
 				Ok(Self::KeyFingerprint)
 			}
-			"key_user_id" | "user" => Ok(Self::KeyUserId),
+			"key_user_id" | "user" | "user_id" => Ok(Self::KeyUserId),
 			_ => Err(String::from("could not parse the type")),
 		}
 	}

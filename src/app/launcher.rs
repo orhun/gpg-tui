@@ -22,6 +22,7 @@ use std::path::Path;
 use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
+use std::time::Instant;
 use tui::style::Color;
 
 /// Max duration of prompt messages.
@@ -71,10 +72,20 @@ impl<'a> App<'a> {
 				.expect("failed to get public keys")
 				.to_vec(),
 		);
+		let state = State::from(args);
 		Ok(Self {
-			state: State::from(args),
 			mode: Mode::Normal,
-			prompt: Prompt::default(),
+			prompt: if state.select.is_some() {
+				Prompt {
+					output_type: OutputType::Action,
+					text: String::from("-- select --"),
+					clock: Some(Instant::now()),
+					..Prompt::default()
+				}
+			} else {
+				Prompt::default()
+			},
+			state,
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
 			splash_screen: SplashScreen::new("splash.jpg", 12)?,
@@ -825,7 +836,11 @@ impl<'a> App<'a> {
 				};
 				match content {
 					Ok(content) => {
-						if let Some(clipboard) = self.clipboard.as_mut() {
+						if self.state.select.is_some() {
+							self.state.exit_message = Some(content);
+							self.run_command(Command::Quit)?;
+						} else if let Some(clipboard) = self.clipboard.as_mut()
+						{
 							clipboard
 								.set_contents(content)
 								.expect("failed to set clipboard contents");
@@ -843,7 +858,7 @@ impl<'a> App<'a> {
 					Err(e) => {
 						self.prompt.set_output((
 							OutputType::Failure,
-							format!("copy error: {}", e),
+							format!("selection error: {}", e),
 						));
 					}
 				}

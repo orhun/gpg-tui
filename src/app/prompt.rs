@@ -75,7 +75,7 @@ pub struct Prompt {
 	/// Command history.
 	pub history: Vec<String>,
 	/// Index of the selected command from history.
-	history_index: usize,
+	pub history_index: usize,
 }
 
 impl Prompt {

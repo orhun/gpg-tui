@@ -310,7 +310,9 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 				}
 			}
 			Key::Char('o') | Key::Char(' ') | Key::Enter => {
-				if app.state.show_options {
+				if let Some(select_type) = app.state.select {
+					Command::Copy(select_type)
+				} else if app.state.show_options {
 					app.options.selected().cloned().unwrap_or(Command::None)
 				} else if !app.keys_table.items.is_empty() {
 					Command::ShowOptions

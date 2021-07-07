@@ -1,6 +1,7 @@
 //! Command-line argument parser.
 
 use crate::app::banner::BANNERS;
+use crate::app::selection::Selection;
 use crate::widget::style::Color;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
@@ -48,6 +49,14 @@ pub struct Args {
 		default_value = "plain", env
 	)]
 	pub style: String,
+	/// Enables the selection mode.
+	#[structopt(
+		long,
+		value_name = "option",
+		possible_values = &["key_id", "key_fpr", "user_id", "row1", "row2"],
+		env
+	)]
+	pub select: Option<Selection>,
 }
 
 impl Args {

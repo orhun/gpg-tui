@@ -62,6 +62,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
     - [Scrolling](#scrolling)
     - [Options Menu](#options-menu)
     - [Copy / Paste](#copy--paste)
+    - [Selection Mode](#selection-mode)
     - [Detailed View](#detailed-view)
     - [Search](#search)
     - [Running commands](#running-commands)
@@ -289,6 +290,8 @@ OPTIONS:
     -c, --color <color>        Sets the accent color of the terminal [env: COLOR=]  [default: gray]
     -s, --style <style>        Sets the style of the terminal [env: STYLE=]  [default: plain]
                                [possible values: plain, colored]
+        --select <option>      Enables the selection mode [env: SELECT=]
+                               [possible values: key_id, key_fpr, user_id, row1, row2]
 ```
 
 ## Key Bindings
@@ -503,6 +506,25 @@ Instead of copying values with `copy` mode, you can use the `visual` mode which 
 `visual` mode can be used for other purposes such as scrolling via mouse.
 
 ![](demo/gpg-tui-visual_mode.gif)
+
+#### Selection Mode
+
+In the selection mode, key bindings that are responsible for showing the options menu (e.g. `enter`) are used for exiting the user interface and printing out the selection to the standard output. This is useful when you want to use **gpg-tui** in conjunction with shell commands/other tools.
+
+For switching to the selection mode, use the `--select` argument as follows:
+
+```sh
+gpg-tui --select <option>
+```
+
+`<option>` might be one of the following:
+
+- `key_id`: Key ID
+- `key_fpr`: Key fingerprint
+- `user_id`: User ID
+- `row<n>`: Contents of the nth row
+
+![](demo/gpg-tui-selection_mode.gif)
 
 #### Detailed View
 

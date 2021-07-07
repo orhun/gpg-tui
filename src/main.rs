@@ -39,6 +39,11 @@ fn main() -> Result<()> {
 			_ => {}
 		}
 	}
-	// Exit.
-	tui.exit()
+	// Exit the user interface.
+	tui.exit()?;
+	// Print the exit message if any.
+	if let Some(message) = app.state.exit_message {
+		println!("{}", message);
+	}
+	Ok(())
 }

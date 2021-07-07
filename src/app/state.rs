@@ -1,3 +1,4 @@
+use crate::app::selection::Selection;
 use crate::args::Args;
 use crate::widget::style::Color;
 use tui::style::Color as TuiColor;
@@ -15,6 +16,10 @@ pub struct State {
 	pub show_options: bool,
 	/// Is the splash screen showing?
 	pub show_splash: bool,
+	/// Is the selection mode enabled?
+	pub select: Option<Selection>,
+	/// Exit message of the app.
+	pub exit_message: Option<String>,
 }
 
 impl Default for State {
@@ -25,6 +30,8 @@ impl Default for State {
 			color: Color::default().get(),
 			show_options: false,
 			show_splash: false,
+			select: None,
+			exit_message: None,
 		}
 	}
 }
@@ -35,6 +42,7 @@ impl<'a> From<&'a Args> for State {
 			colored: args.style == *"colored",
 			color: args.color.get(),
 			show_splash: args.splash,
+			select: args.select,
 			..Self::default()
 		}
 	}
@@ -62,5 +70,7 @@ mod tests {
 		assert_eq!(TuiColor::Gray, state.color);
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);
+		assert_eq!(None, state.select);
+		assert_eq!(None, state.exit_message);
 	}
 }
