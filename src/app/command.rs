@@ -235,7 +235,7 @@ impl FromStr for Command {
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
-					Ok(Command::Copy(CopyType::from_str(&arg)?))
+					Ok(Command::Copy(CopyType::from_str(&arg).map_err(|_| ())?))
 				} else {
 					Ok(Command::SwitchMode(Mode::Copy))
 				}

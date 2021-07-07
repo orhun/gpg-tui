@@ -33,16 +33,18 @@ impl Display for CopyType {
 }
 
 impl FromStr for CopyType {
-	type Err = ();
+	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		match s {
 			"row1" | "1" => Ok(Self::TableRow(1)),
 			"row2" | "2" => Ok(Self::TableRow(2)),
 			"key" => Ok(Self::Key),
 			"key_id" | "id" => Ok(Self::KeyId),
-			"key_fingerprint" | "fingerprint" => Ok(Self::KeyFingerprint),
+			"key_fingerprint" | "key_fpr" | "fingerprint" | "fpr" => {
+				Ok(Self::KeyFingerprint)
+			}
 			"key_user_id" | "user" => Ok(Self::KeyUserId),
-			_ => Err(()),
+			_ => Err(String::from("could not parse the type")),
 		}
 	}
 }
