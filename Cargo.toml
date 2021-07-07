@@ -1,6 +1,6 @@
 [package]
 name = "gpg-tui"
-version = "0.6.2"
+version = "0.7.0"
 description = "Manage your GnuPG keys with ease!"
 authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
 license = "MIT"
@@ -30,7 +30,7 @@ rust-embed = "5.9.0"
 shellexpand = "2.1.0"
 
 [dependencies.structopt]
-version = "0.3.21"
+version = "0.3.22"
 default-features = false
 features = ["suggestions", "color", "wrap_help"]
 
