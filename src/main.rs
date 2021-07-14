@@ -7,7 +7,7 @@ use gpg_tui::gpg::context::GpgContext;
 use gpg_tui::term::event::{Event, EventHandler};
 use gpg_tui::term::tui::Tui;
 use gpg_tui::GPGME_REQUIRED_VERSION;
-use std::io;
+use std::io::{self, Write};
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
@@ -21,7 +21,7 @@ fn main() -> Result<()> {
 	// Create an application for rendering.
 	let mut app = App::new(&mut gpgme, &args)?;
 	// Initialize the text-based user interface.
-	let backend = CrosstermBackend::new(io::stdout());
+	let backend = CrosstermBackend::new(io::stderr());
 	let terminal = Terminal::new(backend)?;
 	let events = EventHandler::new(args.tick_rate);
 	let mut tui = Tui::new(terminal, events);
@@ -43,7 +43,7 @@ fn main() -> Result<()> {
 	tui.exit()?;
 	// Print the exit message if any.
 	if let Some(message) = app.state.exit_message {
-		println!("{}", message);
+		writeln!(&mut io::stdout(), "{}", message)?;
 	}
 	Ok(())
 }

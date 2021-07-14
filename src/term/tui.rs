@@ -42,7 +42,7 @@ impl<B: Backend> Tui<B> {
 	pub fn init(&mut self) -> Result<()> {
 		terminal::enable_raw_mode()?;
 		crossterm::execute!(
-			io::stdout(),
+			io::stderr(),
 			EnterAlternateScreen,
 			EnableMouseCapture
 		)?;
@@ -72,12 +72,12 @@ impl<B: Backend> Tui<B> {
 
 	/// Enables the mouse capture.
 	pub fn enable_mouse_capture(&mut self) -> Result<()> {
-		Ok(crossterm::execute!(io::stdout(), EnableMouseCapture)?)
+		Ok(crossterm::execute!(io::stderr(), EnableMouseCapture)?)
 	}
 
 	/// Disables the mouse capture.
 	pub fn disable_mouse_capture(&mut self) -> Result<()> {
-		Ok(crossterm::execute!(io::stdout(), DisableMouseCapture)?)
+		Ok(crossterm::execute!(io::stderr(), DisableMouseCapture)?)
 	}
 
 	/// [`Draw`] the terminal interface by [`rendering`] the widgets.
@@ -97,7 +97,7 @@ impl<B: Backend> Tui<B> {
 	pub fn exit(&mut self) -> Result<()> {
 		terminal::disable_raw_mode()?;
 		crossterm::execute!(
-			io::stdout(),
+			io::stderr(),
 			LeaveAlternateScreen,
 			DisableMouseCapture
 		)?;
