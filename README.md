@@ -526,6 +526,12 @@ gpg-tui --select <option>
 
 ![](demo/gpg-tui-selection_mode.gif)
 
+For example, you can use the following shell function to encrypt a file for the selected recipient (key ID):
+
+```sh
+function encrypt() { gpg -e -r $(gpg-tui --select key_id) "$@"; }
+```
+
 #### Detailed View
 
 Press `Tab` to toggle the [detail level](#detail-levels) for the selected entry in the list. Number keys (e.g. `1`, `2`, `3`) can be also used to set a specific level.
