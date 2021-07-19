@@ -197,6 +197,7 @@ impl GpgKey {
 		let mut user_signatures = Vec::new();
 		let signatures = user.signatures().collect::<Vec<UserIdSignature>>();
 		for (i, sig) in signatures.iter().enumerate() {
+			let notations = sig.notations().collect::<Vec<SignatureNotation>>();
 			let padding = if user_count == 1 {
 				" "
 			} else if user_index == user_count - 1 {
@@ -232,11 +233,12 @@ impl GpgKey {
 					if truncate { "%Y" } else { "%F" }
 				)
 			));
-			let notations = sig.notations().collect::<Vec<SignatureNotation>>();
 			if !notations.is_empty() {
 				user_signatures.extend(self.get_signature_notations(
 					notations,
 					format!(" {}  ", padding),
+					signatures.len(),
+					i,
 				));
 			}
 		}
@@ -248,14 +250,21 @@ impl GpgKey {
 		&self,
 		notations: Vec<SignatureNotation>,
 		padding: String,
+		sig_count: usize,
+		sig_index: usize,
 	) -> Vec<String> {
 		notations
 			.iter()
 			.enumerate()
 			.map(|(i, notation)| {
 				format!(
-					"{}   {}[{}] {}={}",
+					"{}{}  {}[{}] {}={}",
 					padding,
+					if sig_index == sig_count - 1 {
+						" "
+					} else {
+						"│"
+					},
 					if i == notations.len() - 1 {
 						"└─"
 					} else {
