@@ -398,16 +398,14 @@ impl<'a> App<'a> {
 				if self.gpgme.config.armor {
 					os_command.arg("--armor");
 				}
+				if let Some(default_key) = &self.gpgme.config.default_key {
+					os_command.arg("--default-key").arg(default_key);
+				}
 				let os_command = match command {
 					Command::EditKey(ref key) => {
 						os_command.arg("--edit-key").arg(key)
 					}
 					Command::SignKey(ref key) => {
-						if let Some(default_key) =
-							&self.gpgme.config.default_key
-						{
-							os_command.arg("--default-key").arg(default_key);
-						}
 						os_command.arg("--sign-key").arg(key)
 					}
 					Command::ImportKeys(ref keys, _) => {
