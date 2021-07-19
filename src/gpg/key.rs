@@ -121,13 +121,24 @@ impl GpgKey {
 	}
 
 	/// Returns information about the subkeys.
-	pub fn get_subkey_info(&self, truncate: bool) -> Vec<String> {
+	pub fn get_subkey_info(
+		&self,
+		default_key: Option<&str>,
+		truncate: bool,
+	) -> Vec<String> {
 		let mut key_info = Vec::new();
 		let subkeys = self.inner.subkeys().collect::<Vec<Subkey>>();
 		for (i, subkey) in subkeys.iter().enumerate() {
 			key_info.push(format!(
-				"[{}] {}/{}",
+				"[{}]{}{}/{}",
 				handler::get_subkey_flags(*subkey),
+				if default_key.map(|v| v.trim_start_matches("0x"))
+					== subkey.id().ok()
+				{
+					"*"
+				} else {
+					" "
+				},
 				subkey
 					.algorithm_name()
 					.unwrap_or_else(|_| { String::from("[?]") }),
@@ -308,11 +319,11 @@ mod tests {
 		assert_eq!(KeyDetail::Full, key.detail);
 		assert_eq!("full", key.detail.to_string());
 		assert!(key
-			.get_subkey_info(true)
+			.get_subkey_info(Some(""), true)
 			.join("\n")
 			.contains(&key.get_id().replace("0x", "")));
 		assert!(key
-			.get_subkey_info(false)
+			.get_subkey_info(Some(""), false)
 			.join("\n")
 			.contains(&key.get_fingerprint()));
 		assert!(key

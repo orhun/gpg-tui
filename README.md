@@ -371,13 +371,13 @@ The level of detail that an individual table row shows is determined by [detail 
 An example table entry for the detail level `full` (which includes subkeys) is explained via reference numbers below.
 
 <pre>
-[sc--]<b>⁰</b> rsa3072<b>¹</b>/B14085A20355B74DE0CE0FA1E19F76D037BD65B6<b>²</b>
-|<b>³</b>      └─(2021-05-14)<b>⁴</b>
-[--e-]<b>⁰</b> rsa3072<b>¹</b>/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5<b>²</b>
-        └─(2021-05-14) -> (2021-05-16)<b>⁴</b> [exp]<b>⁵</b>
+[sc--]<b>⁰</b>  rsa3072<b>¹</b>/B14085A20355B74DE0CE0FA1E19F76D037BD65B6<b>²</b>
+|<b>³</b>       └─(2021-05-14)<b>⁴</b>
+[--e-]<b>⁰</b>*<b>⁶</b>rsa3072<b>¹</b>/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5<b>²</b>
+         └─(2021-05-14) -> (2021-05-16)<b>⁴</b> [exp]<b>⁵</b>
 </pre>
 
-**0**: Key flags. Determines what this key can do.
+**0**: Key flags. Determines what the key can do.
 
 * `s`: sign
 * `c`: certify
@@ -402,6 +402,8 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 * `[d]`: disabled
 * `[i]`: invalid
 * `[q]`: qualified
+
+**6**: Star symbol (`*`) is shown after key flags if the key is selected as the default signing key.
 
 ### User Information
 

@@ -801,6 +801,7 @@ impl<'a> App<'a> {
 				let content = match copy_type {
 					Selection::TableRow(1) => Ok(selected_key
 						.get_subkey_info(
+							self.gpgme.config.default_key.as_deref(),
 							self.keys_table.state.size != TableSize::Normal,
 						)
 						.join("\n")),

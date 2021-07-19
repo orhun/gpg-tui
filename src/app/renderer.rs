@@ -450,6 +450,7 @@ fn get_keys_table_rows<'a>(
 		.enumerate()
 		.filter(|(i, key)| {
 			let subkey_info = key.get_subkey_info(
+				app.gpgme.config.default_key.as_deref(),
 				app.keys_table.state.size != TableSize::Normal,
 			);
 			let user_info = key.get_user_info(
