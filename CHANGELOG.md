@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2021-07-20
+### Added
+- Add the missing views for signature notations
+
+### Changed
+- Mark the default signing key with a symbol
+
+### Fixed
+- Override the default key for all gpg fallback commands
+- Sleep the event handler thread if input is disabled (#29)
+
 ## [0.7.1] - 2021-07-17
 ### Added
 - Add an example for selection mode to README.md
