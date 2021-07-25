@@ -86,8 +86,9 @@ It aims to ease the key management operations such as listing/exporting/signing 
   - [Key Management Only](#key-management-only)
 - [Resources](#resources)
   - [About the project](#about-the-project)
-  - [External Links](#external-links)
-- [Social Media](#social-media)
+  - [External links](#external-links)
+  - [In the media](#in-the-media)
+- [Contact](#contact)
 - [Funding](#funding)
 - [License](#license)
 - [Copyright](#copyright)
@@ -728,13 +729,19 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 * [Changelog](./CHANGELOG.md)
 * [List of Commands](./COMMANDS.md)
 
-### External Links
+### External links
 
 * [GnuPG Documentation](https://gnupg.org/documentation/)
 * [Understanding PGP/GPG Key Server Output](https://www.jamieweb.net/blog/understanding-pgp-gpg-key-server-output/)
 * [What is the meaning of GnuPG's --list-sigs output?](https://security.stackexchange.com/questions/141501/what-is-the-meaning-of-gnupgs-list-sigs-output)
 
-## Social Media
+### In the media
+
+- [Hacker News](https://news.ycombinator.com/item?id=27329598)
+- [heise online - IT-News](https://www.heise.de/news/gpg-tui-GnuPG-Schluessel-bequem-im-Terminal-verwalten-6057698.html)
+- [News Break](https://www.newsbreak.com/news/2266206071969/introducing-gpg-tui-a-terminal-user-interface-for-gnupg)
+
+## Contact
 
 * [![Join Matrix Room](https://img.shields.io/matrix/gpg-tui:matrix.org?style=flat&labelColor=1d1d1d&logo=matrix&logoColor=white&color=424242&label=join%20matrix)](https://matrix.to/#/!WRksRGtlvyEvEDByqt:matrix.org?via=matrix.org)
 * [![Follow @gpg_tui](https://img.shields.io/twitter/follow/gpg_tui?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/gpg_tui)
