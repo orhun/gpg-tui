@@ -15,8 +15,8 @@ use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableSize, TableState};
 use anyhow::{anyhow, Error as AnyhowError, Result};
 use colorsys::Rgb;
+use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
 use copypasta_ext::prelude::ClipboardProvider;
-use copypasta_ext::x11_fork::ClipboardContext;
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command as OsCommand;
@@ -58,7 +58,7 @@ pub struct App<'a> {
 	/// Bottom margin value of the keys table.
 	pub keys_table_margin: u16,
 	/// Clipboard context.
-	pub clipboard: Option<ClipboardContext>,
+	pub clipboard: Option<Box<dyn ClipboardProvider>>,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
 }
@@ -95,12 +95,12 @@ impl<'a> App<'a> {
 			keys_table_states: HashMap::new(),
 			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
-			clipboard: match ClipboardContext::new() {
-				Ok(clipboard) => Some(clipboard),
-				Err(e) => {
-					eprintln!("failed to initialize clipboard: {:?}", e);
+			clipboard: match ClipboardDisplayServer::select().try_context() {
+				None => {
+					eprintln!("failed to initialize clipboard, no suitable clipboard provider found");
 					None
 				}
+				clipboard => clipboard,
 			},
 			gpgme,
 		})
