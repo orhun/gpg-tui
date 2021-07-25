@@ -315,17 +315,23 @@ impl<'a> App<'a> {
 			}
 			Command::ImportKeys(_, false) | Command::ImportClipboard => {
 				let mut keys = Vec::new();
+				let mut import_error = String::from("no files given");
 				if let Command::ImportKeys(ref key_files, _) = command {
 					keys = key_files.clone();
 				} else if let Some(clipboard) = self.clipboard.as_mut() {
-					keys = vec![clipboard
-						.get_contents()
-						.expect("failed to get clipboard contents")];
+					match clipboard.get_contents() {
+						Ok(content) => {
+							keys = vec![content];
+						}
+						Err(e) => {
+							import_error = e.to_string();
+						}
+					}
 				}
 				if keys.is_empty() {
 					self.prompt.set_output((
 						OutputType::Failure,
-						String::from("no files given"),
+						format!("import error: {}", import_error),
 					))
 				} else {
 					match self
@@ -840,13 +846,21 @@ impl<'a> App<'a> {
 							self.run_command(Command::Quit)?;
 						} else if let Some(clipboard) = self.clipboard.as_mut()
 						{
-							clipboard
-								.set_contents(content)
-								.expect("failed to set clipboard contents");
-							self.prompt.set_output((
-								OutputType::Success,
-								format!("{} copied to clipboard", copy_type),
-							));
+							self.prompt.set_output(
+								match clipboard.set_contents(content) {
+									Ok(_) => (
+										OutputType::Success,
+										format!(
+											"{} copied to clipboard",
+											copy_type
+										),
+									),
+									Err(e) => (
+										OutputType::Failure,
+										format!("clipboard error: {}", e),
+									),
+								},
+							);
 						} else {
 							self.prompt.set_output((
 								OutputType::Failure,
@@ -865,13 +879,18 @@ impl<'a> App<'a> {
 			}
 			Command::Paste => {
 				if let Some(clipboard) = self.clipboard.as_mut() {
-					self.prompt.clear();
-					self.prompt.text = format!(
-						":{}",
-						clipboard
-							.get_contents()
-							.expect("failed to get clipboard contents")
-					);
+					match clipboard.get_contents() {
+						Ok(content) => {
+							self.prompt.clear();
+							self.prompt.text = format!(":{}", content);
+						}
+						Err(e) => {
+							self.prompt.set_output((
+								OutputType::Failure,
+								format!("clipboard error: {}", e),
+							));
+						}
+					}
 				} else {
 					self.prompt.set_output((
 						OutputType::Failure,
