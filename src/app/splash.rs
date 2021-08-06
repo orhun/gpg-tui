@@ -14,7 +14,33 @@ pub type Point = (f64, f64);
 #[folder = "assets/"]
 struct Assets;
 
-/// Splash screen data.
+/// Splash screen configuration.
+#[derive(Clone, Copy, Debug)]
+pub struct SplashConfig<'a> {
+	/// Path of the image file.
+	pub image_path: &'a str,
+	/// SHA256 hash of the file.
+	pub sha256_hash: Option<[u8; 32]>,
+	/// Number of the rendering steps.
+	pub render_steps: i32,
+}
+
+impl<'a> SplashConfig<'a> {
+	/// Constructs a new instance of `SplashConfig`.
+	pub fn new(
+		image_path: &'a str,
+		sha256_hash: Option<[u8; 32]>,
+		render_steps: i32,
+	) -> Self {
+		Self {
+			image_path,
+			sha256_hash,
+			render_steps,
+		}
+	}
+}
+
+/// Splash screen.
 #[derive(Debug)]
 pub struct SplashScreen {
 	/// Image that will be used for constructing the color data.
@@ -29,17 +55,27 @@ pub struct SplashScreen {
 
 impl SplashScreen {
 	/// Constructs a new instance of `SplashScreen`.
-	pub fn new(image_path: &str, steps: i32) -> Result<Self> {
-		match Assets::get(image_path) {
-			Some(asset) => Ok(Self {
-				image: image::load_from_memory(&asset.data)?,
-				data: HashMap::new(),
-				step: steps,
-				steps,
-			}),
+	pub fn new(config: SplashConfig) -> Result<Self> {
+		match Assets::get(config.image_path) {
+			Some(asset) => {
+				if config.sha256_hash.is_none()
+					|| (config.sha256_hash
+						== Some(asset.metadata.sha256_hash()))
+					|| cfg!(not(debug_assertions))
+				{
+					Ok(Self {
+						image: image::load_from_memory(&asset.data)?,
+						data: HashMap::new(),
+						step: config.render_steps,
+						steps: config.render_steps,
+					})
+				} else {
+					Err(anyhow!("splash screen asset could not be verified"))
+				}
+			}
 			None => Err(anyhow!(
 				"cannot find the splash screen asset: {}",
-				image_path
+				config.image_path
 			)),
 		}
 	}

@@ -362,6 +362,7 @@ dependencies = [
  "crossterm 0.20.0",
  "dirs-next",
  "gpgme",
+ "hex-literal",
  "image",
  "pretty_assertions",
  "rust-embed",
@@ -415,6 +416,12 @@ checksum = "5aca5565f760fb5b220e499d72710ed156fdb74e631659e99377d9ebfbd13ae8"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "hex-literal"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21e4590e13640f19f249fe3e4eca5113bc4289f2497710378190e7f4bd96f45b"
 
 [[package]]
 name = "image"

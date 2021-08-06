@@ -3,7 +3,7 @@ use crate::app::keys::{KeyBinding, KEY_BINDINGS};
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
 use crate::app::selection::Selection;
-use crate::app::splash::SplashScreen;
+use crate::app::splash::{SplashConfig, SplashScreen};
 use crate::app::state::State;
 use crate::app::tab::Tab;
 use crate::args::Args;
@@ -27,6 +27,15 @@ use tui::style::Color;
 
 /// Max duration of prompt messages.
 const MESSAGE_DURATION: u128 = 1750;
+
+/// Splash screen config.
+static SPLASH_CONFIG: SplashConfig = SplashConfig {
+	image_path: "splash.jpg",
+	sha256_hash: Some(hex_literal::hex!(
+		"dffd680d649a4a4b5df25dc1afaa722186c3bf38469a9156bad33f1719574e2a"
+	)),
+	render_steps: 12,
+};
 
 /// Main application.
 ///
@@ -88,7 +97,7 @@ impl<'a> App<'a> {
 			state,
 			tab: Tab::Keys(KeyType::Public),
 			options: StatefulList::with_items(Vec::new()),
-			splash_screen: SplashScreen::new("splash.jpg", 12)?,
+			splash_screen: SplashScreen::new(SPLASH_CONFIG)?,
 			key_bindings: StatefulList::with_items(KEY_BINDINGS.to_vec()),
 			keys,
 			keys_table,
