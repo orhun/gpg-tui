@@ -32,7 +32,7 @@ impl SplashScreen {
 	pub fn new(image_path: &str, steps: i32) -> Result<Self> {
 		match Assets::get(image_path) {
 			Some(asset) => Ok(Self {
-				image: image::load_from_memory(asset.as_ref())?,
+				image: image::load_from_memory(&asset.data)?,
 				data: HashMap::new(),
 				step: steps,
 				steps,

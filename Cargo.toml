@@ -26,7 +26,7 @@ chrono = "0.4.19"
 unicode-width = "0.1.8"
 copypasta-ext = "0.3.7"
 colorsys = "0.6.3"
-rust-embed = "5.9.0"
+rust-embed = "6.0.0"
 shellexpand = "2.1.0"
 
 [dependencies.structopt]
