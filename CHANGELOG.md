@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2021-08-07
+### Added
+- Add config for splash screen to check SHA256 hash of assets
+
+### Changed
+- Bump `rust-embed` to `6.0.0`
+- Bump `tui` to `0.16.0`
+- Bump `gpgme` to `0.10.0`
+- Center the options menu title
+
+### Fixed
+- Mark the unsupported algorithms as unrecognized/unknown
+- Fix the failing test about options menu title
+
 ## [0.7.3] - 2021-07-25
 ### Added
 - Add Wayland clipboard support (#30)
