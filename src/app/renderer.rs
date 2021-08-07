@@ -373,6 +373,7 @@ fn render_options_menu<B: Backend>(
 			.block(
 				Block::default()
 					.title("Options")
+					.title_alignment(Alignment::Center)
 					.style(if app.state.colored {
 						Style::default().fg(Color::LightBlue)
 					} else {
