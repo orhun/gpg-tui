@@ -139,9 +139,15 @@ impl GpgKey {
 				} else {
 					" "
 				},
-				subkey
-					.algorithm_name()
-					.unwrap_or_else(|_| { String::from("[?]") }),
+				if let Ok(algorithm_name) = subkey.algorithm_name() {
+					if algorithm_name.len() == 7 {
+						algorithm_name
+					} else {
+						String::from("unrecog")
+					}
+				} else {
+					String::from("unknown")
+				},
 				if truncate {
 					subkey.id()
 				} else {
