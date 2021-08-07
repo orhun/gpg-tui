@@ -19,7 +19,7 @@ tui-tests = []
 gpg-tests = []
 
 [dependencies]
-gpgme = "0.9.2"
+gpgme = "0.10.0"
 crossterm = "0.20.0"
 anyhow = "1.0.42"
 chrono = "0.4.19"
