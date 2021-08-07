@@ -587,7 +587,7 @@ mod tests {
 			Buffer::with_lines(vec![
 			"┌────────────────────────────────────────────────────────────────────┐",
 			&test_key,
-			"│               ┌Options─────────────────────────────┐               │",
+			"│               ┌──────────────Options───────────────┐               │",
 			"│  [sc--] rsa409│> close menu                        │ail.com        │",
 			"│               │  show help                         │               │",
 			"│               │  refresh application               │               │",
