@@ -14,6 +14,10 @@ include = ["src/**/*", "assets/*", "Cargo.*", "LICENSE", "README.md", "CHANGELOG
 edition = "2018"
 default-run = "gpg-tui"
 
+[[bin]]
+name = "gpg-tui-completions"
+path = "src/bin/completions.rs"
+
 [features]
 tui-tests = []
 gpg-tests = []
