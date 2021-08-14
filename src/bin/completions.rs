@@ -3,7 +3,7 @@ use std::{env, str::FromStr};
 use structopt::clap::Shell;
 use structopt::StructOpt;
 
-/// Shell completions can be created with `cargo run --bin completions`
+/// Shell completions can be created with `cargo run --bin gpg-tui-completions`
 /// in a directory specified by the environment variable [OUT_DIR].
 ///
 /// [OUT_DIR]: https://doc.rust-lang.org/cargo/reference/environment-variables.html
