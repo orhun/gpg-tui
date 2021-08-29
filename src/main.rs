@@ -15,7 +15,7 @@ fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let args = Args::parse();
 	// Initialize GPGME library.
-	let config = GpgConfig::new(&args).unwrap();
+	let config = GpgConfig::new(&args)?;
 	config.check_gpgme_version(GPGME_REQUIRED_VERSION);
 	let mut gpgme = GpgContext::new(config)?;
 	// Create an application for rendering.
