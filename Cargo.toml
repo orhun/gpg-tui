@@ -33,6 +33,7 @@ colorsys = "0.6.3"
 rust-embed = "6.0.0"
 shellexpand = "2.1.0"
 hex-literal = "0.3.3"
+toml = "0.5.8"
 
 [dependencies.structopt]
 version = "0.3.22"
@@ -48,6 +49,10 @@ features = ["crossterm"]
 version = "0.23.14"
 default-features = false
 features = ["jpeg"]
+
+[dependencies.serde]
+version = "1.0.28"
+features = ["derive"]
 
 [dev-dependencies]
 pretty_assertions = "0.7.2"

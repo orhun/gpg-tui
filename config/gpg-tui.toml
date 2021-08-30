@@ -1,0 +1,11 @@
+[general]
+splash = false
+tick_rate = 250
+color = "gray"
+style = "plain"
+
+[gpg]
+armor = false
+# homedir = "~/.gnupg"
+# outdir = "~/.gnupg/out"
+# default_key = ""

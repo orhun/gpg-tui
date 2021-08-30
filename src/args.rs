@@ -28,6 +28,9 @@ pub struct Args {
 	/// Shows the splash screen on startup.
 	#[structopt(long)]
 	pub splash: bool,
+	/// Sets the configuration file.
+	#[structopt(long, value_name = "path", env, parse(from_str = Args::parse_dir))]
+	pub config: Option<String>,
 	/// Sets the GnuPG home directory.
 	#[structopt(long, value_name = "dir", env = "GNUPGHOME", parse(from_str = Args::parse_dir))]
 	pub homedir: Option<String>,

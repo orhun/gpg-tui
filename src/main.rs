@@ -2,6 +2,7 @@ use anyhow::Result;
 use gpg_tui::app::handler;
 use gpg_tui::app::launcher::App;
 use gpg_tui::args::Args;
+use gpg_tui::config::Config;
 use gpg_tui::gpg::config::GpgConfig;
 use gpg_tui::gpg::context::GpgContext;
 use gpg_tui::term::event::{Event, EventHandler};
@@ -13,11 +14,16 @@ use tui::Terminal;
 
 fn main() -> Result<()> {
 	// Parse command-line arguments.
-	let args = Args::parse();
+	let mut args = Args::parse();
+	// Parse configuration file.
+	if let Some(ref config_file) = args.config {
+		let config = Config::parse_config(config_file)?;
+		args = config.update_args(args);
+	}
 	// Initialize GPGME library.
-	let config = GpgConfig::new(&args)?;
-	config.check_gpgme_version(GPGME_REQUIRED_VERSION);
-	let mut gpgme = GpgContext::new(config)?;
+	let gpg_config = GpgConfig::new(&args)?;
+	gpg_config.check_gpgme_version(GPGME_REQUIRED_VERSION);
+	let mut gpgme = GpgContext::new(gpg_config)?;
 	// Create an application for rendering.
 	let mut app = App::new(&mut gpgme, &args)?;
 	// Initialize the text-based user interface.

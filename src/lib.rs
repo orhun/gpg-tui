@@ -3,6 +3,7 @@
 
 pub mod app;
 pub mod args;
+pub mod config;
 pub mod gpg;
 pub mod term;
 pub mod widget;
