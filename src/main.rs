@@ -16,8 +16,10 @@ fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let mut args = Args::parse();
 	// Parse configuration file.
-	if let Some(ref config_file) = args.config {
-		let config = Config::parse_config(config_file)?;
+	if let Some(config_file) =
+		args.config.to_owned().or_else(Config::get_default_location)
+	{
+		let config = Config::parse_config(&config_file)?;
 		args = config.update_args(args);
 	}
 	// Initialize GPGME library.

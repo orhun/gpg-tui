@@ -42,6 +42,29 @@ pub struct GpgConfig {
 }
 
 impl Config {
+	/// Checks the possible locations for the configuration file.
+	///
+	/// - `<config_dir>/gpg-tui.toml`
+	/// - `<config_dir>/gpg-tui/gpg-tui.toml`
+	/// - `<config_dir>/gpg-tui/config`
+	///
+	/// Returns the path if the configuration file is found.
+	pub fn get_default_location() -> Option<String> {
+		if let Some(config_dir) = dirs_next::config_dir() {
+			let file_name = format!("{}.toml", env!("CARGO_PKG_NAME"));
+			for config_file in vec![
+				config_dir.join(&file_name),
+				config_dir.join(env!("CARGO_PKG_NAME")).join(&file_name),
+				config_dir.join(env!("CARGO_PKG_NAME")).join("config"),
+			] {
+				if config_file.exists() {
+					return config_file.to_str().map(String::from);
+				}
+			}
+		}
+		None
+	}
+
 	/// Parses the configuration file.
 	pub fn parse_config(file: &str) -> Result<Config> {
 		let contents = fs::read_to_string(file)?;
