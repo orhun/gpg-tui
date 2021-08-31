@@ -85,3 +85,26 @@ impl Config {
 		args
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use pretty_assertions::assert_eq;
+	use std::path::PathBuf;
+	#[test]
+	fn test_parse_config() -> Result<()> {
+		let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+			.join("config")
+			.join(format!("{}.toml", env!("CARGO_PKG_NAME")))
+			.to_string_lossy()
+			.into_owned();
+		if let Some(global_path) = Config::get_default_location() {
+			path = global_path;
+		}
+		let mut config = Config::parse_config(&path)?;
+		config.gpg.default_key = Some(String::from("test_key"));
+		let args = config.update_args(Args::default());
+		assert_eq!(Some(String::from("test_key")), args.default_key);
+		Ok(())
+	}
+}
