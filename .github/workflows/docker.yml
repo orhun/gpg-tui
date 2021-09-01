@@ -7,7 +7,7 @@ on:
 
 jobs:
   docker:
-    name: Docker
+    name: Docker Build
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout the repository
