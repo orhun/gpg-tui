@@ -50,6 +50,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
     - [Building from source](#building-from-source-2)
     - [Binary releases](#binary-releases-1)
 - [Usage](#usage)
+- [Configuration](#configuration)
 - [Key Bindings](#key-bindings)
   - [User Interface](#user-interface)
   - [Key Management](#key-management)
@@ -294,6 +295,26 @@ OPTIONS:
         --select <option>      Enables the selection mode [env: SELECT=]
                                [possible values: key_id, key_fpr, user_id, row1, row2]
 ```
+
+## Configuration
+
+It is possible to override the command line arguments with a configuration file.
+
+See [gpg-tui.toml](config/gpg-tui.toml) for the default configuration values.
+
+The configuration file can be specified via `--config` argument or `GPG_TUI_CONFIG` environment variable. Also, it can be placed to a location where **gpg-tui** looks for:
+
+* `<config_dir>` `/` `gpg-tui.conf`
+* `<config_dir>` `/` `gpg-tui/gpg-tui.conf`
+* `<config_dir>` `/` `gpg-tui/config`
+
+`<config_dir>` depends on the platform as shown in the following table:
+
+|Platform | Value                                 | Example                          |
+| ------- | ------------------------------------- | -------------------------------- |
+| Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config              |
+| macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |
+| Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming   |
 
 ## Key Bindings
 
