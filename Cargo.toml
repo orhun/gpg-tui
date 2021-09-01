@@ -17,6 +17,7 @@ default-run = "gpg-tui"
 [[bin]]
 name = "gpg-tui-completions"
 path = "src/bin/completions.rs"
+test = false
 
 [features]
 tui-tests = []
