@@ -425,6 +425,7 @@ fn handle_command_execution<B: Backend>(
 mod tests {
 	use super::*;
 	use crate::app::command::Command;
+	use crate::app::style::Style;
 	use crate::args::Args;
 	use crate::gpg::config::GpgConfig;
 	use crate::gpg::context::GpgContext;
@@ -557,7 +558,7 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('`'), Modifiers::NONE)],
 			),
 			(
-				Command::Set(String::from("style"), String::from("colored")),
+				Command::ChangeStyle(Style::Colored),
 				vec![KeyEvent::new(Key::Char('s'), Modifiers::CONTROL)],
 			),
 			(
