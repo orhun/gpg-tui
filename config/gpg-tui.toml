@@ -8,4 +8,4 @@ style = "plain"
 armor = false
 # homedir = "~/.gnupg"
 # outdir = "~/.gnupg/out"
-# default_key = ""
+# default_key = "0xA1B2C3XY"
