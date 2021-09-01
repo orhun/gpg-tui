@@ -183,10 +183,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			),
 			Key::Char('s') | Key::Char('S') => {
 				if key_event.modifiers == Modifiers::CONTROL {
-					Command::Set(
-						String::from("colored"),
-						(!app.state.colored).to_string(),
-					)
+					Command::ChangeStyle(app.state.style.next())
 				} else {
 					match app.keys_table.selected() {
 						Some(selected_key) => {
@@ -348,6 +345,7 @@ fn handle_command_execution<B: Backend>(
 	if let Tab::Help = app.tab {
 		match command {
 			Command::ShowOptions
+			| Command::ChangeStyle(_)
 			| Command::Scroll(_, _)
 			| Command::ListKeys(_)
 			| Command::SwitchMode(_)
@@ -359,7 +357,7 @@ fn handle_command_execution<B: Backend>(
 			| Command::Quit
 			| Command::None => {}
 			Command::Set(ref option, _) => {
-				if option != "colored" {
+				if option != "style" {
 					command = Command::None
 				}
 			}
@@ -559,7 +557,7 @@ mod tests {
 				vec![KeyEvent::new(Key::Char('`'), Modifiers::NONE)],
 			),
 			(
-				Command::Set(String::from("colored"), String::from("true")),
+				Command::Set(String::from("style"), String::from("colored")),
 				vec![KeyEvent::new(Key::Char('s'), Modifiers::CONTROL)],
 			),
 			(

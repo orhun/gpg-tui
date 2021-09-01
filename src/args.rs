@@ -2,6 +2,7 @@
 
 use crate::app::banner::BANNERS;
 use crate::app::selection::Selection;
+use crate::app::style::Style;
 use crate::widget::style::Color;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
@@ -48,10 +49,9 @@ pub struct Args {
 	pub color: Color,
 	/// Sets the style of the terminal.
 	#[structopt(
-		short, long, possible_values = &["plain", "colored"],
-		default_value = "plain", env
+		short, long, possible_values = &["plain", "colored"], default_value = "plain", env
 	)]
-	pub style: String,
+	pub style: Style,
 	/// Enables the selection mode.
 	#[structopt(
 		long,

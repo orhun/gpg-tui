@@ -1,10 +1,12 @@
 //! Configuration file parser.
 
+use crate::app::style::Style;
 use crate::args::Args;
 use crate::widget::style::Color;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::str::FromStr;
 
 /// Application configuration.
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -81,7 +83,7 @@ impl Config {
 		args.default_key = self.gpg.default_key;
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());
-		args.style = self.general.style;
+		args.style = Style::from_str(&self.general.style).unwrap_or_default();
 		args
 	}
 }

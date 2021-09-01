@@ -1,6 +1,7 @@
 use crate::app::mode::Mode;
 use crate::app::prompt::OutputType;
 use crate::app::selection::Selection;
+use crate::app::style::Style;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -17,6 +18,8 @@ pub enum Command {
 	Confirm(Box<Command>),
 	/// Show help.
 	ShowHelp,
+	/// Change application style.
+	ChangeStyle(Style),
 	/// Show application output.
 	ShowOutput(OutputType, String),
 	/// Show popup for options menu.
@@ -83,6 +86,12 @@ impl Display for Command {
 				Command::Refresh => String::from("refresh application"),
 				Command::RefreshKeys => String::from("refresh the keyring"),
 				Command::ShowHelp => String::from("show help"),
+				Command::ChangeStyle(style) => {
+					match style {
+						Style::Plain => String::from("disable colors"),
+						Style::Colored => String::from("enable colors"),
+					}
+				}
 				Command::ListKeys(key_type) => {
 					format!(
 						"list {} keys",
@@ -122,7 +131,6 @@ impl Display for Command {
 					match option.as_ref() {
 						"armor" => format!("{} armored output", action),
 						"signer" => String::from("set as the signing key"),
-						"colored" => format!("{} colors", action),
 						"margin" => String::from("toggle table margin"),
 						"prompt" => {
 							if value == ":import " {
@@ -166,6 +174,10 @@ impl FromStr for Command {
 				Command::from_str(&args.join(" "))?
 			}))),
 			"help" | "h" => Ok(Command::ShowHelp),
+			"style" => Ok(Command::ChangeStyle(
+				Style::from_str(&args.first().cloned().unwrap_or_default())
+					.unwrap_or_default(),
+			)),
 			"output" | "out" => {
 				if !args.is_empty() {
 					Ok(Command::ShowOutput(
@@ -311,6 +323,14 @@ mod tests {
 				String::from("operation successful"),
 			),
 			Command::from_str(":out success operation successful").unwrap()
+		);
+		assert_eq!(
+			Command::ChangeStyle(Style::Colored),
+			Command::from_str(":style colored").unwrap()
+		);
+		assert_eq!(
+			Command::ChangeStyle(Style::Plain),
+			Command::from_str(":style plain").unwrap()
 		);
 		assert_eq!(
 			Command::ShowOptions,
@@ -469,8 +489,17 @@ mod tests {
 		}
 		assert_eq!(Command::None, Command::from_str(":none").unwrap());
 		assert!(Command::from_str("test").is_err());
+
 		assert_eq!("close menu", Command::None.to_string());
 		assert_eq!("show help", Command::ShowHelp.to_string());
+		assert_eq!(
+			"disable colors",
+			Command::ChangeStyle(Style::Plain).to_string()
+		);
+		assert_eq!(
+			"enable colors",
+			Command::ChangeStyle(Style::Colored).to_string()
+		);
 		assert_eq!("refresh application", Command::Refresh.to_string());
 		assert_eq!("refresh the keyring", Command::RefreshKeys.to_string());
 		assert_eq!(
@@ -528,8 +557,8 @@ mod tests {
 				.to_string()
 		);
 		assert_eq!(
-			"enable colors",
-			Command::Set(String::from("colored"), String::from("true"))
+			"set style to colored",
+			Command::Set(String::from("style"), String::from("colored"))
 				.to_string()
 		);
 		assert_eq!(

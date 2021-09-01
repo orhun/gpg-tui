@@ -56,7 +56,7 @@ fn render_splash_screen<B: Backend>(
 	rect: Rect,
 ) {
 	app.state.show_splash = app.splash_screen.step != 0;
-	let data = app.splash_screen.get(app.state.colored);
+	let data = app.splash_screen.get(app.state.style.is_colored());
 	frame.render_widget(
 		Canvas::default()
 			.x_bounds([
@@ -94,7 +94,7 @@ fn render_command_prompt<B: Backend>(
 				app.prompt.output_type, app.prompt.text
 			))]
 		} else {
-			let arrow_color = if app.state.colored {
+			let arrow_color = if app.state.style.is_colored() {
 				Color::LightBlue
 			} else {
 				Color::DarkGray
@@ -124,7 +124,7 @@ fn render_command_prompt<B: Backend>(
 				Span::styled(" >", Style::default().fg(arrow_color)),
 			]
 		}))
-		.style(if app.state.colored {
+		.style(if app.state.style.is_colored() {
 			match app.prompt.output_type {
 				OutputType::Success => Style::default()
 					.fg(Color::LightGreen)
@@ -136,7 +136,7 @@ fn render_command_prompt<B: Backend>(
 					.fg(Color::LightRed)
 					.add_modifier(Modifier::BOLD),
 				OutputType::Action => {
-					if app.state.colored {
+					if app.state.style.is_colored() {
 						Style::default()
 							.fg(Color::LightBlue)
 							.add_modifier(Modifier::BOLD)
@@ -227,7 +227,7 @@ fn render_help_tab<B: Backend>(
 					.enumerate()
 					.map(|(i, v)| {
 						v.as_list_item(
-							app.state.colored,
+							app.state.style.is_colored(),
 							app.key_bindings.state.selected() == Some(i),
 						)
 					})
@@ -239,7 +239,7 @@ fn render_help_tab<B: Backend>(
 					.border_style(Style::default().fg(Color::DarkGray)),
 			)
 			.style(Style::default().fg(app.state.color))
-			.highlight_style(if app.state.colored {
+			.highlight_style(if app.state.style.is_colored() {
 				Style::default().add_modifier(Modifier::BOLD)
 			} else {
 				Style::default()
@@ -288,7 +288,7 @@ fn render_help_tab<B: Backend>(
 			.split(chunks[1]);
 		let banner = Banner::get(chunks[0]);
 		frame.render_widget(
-			Paragraph::new(if app.state.colored {
+			Paragraph::new(if app.state.style.is_colored() {
 				style::get_colored_info(&banner, Color::Magenta)
 			} else {
 				Text::raw(banner)
@@ -304,7 +304,7 @@ fn render_help_tab<B: Backend>(
 			chunks[0],
 		);
 		frame.render_widget(
-			Paragraph::new(if app.state.colored {
+			Paragraph::new(if app.state.style.is_colored() {
 				style::get_colored_info(&information, Color::Cyan)
 			} else {
 				Text::raw(information)
@@ -374,7 +374,7 @@ fn render_options_menu<B: Backend>(
 				Block::default()
 					.title("Options")
 					.title_alignment(Alignment::Center)
-					.style(if app.state.colored {
+					.style(if app.state.style.is_colored() {
 						Style::default().fg(Color::LightBlue)
 					} else {
 						Style::default()
@@ -413,7 +413,7 @@ fn render_keys_table<B: Backend>(
 			rect.height.checked_sub(2).unwrap_or(rect.height),
 		))
 		.style(Style::default().fg(app.state.color))
-		.highlight_style(if app.state.colored {
+		.highlight_style(if app.state.style.is_colored() {
 			Style::default().add_modifier(Modifier::BOLD)
 		} else {
 			Style::default()
@@ -482,7 +482,7 @@ fn get_keys_table_rows<'a>(
 				app.keys_table.state.scroll,
 			);
 			rows.push(
-				Row::new(if app.state.colored {
+				Row::new(if app.state.style.is_colored() {
 					let highlighted =
 						app.keys_table.state.tui.selected() == Some(*i);
 					vec![

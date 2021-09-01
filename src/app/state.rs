@@ -1,4 +1,5 @@
 use crate::app::selection::Selection;
+use crate::app::style::Style;
 use crate::args::Args;
 use crate::widget::style::Color;
 use tui::style::Color as TuiColor;
@@ -8,8 +9,8 @@ use tui::style::Color as TuiColor;
 pub struct State {
 	/// Is app running?
 	pub running: bool,
-	/// Is app colored?
-	pub colored: bool,
+	/// Style of the app.
+	pub style: Style,
 	/// Accent color of the app.
 	pub color: TuiColor,
 	/// Is the options menu (popup) showing?
@@ -26,7 +27,7 @@ impl Default for State {
 	fn default() -> Self {
 		Self {
 			running: true,
-			colored: false,
+			style: Style::default(),
 			color: Color::default().get(),
 			show_options: false,
 			show_splash: false,
@@ -39,7 +40,7 @@ impl Default for State {
 impl<'a> From<&'a Args> for State {
 	fn from(args: &'a Args) -> Self {
 		State {
-			colored: args.style == *"colored",
+			style: args.style,
 			color: args.color.get(),
 			show_splash: args.splash,
 			select: args.select,
@@ -51,9 +52,9 @@ impl<'a> From<&'a Args> for State {
 impl State {
 	/// Reverts back the values to default.
 	pub fn refresh(&mut self) {
-		let colored = self.colored;
+		let style = self.style;
 		*self = Self::default();
-		self.colored = colored;
+		self.style = style;
 	}
 }
 
@@ -66,7 +67,7 @@ mod tests {
 		let mut state = State::default();
 		state.refresh();
 		assert_eq!(true, state.running);
-		assert_eq!(false, state.colored);
+		assert_eq!(Style::Plain, state.style);
 		assert_eq!(TuiColor::Gray, state.color);
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);

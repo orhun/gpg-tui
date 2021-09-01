@@ -1,5 +1,56 @@
-use tui::style::{Color, Style};
+use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::str::FromStr;
+use tui::style::{Color, Style as TuiStyle};
 use tui::text::{Span, Spans, Text};
+
+/// Application style.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Style {
+	/// Plain style with basic colors.
+	Plain,
+	/// More rich style with highlighted widgets and more colors.
+	Colored,
+}
+
+impl Default for Style {
+	fn default() -> Self {
+		Self::Plain
+	}
+}
+
+impl Display for Style {
+	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+		write!(f, "{}", format!("{:?}", self).to_lowercase())
+	}
+}
+
+impl FromStr for Style {
+	type Err = String;
+	fn from_str(style: &str) -> Result<Self, Self::Err> {
+		match style {
+			"plain" => Ok(Self::Plain),
+			"colored" => Ok(Self::Colored),
+			_ => Err(String::from("could not parse the style")),
+		}
+	}
+}
+
+impl Style {
+	/// Returns `true` if the style is [`Colored`].
+	///
+	/// [`Colored`]: Self::Colored
+	pub fn is_colored(&self) -> bool {
+		self == &Self::Colored
+	}
+
+	/// Returns the next style.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::Plain => Self::Colored,
+			_ => Self::Plain,
+		}
+	}
+}
 
 /// Converts the given multi-line row value to colored [`Text`] widget.
 ///
@@ -12,9 +63,9 @@ pub fn get_colored_table_row<'a>(
 	highlighted: bool,
 ) -> Text<'a> {
 	let highlight_style = if highlighted {
-		Style::default().fg(Color::Reset)
+		TuiStyle::default().fg(Color::Reset)
 	} else {
-		Style::default()
+		TuiStyle::default()
 	};
 	let mut row = Vec::new();
 	for line in row_data.iter() {
@@ -44,19 +95,19 @@ pub fn get_colored_table_row<'a>(
 				{
 					colored_line.push(Span::styled(
 						data,
-						Style::default().fg(Color::Red),
+						TuiStyle::default().fg(Color::Red),
 					))
 				} else if data.len() == 2 {
 					let style = match data.as_ref() {
 						// 0x10: no indication
-						"10" => Style::default().fg(Color::Yellow),
+						"10" => TuiStyle::default().fg(Color::Yellow),
 						// 0x11: personal belief but no verification
-						"11" => Style::default().fg(Color::Magenta),
+						"11" => TuiStyle::default().fg(Color::Magenta),
 						// 0x12: casual verification
-						"12" => Style::default().fg(Color::Blue),
+						"12" => TuiStyle::default().fg(Color::Blue),
 						// 0x13: extensive verification
-						"13" => Style::default().fg(Color::Green),
-						_ => Style::default().fg(Color::Red),
+						"13" => TuiStyle::default().fg(Color::Green),
+						_ => TuiStyle::default().fg(Color::Red),
 					};
 					colored_line.push(Span::styled(data, style))
 				} else {
@@ -64,25 +115,27 @@ pub fn get_colored_table_row<'a>(
 						let style = match c.as_ref() {
 							// GPGME_VALIDITY_UNKNOWN | GPGME_VALIDITY_UNDEFINED | 0
 							"?" | "q" | "-" => {
-								Style::default().fg(Color::DarkGray)
+								TuiStyle::default().fg(Color::DarkGray)
 							}
 							// GPGME_VALIDITY_NEVER
-							"n" => Style::default().fg(Color::Red),
+							"n" => TuiStyle::default().fg(Color::Red),
 							// GPGME_VALIDITY_MARGINAL
-							"m" => Style::default().fg(Color::Blue),
+							"m" => TuiStyle::default().fg(Color::Blue),
 							// GPGME_VALIDITY_FULL
-							"f" => Style::default().fg(Color::Magenta),
+							"f" => TuiStyle::default().fg(Color::Magenta),
 							// GPGME_VALIDITY_ULTIMATE | GPGME_SIG_NOTATION_HUMAN_READABLE
-							"u" | "h" => Style::default().fg(Color::Green),
+							"u" | "h" => TuiStyle::default().fg(Color::Green),
 							// can_sign
-							"s" => Style::default().fg(Color::LightGreen),
+							"s" => TuiStyle::default().fg(Color::LightGreen),
 							// can_certify
-							"c" => Style::default().fg(Color::LightBlue),
+							"c" => TuiStyle::default().fg(Color::LightBlue),
 							// can_encrypt
-							"e" => Style::default().fg(Color::Yellow),
+							"e" => TuiStyle::default().fg(Color::Yellow),
 							// can_authenticate | GPGME_SIG_NOTATION_CRITICAL
-							"a" | "!" => Style::default().fg(Color::LightRed),
-							_ => Style::default(),
+							"a" | "!" => {
+								TuiStyle::default().fg(Color::LightRed)
+							}
+							_ => TuiStyle::default(),
 						};
 						colored_line.push(Span::styled(c, style))
 					}
@@ -96,11 +149,11 @@ pub fn get_colored_table_row<'a>(
 					));
 					colored_line.push(Span::styled(
 						data[1..9].to_string(),
-						Style::default().fg(Color::Cyan),
+						TuiStyle::default().fg(Color::Cyan),
 					));
 					colored_line.push(Span::styled(
 						"/",
-						Style::default().fg(Color::DarkGray),
+						TuiStyle::default().fg(Color::DarkGray),
 					));
 					colored_line.push(Span::styled(
 						data[10..].to_string(),
@@ -116,15 +169,15 @@ pub fn get_colored_table_row<'a>(
 					));
 					colored_line.push(Span::styled(
 						"<",
-						Style::default().fg(Color::DarkGray),
+						TuiStyle::default().fg(Color::DarkGray),
 					));
 					colored_line.push(Span::styled(
 						data[first_arrow + 1..second_arrow].to_string(),
-						Style::default().fg(Color::Cyan),
+						TuiStyle::default().fg(Color::Cyan),
 					));
 					colored_line.push(Span::styled(
 						">",
-						Style::default().fg(Color::DarkGray),
+						TuiStyle::default().fg(Color::DarkGray),
 					));
 					colored_line.push(Span::styled(
 						data[second_arrow + 1..].to_string(),
@@ -161,16 +214,19 @@ pub fn get_colored_info(info: &str, color: Color) -> Text<'_> {
 					vec![
 						Span::styled(
 							values[0],
-							Style::default().fg(Color::Reset),
+							TuiStyle::default().fg(Color::Reset),
 						),
-						Span::styled(":", Style::default().fg(Color::DarkGray)),
+						Span::styled(
+							":",
+							TuiStyle::default().fg(Color::DarkGray),
+						),
 						Span::styled(
 							values.drain(1..).collect::<Vec<&str>>().join(":"),
-							Style::default().fg(color),
+							TuiStyle::default().fg(color),
 						),
 					]
 				} else {
-					vec![Span::styled(v, Style::default().fg(Color::Reset))]
+					vec![Span::styled(v, TuiStyle::default().fg(Color::Reset))]
 				})
 			})
 			.collect::<Vec<Spans>>(),
@@ -197,73 +253,73 @@ mod tests {
 				lines: vec![
 					Spans(vec![Span {
 						content: Borrowed(""),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 					Spans(vec![
 						Span {
 							content: Borrowed("["),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("s"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::LightGreen),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("c"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::LightBlue),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("-"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("-"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("]"),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed(" rsa2048"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Cyan),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("/"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(
 								"C4B2D24CF87CD188C79D00BB485B7C52E9EC0DC6"
 							),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 					],),
 					Spans(vec![Span {
 						content: Borrowed("       └─(2020-07-29)"),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 					Spans(vec![Span {
 						content: Borrowed("\t\t"),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 				],
 			},
@@ -284,116 +340,116 @@ mod tests {
 				lines: vec![
 					Spans(vec![Span {
 						content: Borrowed(""),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 					Spans(vec![
 						Span {
 							content: Borrowed("["),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("u"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Green),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("] kmon releases "),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("<"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("kmonlinux@protonmail.com"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Cyan),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(">"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(""),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 					]),
 					Spans(vec![
 						Span {
 							content: Borrowed("\t├─["),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("13"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Green),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("] selfsig (2020-07-29)"),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 					]),
 					Spans(vec![Span {
 						content: Borrowed("\t├─][ test"),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 					Spans(vec![
 						Span {
 							content: Borrowed("\t└─["),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("10"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Yellow),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("] B928720AEC532117 orhun "),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 						Span {
 							content: Borrowed("<"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed("orhunparmaksiz@gmail.com"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Cyan),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(">"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(" (2020-07-29)"),
-							style: Style::default(),
+							style: TuiStyle::default(),
 						},
 					]),
 					Spans(vec![Span {
 						content: Borrowed("\t\t\t\t"),
-						style: Style::default(),
+						style: TuiStyle::default(),
 					}]),
 				],
 			},
@@ -405,61 +461,61 @@ mod tests {
 					Spans(vec![
 						Span {
 							content: Borrowed("test"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Reset),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(":"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(" xyz "),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::LightRed),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 					]),
 					Spans(vec![
 						Span {
 							content: Borrowed("test2"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::Reset),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(":"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::DarkGray),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 						Span {
 							content: Borrowed(" abc"),
-							style: Style {
+							style: TuiStyle {
 								fg: Some(Color::LightRed),
-								..Style::default()
+								..TuiStyle::default()
 							},
 						},
 					]),
 					Spans(vec![Span {
 						content: Borrowed(" skip this line"),
-						style: Style {
+						style: TuiStyle {
 							fg: Some(Color::Reset),
-							..Style::default()
+							..TuiStyle::default()
 						},
 					}]),
 					Spans(vec![Span {
 						content: Borrowed("reset"),
-						style: Style {
+						style: TuiStyle {
 							fg: Some(Color::Reset),
-							..Style::default()
+							..TuiStyle::default()
 						},
 					}]),
 				],

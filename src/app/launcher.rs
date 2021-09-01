@@ -5,6 +5,7 @@ use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
 use crate::app::selection::Selection;
 use crate::app::splash::{SplashConfig, SplashScreen};
 use crate::app::state::State;
+use crate::app::style::Style;
 use crate::app::tab::Tab;
 use crate::args::Args;
 use crate::gpg::context::GpgContext;
@@ -170,6 +171,13 @@ impl<'a> App<'a> {
 					self.key_bindings.state.select(Some(0));
 				}
 			}
+			Command::ChangeStyle(style) => {
+				self.state.style = style;
+				self.prompt.set_output((
+					OutputType::Success,
+					format!("style: {}", self.state.style),
+				))
+			}
 			Command::ShowOutput(output_type, message) => {
 				self.prompt.set_output((output_type, message))
 			}
@@ -251,10 +259,7 @@ impl<'a> App<'a> {
 								}),
 							),
 							Command::ToggleTableSize,
-							Command::Set(
-								String::from("colored"),
-								(!self.state.colored).to_string(),
-							),
+							Command::ChangeStyle(self.state.style.next()),
 							if self.mode == Mode::Visual {
 								Command::SwitchMode(Mode::Normal)
 							} else {
@@ -279,6 +284,7 @@ impl<'a> App<'a> {
 							Command::None,
 							Command::ListKeys(KeyType::Public),
 							Command::ListKeys(KeyType::Secret),
+							Command::ChangeStyle(self.state.style.next()),
 							if self.mode == Mode::Visual {
 								Command::SwitchMode(Mode::Normal)
 							} else {
@@ -676,17 +682,17 @@ impl<'a> App<'a> {
 								),
 							)
 						}
-						"colored" => match value.parse() {
-							Ok(colored) => {
-								self.state.colored = colored;
+						"style" => match Style::from_str(&value) {
+							Ok(style) => {
+								self.state.style = style;
 								(
 									OutputType::Success,
-									format!("colored: {}", self.state.colored),
+									format!("style: {}", self.state.style),
 								)
 							}
 							Err(_) => (
 								OutputType::Failure,
-								String::from("usage: set colored <true/false>"),
+								String::from("usage: set style <style>"),
 							),
 						},
 						"color" => {
@@ -777,9 +783,9 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						format!("table margin: {}", self.keys_table_margin),
 					),
-					"colored" => (
+					"style" => (
 						OutputType::Success,
-						format!("colored: {}", self.state.colored),
+						format!("style: {}", self.state.style),
 					),
 					"color" => (
 						OutputType::Success,
@@ -949,6 +955,11 @@ mod tests {
 		app.run_command(Command::ShowOptions)?;
 		assert!(app.state.show_options);
 
+		app.run_command(Command::ChangeStyle(Style::Colored))?;
+		assert_eq!(Style::Colored, app.state.style);
+		app.run_command(Command::ChangeStyle(Style::Plain))?;
+		assert_eq!(Style::Plain, app.state.style);
+
 		app.run_command(Command::ListKeys(KeyType::Public))?;
 		app.run_command(Command::ToggleDetail(false))?;
 		let mut detail = app.keys_table_detail.clone();
@@ -979,7 +990,7 @@ mod tests {
 			("signer", "0x0"),
 			("minimize", "10"),
 			("margin", "2"),
-			("colored", "true"),
+			("style", "plain"),
 			("color", "#123123"),
 		];
 		if cfg!(feature = "gpg-tests") {
