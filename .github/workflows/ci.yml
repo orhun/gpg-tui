@@ -65,7 +65,8 @@ jobs:
             gpg --import
       - name: Setup cargo-tarpaulin
         run: |
-          wget https://github.com/xd009642/tarpaulin/releases/download/0.18.0-alpha3/cargo-tarpaulin-0.18.0-alpha3-travis.tar.gz
+          curl -s https://api.github.com/repos/xd009642/tarpaulin/releases/latest | \
+            grep "browser_download_url.*tar.gz" | cut -d : -f 2,3 | tr -d \" | wget -qi -
           tar -xzf cargo-tarpaulin-*.tar.gz
           mv cargo-tarpaulin ~/.cargo/bin/
       - name: Run tests
