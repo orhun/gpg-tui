@@ -285,6 +285,7 @@ FLAGS:
 
 ```
 OPTIONS:
+        --config <path>        Sets the configuration file [env: GPG_TUI_CONFIG=]
         --homedir <dir>        Sets the GnuPG home directory [env: HOMEDIR=]
     -o, --outdir <dir>         Sets the output directory [env: OUTDIR=]
     -d, --default-key <key>    Sets the default key to sign with [env: DEFAULT_KEY=]
