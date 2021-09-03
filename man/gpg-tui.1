@@ -1,9 +1,12 @@
-.\" Manpage for gpg-tui.
-.TH GPG-TUI "1" "August 2021" "gpg-tui 0.7.4" "User Commands"
+.\" Manpage for gpg-tui
+.nh
+.TH GPG-TUI "1" "September 2021" "gpg-tui 0.8.0"
 .SH NAME
+.PP
 gpg-tui \- manage your GnuPG keys with ease
 
 .SH SYNOPSIS
+.PP
 .B gpg-tui
 [FLAGS] [OPTIONS]
 
@@ -34,6 +37,9 @@ Prints help information
 Prints version information
 
 .SS OPTIONS
+.TP
+\fB\-\-config\fR <path>
+Sets the configuration file [env: GPG_TUI_CONFIG=]
 .TP
 \fB\-\-homedir\fR <dir>
 Sets the GnuPG home directory [env: GNUPGHOME=]
@@ -224,3 +230,7 @@ Orhun Parmaksız <orhunparmaksiz@gmail.com>
 \f[I]gpg-tui\f[R] is maintained by Orhun Parmaksız, and released under the MIT license.
 .PP
 See the project homepage at <https://github.com/orhun/gpg-tui> for full documentation.
+
+.SH SEE ALSO
+.PP
+gpg-tui.toml(5)

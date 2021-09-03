@@ -1,0 +1,96 @@
+.\" Manpage of gpg-tui.toml
+.nh
+.TH GPG-TUI.TOML "5" "September 2021" "gpg-tui 0.8.0"
+.SH NAME
+.PP
+gpg-tui.toml - configuration file for gpg-tui
+
+.SH SYNOPSIS
+.PP
+The \fBgpg-tui.toml\fP file is a configuration file for gpg-tui. The
+file must be placed at one of the following locations:
+
+$HOME/.config/gpg-tui.toml, $HOME/.config/gpg-tui/gpg-tui.toml,
+$HOME/.config/gpg-tui/config
+
+It can be also specified with the \fB--config\fP option or $GPG_TUI_CONFIG
+environment variable.
+If the file does not exist at the appropriate location or is not provided,
+\fBgpg-tui\fP uses its default configuration settings.
+
+.SH DESCRIPTION
+.PP
+The TOML file used to configure gpg-tui has a section of general settings
+followed by the \fBgpg\fP section that allows configuring the GnuPG options.
+
+.SH FORMAT
+
+.TP
+\fB[general]\fP
+Section for general settings.
+.RS
+.IP \(bu 2
+\fBsplash\fP: show the splash screen on startup (default: false)
+.IP \(bu 2
+\fBtick_rate\fP: set the tick rate of the terminal (default: 250)
+.IP \(bu 2
+\fBcolor\fP: set the accent color of the terminal (default: gray)
+.IP \(bu 2
+\fBstyle\fP: set the style of the terminal (default: plain) (possible values: plain, colored)
+
+.RE
+
+.TP
+\fB[gpg]\fP
+Section for GnuPG settings.
+.RS
+.IP \(bu 2
+\fBarmor\fP: enable ASCII armored output (default: false)
+.IP \(bu 2
+\fBhomedir\fP: set the GnuPG home directory
+.IP \(bu 2
+\fBoutdir\fP: set the output directory
+.IP \(bu 2
+\fBdefault_key\fP: set the default key to sign with
+
+.RE
+
+.SH EXAMPLE
+.PP
+The following is a complete \fBgpg-tui.toml\fP default configuration example:
+
+.PP
+.RS
+
+.nf
+
+[general]
+  splash = false
+  tick_rate = 250
+  color = "gray"
+  style = "plain"
+
+[gpg]
+  armor = false
+  homedir = "~/.gnupg"
+  outdir = "~/.gnupg/out"
+  default_key = ""
+
+.fi
+.RE
+
+.SH BUGS
+Report bugs at <https://github.com/orhun/gpg-tui/issues> or contact the author via email.
+
+.SH AUTHOR
+Orhun Parmaksız <orhunparmaksiz@gmail.com>
+
+.SH ABOUT
+.P
+\f[I]gpg-tui\f[R] is maintained by Orhun Parmaksız, and released under the MIT license.
+.PP
+See the project homepage at <https://github.com/orhun/gpg-tui> for full documentation.
+
+.SH SEE ALSO
+.PP
+gpg-tui(1)
