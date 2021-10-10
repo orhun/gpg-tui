@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2021-10-10
+### Added
+- Support changing the default file explorer
+
+### Changed
+- Include the manpage of configuration file in binary releases
+- Allow dead code for event handler fields
+- Apply clippy::needless_lifetimes suggestion
+- Improve the Docker build and push workflow
+- Merge the build and test steps in CI workflow
+- Disable the terminal buffer check temporarily
+- Disable the gpg info renderer test
+- Bump dependencies
+
+### Fixed
+- Use implicit reference for state module tests
+- Use a fixed line width for renderer tests
+
+### Removed
+- Remove the hardcoded last character from renderer tests
+
 ## [0.8.0] - 2021-09-03
 ### Added
 - Add a configuration file ([#5](https://github.com/orhun/gpg-tui/issues/5))
