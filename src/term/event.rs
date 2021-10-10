@@ -31,6 +31,7 @@ pub enum Event {
 /// and returned to a receiver.
 ///
 /// [`events`]: Event
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct EventHandler {
 	/// Event sender.
