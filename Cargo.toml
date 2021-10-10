@@ -26,9 +26,9 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.10.0"
 crossterm = "0.21.0"
-anyhow = "1.0.43"
+anyhow = "1.0.44"
 chrono = "0.4.19"
-unicode-width = "0.1.8"
+unicode-width = "0.1.9"
 copypasta-ext = "0.3.7"
 colorsys = "0.6.4"
 rust-embed = "6.2.0"
@@ -57,7 +57,7 @@ version = "1.0.28"
 features = ["derive"]
 
 [dev-dependencies]
-pretty_assertions = "0.7.2"
+pretty_assertions = "1.0.0"
 
 [profile.dev]
 opt-level = 0
