@@ -1,11 +1,20 @@
 use anyhow::{anyhow, Result};
 use std::process::{Command, Stdio};
 
-/// Runs [`xplr`] command and returns the selected files.
-///
-/// [`xplr`]: https://github.com/sayanarijit/xplr
-pub fn run_xplr() -> Result<Vec<String>> {
-	match Command::new("xplr").stdout(Stdio::piped()).spawn() {
+/// Runs the given OS command and returns the output lines.
+pub fn run_os_command<'a>(cmd: &'a str) -> Result<Vec<String>> {
+	let child = if cfg!(target_os = "windows") {
+		Command::new("cmd")
+			.args(["/C", cmd])
+			.stdout(Stdio::piped())
+			.spawn()
+	} else {
+		Command::new("sh")
+			.args(["-c", cmd])
+			.stdout(Stdio::piped())
+			.spawn()
+	};
+	match child {
 		Ok(child) => {
 			let output = child.wait_with_output()?;
 			if output.status.success() {
@@ -14,9 +23,9 @@ pub fn run_xplr() -> Result<Vec<String>> {
 					Err(e) => Err(anyhow!("UTF-8 error: {:?}", e)),
 				}
 			} else {
-				Err(anyhow!("xplr process exited with {:?}", output.status))
+				Err(anyhow!("command exited with {:?}", output.status))
 			}
 		}
-		Err(e) => Err(anyhow!("cannot run xplr: {:?}", e)),
+		Err(e) => Err(anyhow!("cannot run command: {:?}", e)),
 	}
 }

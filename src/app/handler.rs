@@ -380,7 +380,7 @@ fn handle_command_execution<B: Backend>(
 			} else if option == "prompt" && value == ":import " {
 				tui.toggle_pause()?;
 				toggle_pause = true;
-				match util::run_xplr() {
+				match util::run_os_command(&app.state.file_explorer) {
 					Ok(files) => {
 						command = Command::ImportKeys(files, false);
 					}

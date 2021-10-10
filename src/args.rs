@@ -52,6 +52,9 @@ pub struct Args {
 		short, long, possible_values = &["plain", "colored"], default_value = "plain", env
 	)]
 	pub style: Style,
+	/// Sets the utility for file selection.
+	#[structopt(short, long, value_name = "app", default_value = "xplr", env)]
+	pub file_explorer: String,
 	/// Enables the selection mode.
 	#[structopt(
 		long,

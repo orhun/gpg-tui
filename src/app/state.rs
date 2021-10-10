@@ -19,6 +19,8 @@ pub struct State {
 	pub show_splash: bool,
 	/// Is the selection mode enabled?
 	pub select: Option<Selection>,
+	/// File explorer to run.
+	pub file_explorer: String,
 	/// Exit message of the app.
 	pub exit_message: Option<String>,
 }
@@ -32,6 +34,7 @@ impl Default for State {
 			show_options: false,
 			show_splash: false,
 			select: None,
+			file_explorer: String::from("xplr"),
 			exit_message: None,
 		}
 	}
@@ -44,6 +47,7 @@ impl<'a> From<&'a Args> for State {
 			color: args.color.get(),
 			show_splash: args.splash,
 			select: args.select,
+			file_explorer: args.file_explorer.to_string(),
 			..Self::default()
 		}
 	}
@@ -72,6 +76,7 @@ mod tests {
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);
 		assert_eq!(None, state.select);
+		assert_eq!("xplr", state.file_explorer.as_ref());
 		assert_eq!(None, state.exit_message);
 	}
 }

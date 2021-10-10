@@ -66,6 +66,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
     - [Selection Mode](#selection-mode)
     - [Detailed View](#detailed-view)
     - [Search](#search)
+    - [File explorer](#file-explorer)
     - [Running commands](#running-commands)
   - [Key Management](#key-management-1)
     - [List](#list)
@@ -293,6 +294,7 @@ OPTIONS:
     -c, --color <color>        Sets the accent color of the terminal [env: COLOR=]  [default: gray]
     -s, --style <style>        Sets the style of the terminal [env: STYLE=]  [default: plain]
                                [possible values: plain, colored]
+    -f, --file-explorer <app>  Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
         --select <option>      Enables the selection mode [env: SELECT=]
                                [possible values: key_id, key_fpr, user_id, row1, row2]
 ```
@@ -577,6 +579,14 @@ Press `/` to search for a value from the currently shown table.
 
 ![](demo/gpg-tui-search.gif)
 
+#### File explorer
+
+Some of the key management operations such as [importing keys](#importreceive) _optionally_ use a file explorer utility. As default, **gpg-tui** uses [xplr](https://github.com/sayanarijit/xplr) if the `xplr` binary is [installed](https://github.com/sayanarijit/xplr/wiki/Quickstart) on the system. To change which utility is going to be used, `--file-explorer` argument can be used or it can be specified in the [configuration file](#configuration).
+
+```sh
+gpg-tui --file-explorer "fzf --color dark"
+```
+
 #### Running commands
 
 Every operation on the terminal interface is handled implicitly by the application-specific commands. So it's possible to do certain things by switching to command mode with pressing `:` and running commands. (similar to Vim)
@@ -634,11 +644,11 @@ This feature uses `gpg` fallback and runs `gpg --edit-key` command. It presents 
 
 #### Import/Receive
 
-Import operation uses [xplr](https://github.com/sayanarijit/xplr) for selecting the key(s) to import if the xplr binary is [installed](https://github.com/sayanarijit/xplr/wiki/Quickstart). Press `i` to launch xplr, and select the key file(s) to import:
+Import operation uses a [file explorer](#file-explorer) for selecting the key(s) to import. Press `i` to launch the file explorer (defaults to `xplr`), and select the key file(s) to import:
 
 ![](demo/gpg-tui-import_key_xplr.gif)
 
-If `xplr` is not installed, import operation is done by using the `:import` command. So press `i` to switch to command mode (which will automatically add the import command) and then give it your file(s) to import.
+If a file explorer is not specified or installed, import operation is done by using the `:import` command. So press `i` to switch to command mode (which will automatically add the import command) and then give it your file(s) to import.
 
 ![](demo/gpg-tui-import_key.gif)
 

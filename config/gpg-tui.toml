@@ -3,6 +3,7 @@
   tick_rate = 250
   color = "gray"
   style = "plain"
+  file_explorer = "xplr"
 
 [gpg]
   armor = false

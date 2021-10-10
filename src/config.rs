@@ -28,6 +28,8 @@ pub struct GeneralConfig {
 	pub color: String,
 	/// [`Args::style`]
 	pub style: String,
+	/// [`Args::file_explorer`]
+	pub file_explorer: String,
 }
 
 /// GnuPG configuration.
@@ -84,6 +86,7 @@ impl Config {
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());
 		args.style = Style::from_str(&self.general.style).unwrap_or_default();
+		args.file_explorer = self.general.file_explorer;
 		args
 	}
 }
