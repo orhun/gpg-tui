@@ -600,7 +600,7 @@ mod tests {
 		);
 		app.run_command(Command::ShowHelp)?;
 		terminal.draw(|frame| render(&mut app, frame))?;
-		/*let gpg_info = app
+		let gpg_info = app
 			.gpgme
 			.config
 			.get_info()?
@@ -612,16 +612,21 @@ mod tests {
 			"┌────────────────────────────────────────────────────────────────────┐",
 			"│                                                                    │",
 			"│                                │                                   │",
-			&format!("│ Use arrow keys / hjkl to       │  {}            │", gpg_info[1]),
-			&format!("│ navigate through the key       │  {}          │", gpg_info[2]),
-			&format!("│ bindings.                      │  {}     │", gpg_info[3]),
-			&format!("│ Corresponding commands and     │  {}     │", &gpg_info[4][0..32]),
+			&format!("│ Use arrow keys / hjkl to       │  {}            │", gpg_info[1].trim()),
+			&format!("│ navigate through the key       │  {}          │", gpg_info[2].trim()),
+			&format!("│ bindings.                      │  {}     │", gpg_info[3].trim()),
+			&format!("│ Corresponding commands and     │  {}     │", &gpg_info[4][0..32].trim()),
 			"│                                                                    │",
 			"└────────────────────────────────────────────────────────────────────┘",
 			"                                                              < help >",
-			]),
+			].iter().map(|line| {
+				match line.char_indices().nth(69).map(|(pos, _)| pos) {
+					Some(pos) => format!("{}│", &line[..pos]),
+					None => line.to_string(),
+				}
+			}).collect()),
 			&terminal,
-		);*/
+		);
 		Ok(())
 	}
 }
