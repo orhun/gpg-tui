@@ -621,7 +621,7 @@ mod tests {
 			"                                                              < help >",
 			].iter().map(|line| {
 				match line.char_indices().nth(69).map(|(pos, _)| pos) {
-					Some(pos) => format!("{}│", &line[..pos]),
+					Some(pos) => format!("{}{}", &line[..pos], line.chars().last().unwrap_or_default()),
 					None => line.to_string(),
 				}
 			}).collect()),
