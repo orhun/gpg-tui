@@ -76,7 +76,7 @@ mod tests {
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);
 		assert_eq!(None, state.select);
-		assert_eq!("xplr", state.file_explorer.as_ref());
+		assert_eq!("xplr", state.file_explorer);
 		assert_eq!(None, state.exit_message);
 	}
 }
