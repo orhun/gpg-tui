@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use std::process::{Command, Stdio};
 
 /// Runs the given OS command and returns the output lines.
-pub fn run_os_command<'a>(cmd: &'a str) -> Result<Vec<String>> {
+pub fn run_os_command(cmd: &str) -> Result<Vec<String>> {
 	let child = if cfg!(target_os = "windows") {
 		Command::new("cmd")
 			.args(["/C", cmd])
