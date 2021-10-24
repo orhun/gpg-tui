@@ -7,6 +7,7 @@ RUN apt-get update && \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /src
 COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 RUN mkdir src/ && echo "fn main() {println!(\"failed to build\")}" > src/main.rs
 RUN cargo build --release --verbose --bin gpg-tui
 RUN rm -f target/release/deps/gpg_tui*
