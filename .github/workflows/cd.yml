@@ -84,8 +84,11 @@ jobs:
             --no-install-recommends \
             --allow-unauthenticated libgpgme-dev \
             libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev
-      - name: Publish
-        uses: actions-rs/cargo@v1
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          command: publish
-          args: --locked --token ${{secrets.CARGO_TOKEN}}
+          toolchain: stable
+          target: x86_64-unknown-linux-gnu
+          override: true
+      - name: Publish
+        run: cargo publish --locked --token ${{ secrets.CARGO_TOKEN }}
