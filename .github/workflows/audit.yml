@@ -2,12 +2,12 @@ name: Security Audit
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
 
 jobs:
   audit:
     name: Audit
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
