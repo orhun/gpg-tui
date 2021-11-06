@@ -5,12 +5,12 @@ use std::process::{Command, Stdio};
 pub fn run_os_command(cmd: &str) -> Result<Vec<String>> {
 	let child = if cfg!(target_os = "windows") {
 		Command::new("cmd")
-			.args(["/C", cmd])
+			.args(&["/C", cmd])
 			.stdout(Stdio::piped())
 			.spawn()
 	} else {
 		Command::new("sh")
-			.args(["-c", cmd])
+			.args(&["-c", cmd])
 			.stdout(Stdio::piped())
 			.spawn()
 	};
