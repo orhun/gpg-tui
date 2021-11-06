@@ -307,8 +307,8 @@ See [gpg-tui.toml](config/gpg-tui.toml) for the default configuration values.
 
 The configuration file can be specified via `--config` argument or `GPG_TUI_CONFIG` environment variable. Also, it can be placed to a location where **gpg-tui** looks for:
 
-* `<config_dir>` `/` `gpg-tui.conf`
-* `<config_dir>` `/` `gpg-tui/gpg-tui.conf`
+* `<config_dir>` `/` `gpg-tui.toml`
+* `<config_dir>` `/` `gpg-tui/gpg-tui.toml`
 * `<config_dir>` `/` `gpg-tui/config`
 
 `<config_dir>` depends on the platform as shown in the following table:
