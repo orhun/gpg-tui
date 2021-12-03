@@ -218,14 +218,11 @@ impl<'a> Display for KeyBinding<'a> {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 		write!(
 			f,
-			"{}",
-			format!(
-				"{}\n └─{}\n ",
-				self.key
-					.split(',')
-					.fold(String::new(), |acc, v| format!("{}[{}] ", acc, v)),
-				self.action
-			)
+			"{}\n └─{}\n ",
+			self.key
+				.split(',')
+				.fold(String::new(), |acc, v| format!("{}[{}] ", acc, v)),
+			self.action
 		)
 	}
 }
