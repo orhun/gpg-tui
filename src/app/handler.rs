@@ -311,10 +311,8 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 					Command::Copy(select_type)
 				} else if app.state.show_options {
 					app.options.selected().cloned().unwrap_or(Command::None)
-				} else if !app.keys_table.items.is_empty() {
-					Command::ShowOptions
 				} else {
-					Command::None
+					Command::ShowOptions
 				}
 			}
 			Key::Char(':') => Command::EnableInput,

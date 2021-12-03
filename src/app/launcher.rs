@@ -186,98 +186,139 @@ impl<'a> App<'a> {
 				let prev_item_count = self.options.items.len();
 				self.options = StatefulList::with_items(match self.tab {
 					Tab::Keys(key_type) => {
-						let selected_key = &self
-							.keys_table
-							.selected()
-							.expect("invalid selection");
-						vec![
-							Command::None,
-							Command::ShowHelp,
-							Command::Refresh,
-							Command::RefreshKeys,
-							Command::Set(
-								String::from("prompt"),
-								String::from(":import "),
-							),
-							Command::ImportClipboard,
-							Command::Set(
-								String::from("prompt"),
-								String::from(":receive "),
-							),
-							Command::ExportKeys(
-								key_type,
-								vec![selected_key.get_id()],
-								false,
-							),
-							if key_type == KeyType::Secret {
+						if let Some(selected_key) = &self.keys_table.selected()
+						{
+							vec![
+								Command::None,
+								Command::ShowHelp,
+								Command::Refresh,
+								Command::RefreshKeys,
+								Command::Set(
+									String::from("prompt"),
+									String::from(":import "),
+								),
+								Command::ImportClipboard,
+								Command::Set(
+									String::from("prompt"),
+									String::from(":receive "),
+								),
 								Command::ExportKeys(
 									key_type,
 									vec![selected_key.get_id()],
-									true,
-								)
-							} else {
-								Command::None
-							},
-							Command::ExportKeys(key_type, Vec::new(), false),
-							Command::Confirm(Box::new(Command::DeleteKey(
-								key_type,
-								selected_key.get_id(),
-							))),
-							Command::Confirm(Box::new(Command::SendKey(
-								selected_key.get_id(),
-							))),
-							Command::EditKey(selected_key.get_id()),
-							if key_type == KeyType::Secret {
-								Command::Set(
-									String::from("signer"),
-									selected_key.get_id(),
-								)
-							} else {
-								Command::None
-							},
-							Command::SignKey(selected_key.get_id()),
-							Command::GenerateKey,
-							Command::Set(
-								String::from("armor"),
-								(!self.gpgme.config.armor).to_string(),
-							),
-							Command::Copy(Selection::Key),
-							Command::Copy(Selection::KeyId),
-							Command::Copy(Selection::KeyFingerprint),
-							Command::Copy(Selection::KeyUserId),
-							Command::Copy(Selection::TableRow(1)),
-							Command::Copy(Selection::TableRow(2)),
-							Command::Paste,
-							Command::ToggleDetail(false),
-							Command::ToggleDetail(true),
-							Command::Set(
-								String::from("margin"),
-								String::from(if self.keys_table_margin == 1 {
-									"0"
+									false,
+								),
+								if key_type == KeyType::Secret {
+									Command::ExportKeys(
+										key_type,
+										vec![selected_key.get_id()],
+										true,
+									)
 								} else {
-									"1"
-								}),
-							),
-							Command::ToggleTableSize,
-							Command::ChangeStyle(self.state.style.next()),
-							if self.mode == Mode::Visual {
-								Command::SwitchMode(Mode::Normal)
-							} else {
-								Command::SwitchMode(Mode::Visual)
-							},
-							Command::Quit,
-						]
-						.into_iter()
-						.enumerate()
-						.filter(|(i, c)| {
-							if c == &Command::None {
-								*i == 0
-							} else {
-								true
-							}
-						})
-						.map(|(_, c)| c)
-						.collect()
+									Command::None
+								},
+								Command::ExportKeys(
+									key_type,
+									Vec::new(),
+									false,
+								),
+								Command::Confirm(Box::new(Command::DeleteKey(
+									key_type,
+									selected_key.get_id(),
+								))),
+								Command::Confirm(Box::new(Command::SendKey(
+									selected_key.get_id(),
+								))),
+								Command::EditKey(selected_key.get_id()),
+								if key_type == KeyType::Secret {
+									Command::Set(
+										String::from("signer"),
+										selected_key.get_id(),
+									)
+								} else {
+									Command::None
+								},
+								Command::SignKey(selected_key.get_id()),
+								Command::GenerateKey,
+								Command::Set(
+									String::from("armor"),
+									(!self.gpgme.config.armor).to_string(),
+								),
+								Command::Copy(Selection::Key),
+								Command::Copy(Selection::KeyId),
+								Command::Copy(Selection::KeyFingerprint),
+								Command::Copy(Selection::KeyUserId),
+								Command::Copy(Selection::TableRow(1)),
+								Command::Copy(Selection::TableRow(2)),
+								Command::Paste,
+								Command::ToggleDetail(false),
+								Command::ToggleDetail(true),
+								Command::Set(
+									String::from("margin"),
+									String::from(
+										if self.keys_table_margin == 1 {
+											"0"
+										} else {
+											"1"
+										},
+									),
+								),
+								Command::ToggleTableSize,
+								Command::ChangeStyle(self.state.style.next()),
+								if self.mode == Mode::Visual {
+									Command::SwitchMode(Mode::Normal)
+								} else {
+									Command::SwitchMode(Mode::Visual)
+								},
+								Command::Quit,
+							]
+							.into_iter()
+							.enumerate()
+							.filter(|(i, c)| {
+								if c == &Command::None {
+									*i == 0
+								} else {
+									true
+								}
+							})
+							.map(|(_, c)| c)
+							.collect()
+						} else {
+							vec![
+								Command::None,
+								Command::ShowHelp,
+								Command::Refresh,
+								Command::RefreshKeys,
+								Command::Set(
+									String::from("prompt"),
+									String::from(":import "),
+								),
+								Command::ImportClipboard,
+								Command::Set(
+									String::from("prompt"),
+									String::from(":receive "),
+								),
+								Command::GenerateKey,
+								Command::Paste,
+								Command::ChangeStyle(self.state.style.next()),
+								if self.mode == Mode::Visual {
+									Command::SwitchMode(Mode::Normal)
+								} else {
+									Command::SwitchMode(Mode::Visual)
+								},
+								Command::Quit,
+							]
+							.into_iter()
+							.enumerate()
+							.filter(|(i, c)| {
+								if c == &Command::None {
+									*i == 0
+								} else {
+									true
+								}
+							})
+							.map(|(_, c)| c)
+							.collect()
+						}
 					}
 					Tab::Help => {
 						vec![
