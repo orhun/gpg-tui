@@ -459,7 +459,7 @@ fn get_keys_table_rows<'a>(
 			);
 			if app.prompt.is_search_enabled() {
 				let search_term =
-					app.prompt.text.replacen("/", "", 1).to_lowercase();
+					app.prompt.text.replacen('/', "", 1).to_lowercase();
 				if !subkey_info.join("\n").to_lowercase().contains(&search_term)
 					&& !user_info
 						.join("\n")

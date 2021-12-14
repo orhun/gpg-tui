@@ -67,7 +67,7 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 						OutputType::Failure,
 						format!(
 							"invalid command: {}",
-							app.prompt.text.replacen(":", "", 1)
+							app.prompt.text.replacen(':', "", 1)
 						),
 					));
 				}
