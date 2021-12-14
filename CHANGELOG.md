@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2021-12-14
+### Changed
+- Allow showing options menu for empty keyrings
+- Update the edition of Rust to 2021
+- Copy Cargo.lock into docker build stage for caching
+- Bump the Rust version in Dockerfile
+- Use ubuntu-20.04 runner for workflows
+- Specify the toolchain explicitly for crates.io releases
+- Install Rust toolchain for audit job
+- Apply clippy::format_in_format_args suggestion
+- Apply clippy::single_char_pattern suggestion
+
+### Fixed
+- Fix config file extension in README.md
+- Use references for OS command arguments
+- Fix the Rust profile specification in audit workflow
+
 ## [0.8.1] - 2021-10-10
 ### Added
 - Support changing the default file explorer
