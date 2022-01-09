@@ -794,4 +794,4 @@ If you find **gpg-tui** and/or other projects on my [GitHub profile](https://git
 
 ## Copyright
 
-Copyright © 2021, [Orhun Parmaksız](mailto:orhunparmaksiz@gmail.com)
+Copyright © 2021-2022, [Orhun Parmaksız](mailto:orhunparmaksiz@gmail.com)
