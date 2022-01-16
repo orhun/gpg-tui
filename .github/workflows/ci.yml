@@ -104,6 +104,6 @@ jobs:
       - name: Check the links
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --exclude "twitter.com|patreon.com|aur.archlinux.org/(.+?).git|mailto:+|%7Buser%7D" -v *.md
+          args: --exclude "discussions/new|twitter.com|patreon.com|aur.archlinux.org/(.+?).git|mailto:+|%7Buser%7D" -v *.md
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
