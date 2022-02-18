@@ -168,7 +168,7 @@ impl RowItem {
 			.drain(0..(height).into())
 			.enumerate()
 			.map(|(i, line)| {
-				if i == (height - 1).into() {
+				if i == (height - 1) as usize {
 					String::from("...")
 				} else {
 					line

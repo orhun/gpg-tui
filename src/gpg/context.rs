@@ -5,10 +5,24 @@ use gpgme::context::Keys;
 use gpgme::{
 	Context, Data, ExportMode, Key, KeyListMode, PinentryMode, Protocol,
 };
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
+use tinytemplate::TinyTemplate;
+
+/// Context to use for rendering the output template.
+#[derive(Serialize)]
+struct ExportContext<'a> {
+	/// Key type.
+	#[serde(rename = "type")]
+	pub type_: &'a str,
+	/// Export pattern.
+	pub query: &'a str,
+	/// File extension.
+	pub ext: &'a str,
+}
 
 /// A context for cryptographic operations.
 #[derive(Debug)]
@@ -50,16 +64,21 @@ impl GpgContext {
 		key_type: KeyType,
 		patterns: Vec<String>,
 	) -> Result<PathBuf> {
-		let path = self.config.output_dir.join(format!(
-			"{}_{}.{}",
-			key_type,
-			if patterns.len() == 1 {
+		let mut template = TinyTemplate::new();
+		template.add_template("export_template", &self.config.output_file)?;
+		let context = ExportContext {
+			type_: &key_type.to_string(),
+			query: if patterns.len() == 1 {
 				&patterns[0]
 			} else {
 				"out"
 			},
-			if self.config.armor { "asc" } else { "pgp" }
-		));
+			ext: if self.config.armor { "asc" } else { "pgp" },
+		};
+		let path = self
+			.config
+			.output_dir
+			.join(template.render("export_template", &context)?);
 		if !path.exists() {
 			fs::create_dir_all(path.parent().expect("path has no parent"))?;
 		}

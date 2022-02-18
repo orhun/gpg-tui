@@ -14,6 +14,8 @@ pub struct GpgConfig {
 	pub default_key: Option<String>,
 	/// Home directory.
 	pub home_dir: PathBuf,
+	/// Template for the output file name.
+	pub output_file: String,
 	/// Output directory.
 	pub output_dir: PathBuf,
 }
@@ -39,6 +41,7 @@ impl GpgConfig {
 			armor: args.armor,
 			default_key: args.default_key.as_ref().cloned(),
 			home_dir,
+			output_file: args.outfile.to_string(),
 			output_dir,
 		})
 	}

@@ -283,6 +283,8 @@ OPTIONS:
         --config <path>          Sets the configuration file [env: GPG_TUI_CONFIG=]
         --homedir <dir>          Sets the GnuPG home directory [env: GNUPGHOME=]
     -o, --outdir <dir>           Sets the output directory [env: OUTDIR=]
+        --outfile <path>         Sets the template for the output file name [env: OUTFILE=]
+                                 [default: {type}_{query}.{ext}]
     -d, --default-key <key>      Sets the default key to sign with [env: DEFAULT_KEY=]
     -t, --tick-rate <ms>         Sets the tick rate of the terminal [env: TICK_RATE=] [default: 250]
     -c, --color <color>          Sets the accent color of the terminal [env: COLOR=] [default: gray]

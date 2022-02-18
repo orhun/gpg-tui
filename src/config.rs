@@ -41,6 +41,8 @@ pub struct GpgConfig {
 	pub homedir: Option<String>,
 	/// [`Args::outdir`]
 	pub outdir: Option<String>,
+	/// [`Args::outfile`]
+	pub outfile: Option<String>,
 	/// [`Args::default_key`]
 	pub default_key: Option<String>,
 }
@@ -82,6 +84,9 @@ impl Config {
 		args.splash = self.general.splash;
 		args.homedir = self.gpg.homedir;
 		args.outdir = self.gpg.outdir;
+		if let Some(outfile) = self.gpg.outfile {
+			args.outfile = outfile;
+		}
 		args.default_key = self.gpg.default_key;
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());

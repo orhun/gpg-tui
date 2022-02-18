@@ -9,4 +9,5 @@
   armor = false
   # homedir = "~/.gnupg"
   # outdir = "~/.gnupg/out"
+  # outfile = "{type}_{query}.{ext}"
   # default_key = "0xA1B2C3XY"

@@ -53,6 +53,8 @@ Section for GnuPG settings.
 .IP \(bu 2
 \fBoutdir\fP: set the output directory
 .IP \(bu 2
+\fBoutfile\fP: set the template for the output file name
+.IP \(bu 2
 \fBdefault_key\fP: set the default key to sign with
 
 .RE
@@ -77,6 +79,7 @@ The following is a complete \fBgpg-tui.toml\fP default configuration example:
   armor = false
   homedir = "~/.gnupg"
   outdir = "~/.gnupg/out"
+  outfile = "{type}_{query}.{ext}"
   default_key = ""
 
 .fi

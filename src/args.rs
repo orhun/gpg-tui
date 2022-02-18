@@ -49,6 +49,15 @@ pub struct Args {
 		parse(from_str = Args::parse_dir)
 	)]
 	pub outdir: Option<String>,
+	/// Sets the template for the output file name.
+	#[clap(
+		long,
+		value_name = "path",
+		default_value = "{type}_{query}.{ext}",
+		env,
+		parse(from_str = Args::parse_dir)
+	)]
+	pub outfile: String,
 	/// Sets the default key to sign with.
 	#[clap(short, long, value_name = "key", env)]
 	pub default_key: Option<String>,
