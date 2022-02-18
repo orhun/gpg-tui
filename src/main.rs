@@ -1,4 +1,5 @@
 use anyhow::Result;
+use clap::Parser;
 use gpg_tui::app::handler;
 use gpg_tui::app::launcher::App;
 use gpg_tui::args::Args;

@@ -99,7 +99,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ## Requirements
 
-- [Rust](https://www.rust-lang.org/): `>=1.47.0`
+- [Rust](https://www.rust-lang.org/): `>=1.47.0`??
 - Core dependencies: `gnupg`, `gpgme>=1.7.0`, `libgpg-error`
 - Other dependencies: `libxcb`
 
@@ -273,30 +273,26 @@ See available [releases](https://github.com/orhun/gpg-tui/releases) that are aut
 ## Usage
 
 ```
-gpg-tui [FLAGS] [OPTIONS]
-```
-
-```
-FLAGS:
-    -a, --armor      Enables ASCII armored output
-        --splash     Shows the splash screen on startup
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+gpg-tui [OPTIONS]
 ```
 
 ```
 OPTIONS:
-        --config <path>        Sets the configuration file [env: GPG_TUI_CONFIG=]
-        --homedir <dir>        Sets the GnuPG home directory [env: HOMEDIR=]
-    -o, --outdir <dir>         Sets the output directory [env: OUTDIR=]
-    -d, --default-key <key>    Sets the default key to sign with [env: DEFAULT_KEY=]
-    -t, --tick-rate <ms>       Sets the tick rate of the terminal [env: TICK_RATE=]  [default: 250]
-    -c, --color <color>        Sets the accent color of the terminal [env: COLOR=]  [default: gray]
-    -s, --style <style>        Sets the style of the terminal [env: STYLE=]  [default: plain]
-                               [possible values: plain, colored]
-    -f, --file-explorer <app>  Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
-        --select <option>      Enables the selection mode [env: SELECT=]
-                               [possible values: key_id, key_fpr, user_id, row1, row2]
+    -a, --armor                  Enables ASCII armored output
+        --splash                 Shows the splash screen on startup
+        --config <path>          Sets the configuration file [env: GPG_TUI_CONFIG=]
+        --homedir <dir>          Sets the GnuPG home directory [env: GNUPGHOME=]
+    -o, --outdir <dir>           Sets the output directory [env: OUTDIR=]
+    -d, --default-key <key>      Sets the default key to sign with [env: DEFAULT_KEY=]
+    -t, --tick-rate <ms>         Sets the tick rate of the terminal [env: TICK_RATE=] [default: 250]
+    -c, --color <color>          Sets the accent color of the terminal [env: COLOR=] [default: gray]
+    -s, --style <style>          Sets the style of the terminal [env: STYLE=] [default: plain]
+                                 [possible values: plain, colored]
+    -f, --file-explorer <app>    Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
+        --select <option>        Enables the selection mode [env: SELECT=]
+                                 [possible values: key_id, key_fpr, user_id, row1, row2]
+    -h, --help                   Print help information
+    -V, --version                Print version information
 ```
 
 ## Configuration

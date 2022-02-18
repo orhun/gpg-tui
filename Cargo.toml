@@ -36,11 +36,11 @@ shellexpand = "2.1.0"
 hex-literal = "0.3.3"
 toml = "0.5.8"
 dirs-next = "2.0.0"
+clap_complete = "3.0.6"
 
-[dependencies.structopt]
-version = "0.3.23"
-default-features = false
-features = ["suggestions", "color", "wrap_help"]
+[dependencies.clap]
+version = "3.1.0"
+features = ["derive", "env", "wrap_help"]
 
 [dependencies.tui]
 version = "0.16.0"

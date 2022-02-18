@@ -4,59 +4,82 @@ use crate::app::banner::BANNERS;
 use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::widget::style::Color;
-use structopt::clap::AppSettings;
-use structopt::StructOpt;
+use clap::{AppSettings, Parser};
 
-/// Argument parser powered by [`structopt`].
-#[derive(Debug, Default, StructOpt)]
-#[structopt(
+/// Argument parser powered by [`clap`].
+#[derive(Debug, Default, Parser)]
+#[clap(
     name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
     author = env!("CARGO_PKG_AUTHORS"),
     about = env!("CARGO_PKG_DESCRIPTION"),
 	before_help = BANNERS[2],
-    global_settings(&[
-        AppSettings::ColorAuto,
-        AppSettings::ColoredHelp,
-        AppSettings::DeriveDisplayOrder,
-    ]),
+    global_setting = AppSettings::DeriveDisplayOrder,
 	rename_all_env = "screaming-snake",
 )]
 pub struct Args {
 	/// Enables ASCII armored output.
-	#[structopt(short, long)]
+	#[clap(short, long)]
 	pub armor: bool,
 	/// Shows the splash screen on startup.
-	#[structopt(long)]
+	#[clap(long)]
 	pub splash: bool,
 	/// Sets the configuration file.
-	#[structopt(long, value_name = "path", env = "GPG_TUI_CONFIG", parse(from_str = Args::parse_dir))]
+	#[clap(
+		long,
+		value_name = "path",
+		env = "GPG_TUI_CONFIG",
+		parse(from_str = Args::parse_dir)
+	)]
 	pub config: Option<String>,
 	/// Sets the GnuPG home directory.
-	#[structopt(long, value_name = "dir", env = "GNUPGHOME", parse(from_str = Args::parse_dir))]
+	#[clap(
+		long,
+		value_name = "dir",
+		env = "GNUPGHOME",
+		parse(from_str = Args::parse_dir)
+	)]
 	pub homedir: Option<String>,
 	/// Sets the output directory.
-	#[structopt(short, long, value_name = "dir", env, parse(from_str = Args::parse_dir))]
+	#[clap(
+		short,
+		long,
+		value_name = "dir",
+		env,
+		parse(from_str = Args::parse_dir)
+	)]
 	pub outdir: Option<String>,
 	/// Sets the default key to sign with.
-	#[structopt(short, long, value_name = "key", env)]
+	#[clap(short, long, value_name = "key", env)]
 	pub default_key: Option<String>,
 	/// Sets the tick rate of the terminal.
-	#[structopt(short, long, value_name = "ms", default_value = "250", env)]
+	#[clap(short, long, value_name = "ms", default_value = "250", env)]
 	pub tick_rate: u64,
 	/// Sets the accent color of the terminal.
-	#[structopt(short, long, default_value = "gray", parse(from_str), env)]
+	#[clap(
+		short,
+		long,
+		value_name = "color",
+		default_value = "gray",
+		parse(from_str),
+		env
+	)]
 	pub color: Color,
 	/// Sets the style of the terminal.
-	#[structopt(
-		short, long, possible_values = &["plain", "colored"], default_value = "plain", env
+	#[clap(
+		short,
+		long,
+		value_name = "style",
+		possible_values = &["plain", "colored"],
+		default_value = "plain",
+		env
 	)]
 	pub style: Style,
 	/// Sets the utility for file selection.
-	#[structopt(short, long, value_name = "app", default_value = "xplr", env)]
+	#[clap(short, long, value_name = "app", default_value = "xplr", env)]
 	pub file_explorer: String,
 	/// Enables the selection mode.
-	#[structopt(
+	#[clap(
 		long,
 		value_name = "option",
 		possible_values = &["key_id", "key_fpr", "user_id", "row1", "row2"],
@@ -75,11 +98,14 @@ impl Args {
 	fn parse_dir(dir: &str) -> String {
 		shellexpand::tilde(dir).to_string()
 	}
+}
 
-	/// Parses the command-line arguments.
-	///
-	/// See [`StructOpt::from_args`].
-	pub fn parse() -> Self {
-		Self::from_args()
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use clap::CommandFactory;
+	#[test]
+	fn test_args() {
+		Args::command().debug_assert();
 	}
 }
