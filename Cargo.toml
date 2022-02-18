@@ -25,15 +25,16 @@ gpg-tests = []
 
 [dependencies]
 gpgme = "0.10.0"
-crossterm = "0.21.0"
-anyhow = "1.0.44"
+tui = "0.17.0"
+crossterm = "0.23.0"
+anyhow = "1.0.53"
 chrono = "0.4.19"
 unicode-width = "0.1.9"
 copypasta-ext = "0.3.7"
-colorsys = "0.6.4"
-rust-embed = "6.2.0"
+colorsys = "0.6.5"
+rust-embed = "6.3.0"
 shellexpand = "2.1.0"
-hex-literal = "0.3.3"
+hex-literal = "0.3.4"
 toml = "0.5.8"
 dirs-next = "2.0.0"
 clap_complete = "3.0.6"
@@ -43,22 +44,17 @@ tinytemplate = "1.2.1"
 version = "3.1.0"
 features = ["derive", "env", "wrap_help"]
 
-[dependencies.tui]
-version = "0.16.0"
-default-features = false
-features = ["crossterm"]
-
 [dependencies.image]
-version = "0.23.14"
+version = "0.24.0"
 default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.28"
+version = "1.0.36"
 features = ["derive"]
 
 [dev-dependencies]
-pretty_assertions = "1.0.0"
+pretty_assertions = "1.1.0"
 
 [profile.dev]
 opt-level = 0

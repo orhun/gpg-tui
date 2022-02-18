@@ -99,7 +99,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ## Requirements
 
-- [Rust](https://www.rust-lang.org/): `>=1.47.0`??
+- [Rust](https://www.rust-lang.org/): `>=1.56.1`
 - Core dependencies: `gnupg`, `gpgme>=1.7.0`, `libgpg-error`
 - Other dependencies: `libxcb`
 
