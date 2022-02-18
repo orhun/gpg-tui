@@ -272,8 +272,9 @@ mod tests {
 			.is_ok());
 		let key_id = keys.get(&KeyType::Public).unwrap()[1].get_id();
 		assert!(context.get_key(KeyType::Public, key_id.clone()).is_ok());
+		context.config.output_file = String::from("{query}-{type}.{ext}");
 		assert_eq!(
-			context.config.output_dir.join(String::from("sec_0x0.asc")),
+			context.config.output_dir.join(String::from("0x0-sec.asc")),
 			context
 				.get_output_file(KeyType::Secret, vec![String::from("0x0")])
 				.unwrap()
