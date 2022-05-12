@@ -25,36 +25,36 @@ gpg-tests = []
 
 [dependencies]
 gpgme = "0.10.0"
-tui = "0.17.0"
-crossterm = "0.23.0"
-anyhow = "1.0.53"
+tui = "0.18.0"
+crossterm = "0.23.2"
+anyhow = "1.0.57"
 chrono = "0.4.19"
 unicode-width = "0.1.9"
 copypasta-ext = "0.3.7"
 colorsys = "0.6.5"
-rust-embed = "6.3.0"
+rust-embed = "6.4.0"
 shellexpand = "2.1.0"
 hex-literal = "0.3.4"
-toml = "0.5.8"
+toml = "0.5.9"
 dirs-next = "2.0.0"
-clap_complete = "3.0.6"
+clap_complete = "3.1.4"
 tinytemplate = "1.2.1"
 
 [dependencies.clap]
-version = "3.1.0"
+version = "3.1.18"
 features = ["derive", "env", "wrap_help"]
 
 [dependencies.image]
-version = "0.24.0"
+version = "0.24.2"
 default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.36"
+version = "1.0.37"
 features = ["derive"]
 
 [dev-dependencies]
-pretty_assertions = "1.1.0"
+pretty_assertions = "1.2.1"
 
 [profile.dev]
 opt-level = 0
