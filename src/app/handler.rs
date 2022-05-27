@@ -720,6 +720,11 @@ mod tests {
 			&mut app,
 		);
 		assert_eq!(":normal", app.prompt.text);
+		handle_key_event(
+			KeyEvent::new(Key::Enter, Modifiers::NONE),
+			&[],
+			&mut app,
+		);
 		assert_eq!(
 			Command::SwitchMode(Mode::Visual),
 			handle_key_event(
