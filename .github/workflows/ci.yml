@@ -65,7 +65,7 @@ jobs:
 
       - name: Prepare the test environment
         shell: bash
-        run: ./prepare-test.env.sh
+        run: ./prepare-test-env.sh
 
       - name: Setup cargo-tarpaulin
         run: |
