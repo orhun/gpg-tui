@@ -35,7 +35,7 @@ pub struct GeneralConfig {
 	pub file_explorer: String,
 	/// Custom key bindings.
 	#[serde(skip_serializing)]
-	pub key_bindings: Option<Vec<CustomKeyBinding>,
+	pub key_bindings: Option<Vec<CustomKeyBinding>>,
 }
 
 /// Representation of custom key bindings.
