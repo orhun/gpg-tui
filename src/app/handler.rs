@@ -671,22 +671,32 @@ mod tests {
 		];
 		for (command, key_events) in test_cases {
 			for key_event in key_events {
-				assert_eq!(command, handle_key_event(key_event, &mut app));
+				assert_eq!(command, handle_key_event(key_event, &[], &mut app));
 			}
 		}
 		app.prompt.enable_command_input();
-		handle_key_event(KeyEvent::new(Key::Esc, Modifiers::NONE), &mut app);
+		handle_key_event(
+			KeyEvent::new(Key::Esc, Modifiers::NONE),
+			&[],
+			&mut app,
+		);
 		assert!(!app.prompt.is_enabled());
 		app.prompt.enable_search();
-		handle_key_event(KeyEvent::new(Key::Tab, Modifiers::NONE), &mut app);
+		handle_key_event(
+			KeyEvent::new(Key::Tab, Modifiers::NONE),
+			&[],
+			&mut app,
+		);
 		for c in String::from("normal-").chars() {
 			handle_key_event(
 				KeyEvent::new(Key::Char(c), Modifiers::NONE),
+				&[],
 				&mut app,
 			);
 		}
 		handle_key_event(
 			KeyEvent::new(Key::Backspace, Modifiers::NONE),
+			&[],
 			&mut app,
 		);
 		assert_eq!(":normal", app.prompt.text);
@@ -694,13 +704,31 @@ mod tests {
 			Command::SwitchMode(Mode::Normal),
 			handle_key_event(
 				KeyEvent::new(Key::Enter, Modifiers::NONE),
+				&[],
 				&mut app,
 			)
 		);
 		app.prompt.enable_command_input();
-		handle_key_event(KeyEvent::new(Key::Down, Modifiers::NONE), &mut app);
-		handle_key_event(KeyEvent::new(Key::Up, Modifiers::NONE), &mut app);
+		handle_key_event(
+			KeyEvent::new(Key::Down, Modifiers::NONE),
+			&[],
+			&mut app,
+		);
+		handle_key_event(
+			KeyEvent::new(Key::Up, Modifiers::NONE),
+			&[],
+			&mut app,
+		);
 		assert_eq!(":normal", app.prompt.text);
+		handle_key_event(
+			KeyEvent::new(Key::Char('M'), Modifiers::NONE),
+			&[CustomKeyBinding {
+				keys: vec![KeyEvent::new(Key::Char('M'), Modifiers::NONE)],
+				command: Command::SwitchMode(Mode::Visual),
+			}],
+			&mut app,
+		);
+		assert_eq!(":visual", app.prompt.text);
 		Ok(())
 	}
 }
