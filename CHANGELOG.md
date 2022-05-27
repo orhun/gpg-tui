@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2022-05-27
+### Added
+- Support customizing key bindings (#6)
+- Add a separate script for preparing the test environment
+
+### Changed
+- Bump dependencies
+- Bump the Rust version in Dockerfile
+- Update man page about custom key bindings
+
+### Fixed
+- Fix the formatting
+- Update application handler tests about custom key bindings
+- Update custom key binding handler test
+- Fix the keycode handler test
+- Fix typo in the script name
+
+### Removed
+- Remove edition key from rustfmt config
+
 ## [0.8.3] - 2022-02-18
 ### Added
 - Support custom file name for the exported keys (#4)
