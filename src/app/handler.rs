@@ -720,15 +720,17 @@ mod tests {
 			&mut app,
 		);
 		assert_eq!(":normal", app.prompt.text);
-		handle_key_event(
-			KeyEvent::new(Key::Char('M'), Modifiers::NONE),
-			&[CustomKeyBinding {
-				keys: vec![KeyEvent::new(Key::Char('M'), Modifiers::NONE)],
-				command: Command::SwitchMode(Mode::Visual),
-			}],
-			&mut app,
+		assert_eq!(
+			Command::SwitchMode(Mode::Visual),
+			handle_key_event(
+				KeyEvent::new(Key::Char('M'), Modifiers::NONE),
+				&[CustomKeyBinding {
+					keys: vec![KeyEvent::new(Key::Char('M'), Modifiers::NONE)],
+					command: Command::SwitchMode(Mode::Visual),
+				}],
+				&mut app,
+			)
 		);
-		assert_eq!(":visual", app.prompt.text);
 		Ok(())
 	}
 }
