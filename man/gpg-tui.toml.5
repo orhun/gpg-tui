@@ -39,6 +39,8 @@ Section for general settings.
 \fBstyle\fP: set the style of the terminal (default: plain) (possible values: plain, colored)
 .IP \(bu 2
 \fBfile_explorer\fP: set the utility for file selection (default: xplr)
+.IP \(bu 2
+\fBkey_bindings\fP: list of custom key bindings
 
 .RE
 
@@ -74,6 +76,10 @@ The following is a complete \fBgpg-tui.toml\fP default configuration example:
   color = "gray"
   style = "plain"
   file_explorer = "xplr"
+  key_bindings = [
+    { keys = [ "?", "h", "f1" ], command = ":help" },
+    { keys = [ "C-d", "C-c", "q" ], command = ":quit" },
+  ]
 
 [gpg]
   armor = false
