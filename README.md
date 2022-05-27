@@ -54,6 +54,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
 - [Key Bindings](#key-bindings)
   - [User Interface](#user-interface)
   - [Key Management](#key-management)
+  - [Customization](#customization)
 - [Approach](#approach)
   - [Detail Levels](#detail-levels)
   - [Key Information](#key-information)
@@ -354,6 +355,23 @@ The configuration file can be specified via `--config` argument or `GPG_TUI_CONF
 | `g`           | generate key  |
 | `d,backspace` | delete key    |
 | `C-r`         | refresh keys  |
+
+
+### Customization
+
+Key bindings can be overrided/customized via using `general.key_bindings` setting in the [configuration file](#configuration). For example,
+
+```toml
+key_bindings = [
+  { keys = [ "?", "h", "f1" ], command = ":help" },
+  { keys = [ "C-s", "s" ], command = ":style colored" },
+  { keys = [ "C-d", "C-c", "q" ], command = ":quit" },
+]
+```
+
+`keys` array contains the keycodes which is either a single key (e.g. `a`), a key combination (e.g. Control-C: `C-c`, Alt-C: `A-c`), or a special key (e.g. `Backspace`, `Enter`). Available key codes can be found in the [`crossterm` documentation](https://docs.rs/crossterm/latest/crossterm/event/enum.KeyCode.html).
+
+Also, see the [list of commands](./COMMANDS.md).
 
 ## Approach
 

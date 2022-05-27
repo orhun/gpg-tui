@@ -26,7 +26,6 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.10.0"
 tui = "0.18.0"
-crossterm = "0.23.2"
 anyhow = "1.0.57"
 chrono = "0.4.19"
 unicode-width = "0.1.9"
@@ -39,6 +38,10 @@ toml = "0.5.9"
 dirs-next = "2.0.0"
 clap_complete = "3.1.4"
 tinytemplate = "1.2.1"
+
+[dependencies.crossterm]
+version = "0.23.2"
+features = ["serde"]
 
 [dependencies.clap]
 version = "3.1.18"

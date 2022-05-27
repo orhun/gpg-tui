@@ -17,12 +17,16 @@ fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let mut args = Args::parse();
 	// Parse configuration file.
-	if let Some(config_file) =
+	let config = if let Some(config_file) =
 		args.config.to_owned().or_else(Config::get_default_location)
 	{
 		let config = Config::parse_config(&config_file)?;
 		args = config.update_args(args);
-	}
+		config
+	} else {
+		Config::default()
+	};
+	let custom_key_bindings = config.general.key_bindings.unwrap_or_default();
 	// Initialize GPGME library.
 	let gpg_config = GpgConfig::new(&args)?;
 	gpg_config.check_gpgme_version(GPGME_REQUIRED_VERSION);
@@ -41,9 +45,12 @@ fn main() -> Result<()> {
 		tui.draw(&mut app)?;
 		// Handle events.
 		match tui.events.next()? {
-			Event::Key(key_event) => {
-				handler::handle_events(key_event, &mut tui, &mut app)?
-			}
+			Event::Key(key_event) => handler::handle_events(
+				key_event,
+				&custom_key_bindings,
+				&mut tui,
+				&mut app,
+			)?,
 			Event::Tick => app.tick(),
 			_ => {}
 		}

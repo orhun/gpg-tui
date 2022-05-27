@@ -5,6 +5,7 @@ use crate::app::prompt::OutputType;
 use crate::app::selection::Selection;
 use crate::app::tab::Tab;
 use crate::app::util;
+use crate::config::CustomKeyBinding;
 use crate::gpg::key::KeyType;
 use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
@@ -16,14 +17,23 @@ use tui::backend::Backend;
 /// Handles the key events and executes the application command.
 pub fn handle_events<B: Backend>(
 	key_event: KeyEvent,
+	key_bindings: &[CustomKeyBinding],
 	tui: &mut Tui<B>,
 	app: &mut App,
 ) -> Result<()> {
-	handle_command_execution(handle_key_event(key_event, app), tui, app)
+	handle_command_execution(
+		handle_key_event(key_event, key_bindings, app),
+		tui,
+		app,
+	)
 }
 
 /// Returns the corresponding application command for a key event.
-fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
+fn handle_key_event(
+	key_event: KeyEvent,
+	key_bindings: &[CustomKeyBinding],
+	app: &mut App,
+) -> Command {
 	let mut command = Command::None;
 	if app.prompt.is_enabled() {
 		match key_event.code {
@@ -74,6 +84,11 @@ fn handle_key_event(key_event: KeyEvent, app: &mut App) -> Command {
 			}
 			_ => {}
 		}
+	} else if let Some(key_binding) = key_bindings
+		.iter()
+		.find(|key_binding| key_binding.keys.contains(&key_event))
+	{
+		command = key_binding.command.clone();
 	} else {
 		command = match key_event.code {
 			Key::Char('?') => Command::ShowHelp,
