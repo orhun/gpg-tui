@@ -787,7 +787,6 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 - [Hacker News](https://news.ycombinator.com/item?id=27329598)
 - [heise online - IT-News](https://www.heise.de/news/gpg-tui-GnuPG-Schluessel-bequem-im-Terminal-verwalten-6057698.html)
-- [News Break](https://www.newsbreak.com/news/2266206071969/introducing-gpg-tui-a-terminal-user-interface-for-gnupg)
 
 ## Contact
 
