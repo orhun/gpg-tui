@@ -798,7 +798,7 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 ## Funding
 
-If you find **gpg-tui** and/or other projects on my [GitHub profile](https://github.com/orhun/) useful, consider [becoming a patron](https://www.patreon.com/join/orhunp)!
+If you find **gpg-tui** and/or other projects on my [GitHub profile](https://github.com/orhun/) useful, consider supporting me on [GitHub Sponsors](https://github.com/sponsors/orhun) or [becoming a patron](https://www.patreon.com/join/orhunp)!
 
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dorhunp%26type%3Dpatrons&style=flat&labelColor=424242&color=1d1d1d&logo=Patreon&logoColor=white)](https://patreon.com/join/orhunp)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dorhunp%26type%3Dpledges&style=flat&labelColor=424242&color=1d1d1d&logo=Patreon&logoColor=white&label=)](https://patreon.com/join/orhunp)
