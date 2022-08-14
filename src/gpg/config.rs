@@ -49,7 +49,8 @@ impl GpgConfig {
 	/// Returns general information about the library configuration.
 	pub fn get_info(&mut self) -> Result<String> {
 		let engine_info = self.inner.engine_info()?;
-		match engine_info.get(gpgme::Protocol::OpenPgp) {
+		let engine_info = engine_info.get(gpgme::Protocol::OpenPgp);
+		match engine_info {
 			Some(engine) => Ok(format!(
 				r#"
 				GPGME version: {}

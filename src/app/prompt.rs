@@ -9,7 +9,7 @@ pub const COMMAND_PREFIX: char = ':';
 pub const SEARCH_PREFIX: char = '/';
 
 /// Output type of the prompt.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum OutputType {
 	/// No output.
 	None,

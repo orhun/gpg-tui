@@ -2,7 +2,7 @@ use std::convert::TryInto;
 use std::str::FromStr;
 
 /// Scrolling direction and offset.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScrollDirection {
 	/// Scroll up.
 	Up(u16),

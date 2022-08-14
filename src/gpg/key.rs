@@ -38,7 +38,7 @@ impl FromStr for KeyType {
 }
 
 /// Level of detail to show for key.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum KeyDetail {
 	/// Show only the primary key and user ID.
 	Minimum = 0,

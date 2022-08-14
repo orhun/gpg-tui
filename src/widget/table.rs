@@ -2,7 +2,7 @@ use crate::widget::row::{ScrollAmount, ScrollDirection};
 use tui::widgets::TableState as TuiState;
 
 /// Table size mode.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TableSize {
 	/// Normal sized table.
 	Normal,

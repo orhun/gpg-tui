@@ -2,7 +2,7 @@ use crate::app::command::Command;
 use crate::gpg::key::KeyType;
 
 /// Application tabs.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Tab {
 	/// Show help.
 	Help,

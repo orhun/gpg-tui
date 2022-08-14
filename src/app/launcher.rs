@@ -1003,7 +1003,7 @@ mod tests {
 
 		app.run_command(Command::ListKeys(KeyType::Public))?;
 		app.run_command(Command::ToggleDetail(false))?;
-		let mut detail = app.keys_table_detail.clone();
+		let mut detail = app.keys_table_detail;
 		detail.increase();
 		app.run_command(Command::ToggleDetail(true))?;
 		assert_eq!(detail, app.keys_table_detail);

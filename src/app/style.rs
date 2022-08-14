@@ -4,7 +4,7 @@ use tui::style::{Color, Style as TuiStyle};
 use tui::text::{Span, Spans, Text};
 
 /// Application style.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Style {
 	/// Plain style with basic colors.
 	Plain,

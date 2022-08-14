@@ -282,7 +282,7 @@ mod tests {
 			);
 		}
 
-		for config in vec![
+		for config in &[
 			"keys = [ 'x' ] \n command = ':x'",
 			"keys = [ 'test' ] \n command = ':help'",
 			"keys = [ '' ] \n command = ':help'",
