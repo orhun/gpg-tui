@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-test_dir="$HOME/.cache/gpg-tui/"
-mkdir -p "$test_dir"
+set -e
+
+test_dir="$HOME/.cache/gpg-tui"
+for dir in "$test_dir" "$test_dir/private-keys-v1.d"; do
+    mkdir -p "$dir"
+    chmod 700 "$dir"
+done
 export GNUPGHOME="$test_dir"
 openssl rand -base64 8 | gpg \
     --pinentry-mode loopback \
