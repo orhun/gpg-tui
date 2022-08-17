@@ -54,21 +54,22 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_app_clipboard() {
-		let copy_type = Selection::from_str("row1").unwrap();
+	fn test_app_clipboard() -> Result<(), String> {
+		let copy_type = Selection::from_str("row1")?;
 		assert_eq!(Selection::TableRow(1), copy_type);
 		assert_eq!(String::from("table row (1)"), copy_type.to_string());
-		let copy_type = Selection::from_str("key").unwrap();
+		let copy_type = Selection::from_str("key")?;
 		assert_eq!(Selection::Key, copy_type);
 		assert_eq!(String::from("exported key"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_id").unwrap();
+		let copy_type = Selection::from_str("key_id")?;
 		assert_eq!(Selection::KeyId, copy_type);
 		assert_eq!(String::from("key ID"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_fingerprint").unwrap();
+		let copy_type = Selection::from_str("key_fingerprint")?;
 		assert_eq!(Selection::KeyFingerprint, copy_type);
 		assert_eq!(String::from("key fingerprint"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_user_id").unwrap();
+		let copy_type = Selection::from_str("key_user_id")?;
 		assert_eq!(Selection::KeyUserId, copy_type);
 		assert_eq!(String::from("user ID"), copy_type.to_string());
+		Ok(())
 	}
 }

@@ -37,15 +37,16 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_app_mode() {
-		let mode = Mode::from_str("normal").unwrap();
+	fn test_app_mode() -> Result<(), ()> {
+		let mode = Mode::from_str("normal")?;
 		assert_eq!(Mode::Normal, mode);
 		assert_eq!(String::from("-- normal --"), mode.to_string());
-		let mode = Mode::from_str("visual").unwrap();
+		let mode = Mode::from_str("visual")?;
 		assert_eq!(Mode::Visual, mode);
 		assert_eq!(String::from("-- visual --"), mode.to_string());
-		let mode = Mode::from_str("copy").unwrap();
+		let mode = Mode::from_str("copy")?;
 		assert_eq!(Mode::Copy, mode);
 		assert_eq!(String::from("-- copy --"), mode.to_string());
+		Ok(())
 	}
 }

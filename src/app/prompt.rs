@@ -189,7 +189,14 @@ mod tests {
 		prompt.set_output((OutputType::from(String::from("success")), "Test"));
 		assert_eq!(String::from("Test"), prompt.text);
 		assert_eq!(OutputType::Success, prompt.output_type);
-		assert_ne!(0, prompt.clock.unwrap().elapsed().as_nanos());
+		assert_ne!(
+			0,
+			prompt
+				.clock
+				.expect("could not get clock")
+				.elapsed()
+				.as_nanos()
+		);
 		assert!(!prompt.is_enabled());
 		prompt.clear();
 		assert_eq!(String::new(), prompt.text);

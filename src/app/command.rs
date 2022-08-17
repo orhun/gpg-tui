@@ -311,37 +311,34 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_app_command() {
+	fn test_app_command() -> Result<(), ()> {
 		assert_eq!(
 			Command::Confirm(Box::new(Command::None)),
-			Command::from_str(":confirm none").unwrap()
+			Command::from_str(":confirm none")?
 		);
-		assert_eq!(Command::ShowHelp, Command::from_str(":help").unwrap());
+		assert_eq!(Command::ShowHelp, Command::from_str(":help")?);
 		assert_eq!(
 			Command::ShowOutput(
 				OutputType::Success,
 				String::from("operation successful"),
 			),
-			Command::from_str(":out success operation successful").unwrap()
+			Command::from_str(":out success operation successful")?
 		);
 		assert_eq!(
 			Command::ChangeStyle(Style::Colored),
-			Command::from_str(":style colored").unwrap()
+			Command::from_str(":style colored")?
 		);
 		assert_eq!(
 			Command::ChangeStyle(Style::Plain),
-			Command::from_str(":style plain").unwrap()
+			Command::from_str(":style plain")?
 		);
-		assert_eq!(
-			Command::ShowOptions,
-			Command::from_str(":options").unwrap()
-		);
+		assert_eq!(Command::ShowOptions, Command::from_str(":options")?);
 		for cmd in &[":list", ":list pub", ":ls", ":ls pub"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::ListKeys(KeyType::Public), command);
 		}
 		for cmd in &[":list sec", ":ls sec"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::ListKeys(KeyType::Secret), command);
 		}
 		assert_eq!(
@@ -353,18 +350,18 @@ mod tests {
 				],
 				false
 			),
-			Command::from_str(":import Test1 Test2 tesT3").unwrap()
+			Command::from_str(":import Test1 Test2 tesT3")?
 		);
 		assert_eq!(
 			Command::ImportKeys(vec![String::from("Test"),], true),
-			Command::from_str(":receive Test").unwrap()
+			Command::from_str(":receive Test")?
 		);
 		assert_eq!(
 			Command::ImportClipboard,
-			Command::from_str(":import-clipboard").unwrap()
+			Command::from_str(":import-clipboard")?
 		);
 		for cmd in &[":export", ":export pub", ":exp", ":exp pub"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(
 				Command::ExportKeys(KeyType::Public, Vec::new(), false),
 				command
@@ -376,7 +373,7 @@ mod tests {
 				vec![String::from("test1"), String::from("test2")],
 				false
 			),
-			Command::from_str(":export pub test1 test2").unwrap()
+			Command::from_str(":export pub test1 test2")?
 		);
 		assert_eq!(
 			Command::ExportKeys(
@@ -384,10 +381,10 @@ mod tests {
 				vec![String::from("test3"), String::from("test4")],
 				true
 			),
-			Command::from_str(":export sec test3 test4 subkey").unwrap()
+			Command::from_str(":export sec test3 test4 subkey")?
 		);
 		for cmd in &[":export sec", ":exp sec"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(
 				Command::ExportKeys(KeyType::Secret, Vec::new(), false),
 				command
@@ -403,10 +400,10 @@ mod tests {
 				],
 				false
 			),
-			Command::from_str(":export sec test1 test2 test3").unwrap()
+			Command::from_str(":export sec test1 test2 test3")?
 		);
 		for cmd in &[":delete pub xyz", ":del pub xyz"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(
 				Command::DeleteKey(KeyType::Public, String::from("xyz")),
 				command
@@ -414,80 +411,71 @@ mod tests {
 		}
 		assert_eq!(
 			Command::SendKey(String::from("test")),
-			Command::from_str(":send test").unwrap()
+			Command::from_str(":send test")?
 		);
 		assert_eq!(
 			Command::EditKey(String::from("test")),
-			Command::from_str(":edit test").unwrap()
+			Command::from_str(":edit test")?
 		);
 		assert_eq!(
 			Command::SignKey(String::from("test")),
-			Command::from_str(":sign test").unwrap()
+			Command::from_str(":sign test")?
 		);
-		assert_eq!(
-			Command::GenerateKey,
-			Command::from_str(":generate").unwrap()
-		);
-		assert_eq!(
-			Command::RefreshKeys,
-			Command::from_str(":refresh keys").unwrap()
-		);
+		assert_eq!(Command::GenerateKey, Command::from_str(":generate")?);
+		assert_eq!(Command::RefreshKeys, Command::from_str(":refresh keys")?);
 		for cmd in &[":toggle detail all", ":t detail all"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::ToggleDetail(true), command);
 		}
-		assert_eq!(
-			Command::ToggleTableSize,
-			Command::from_str(":toggle").unwrap()
-		);
+		assert_eq!(Command::ToggleTableSize, Command::from_str(":toggle")?);
 		for cmd in &[":scroll up 1", ":scroll u 1"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::Scroll(ScrollDirection::Up(1), false), command);
 		}
 		for cmd in &[":set armor true", ":s armor true"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(
 				Command::Set(String::from("armor"), String::from("true")),
 				command
 			);
 		}
 		for cmd in &[":get armor", ":g armor"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::Get(String::from("armor")), command);
 		}
 		assert_eq!(
 			Command::Set(String::from("test"), String::from("_")),
-			Command::from_str(":set test _").unwrap()
+			Command::from_str(":set test _")?
 		);
 		for cmd in &[":normal", ":n"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::SwitchMode(Mode::Normal), command);
 		}
 		for cmd in &[":visual", ":v"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::SwitchMode(Mode::Visual), command);
 		}
 		for cmd in &[":copy", ":c"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::SwitchMode(Mode::Copy), command);
 		}
 		for cmd in &[":paste", ":p"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::Paste, command);
 		}
 		assert_eq!(
 			Command::Search(Some(String::from("q"))),
-			Command::from_str(":search q").unwrap()
+			Command::from_str(":search q")?
 		);
-		assert_eq!(Command::EnableInput, Command::from_str(":input").unwrap());
-		assert_eq!(Command::NextTab, Command::from_str(":next").unwrap());
-		assert_eq!(Command::PreviousTab, Command::from_str(":prev").unwrap());
-		assert_eq!(Command::Refresh, Command::from_str(":refresh").unwrap());
+		assert_eq!(Command::EnableInput, Command::from_str(":input")?);
+		assert_eq!(Command::NextTab, Command::from_str(":next")?);
+		assert_eq!(Command::PreviousTab, Command::from_str(":prev")?);
+		assert_eq!(Command::Refresh, Command::from_str(":refresh")?);
 		for cmd in &[":quit", ":q", ":q!"] {
-			let command = Command::from_str(cmd).unwrap();
+			let command = Command::from_str(cmd)?;
 			assert_eq!(Command::Quit, command);
 		}
-		assert_eq!(Command::None, Command::from_str(":none").unwrap());
+		assert_eq!(Command::None, Command::from_str(":none")?);
 		assert!(Command::from_str("test").is_err());
 
 		assert_eq!("close menu", Command::None.to_string());
@@ -598,5 +586,6 @@ mod tests {
 		);
 		assert_eq!("quit application", Command::Quit.to_string());
 		assert_eq!("NextTab", Command::NextTab.to_string());
+		Ok(())
 	}
 }

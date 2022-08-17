@@ -1011,8 +1011,11 @@ mod tests {
 		))?;
 		assert_eq!(prompt_text, app.prompt.text);
 
-		let home_dir =
-			dirs_next::home_dir().unwrap().to_str().unwrap().to_string();
+		let home_dir = dirs_next::home_dir()
+			.expect("home directory not found")
+			.to_str()
+			.expect("invalid chars in home directory")
+			.to_string();
 		app.run_command(Command::Set(
 			String::from("output"),
 			home_dir.to_string(),
@@ -1070,7 +1073,7 @@ mod tests {
 		))?;
 		assert_eq!("test", app.prompt.text);
 		thread::sleep(Duration::from_millis(
-			(MESSAGE_DURATION + 10).try_into().unwrap(),
+			(MESSAGE_DURATION + 10).try_into()?,
 		));
 		app.tick();
 		assert_eq!("", app.prompt.text);

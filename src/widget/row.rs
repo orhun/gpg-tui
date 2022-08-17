@@ -183,7 +183,7 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_widget_row() {
+	fn test_widget_row() -> Result<(), ()> {
 		assert_eq!(
 			vec!["..", ".ne3", ".ne4", ".."],
 			RowItem::new(
@@ -205,24 +205,19 @@ mod tests {
 		);
 		assert_eq!(
 			ScrollDirection::Right(5),
-			ScrollDirection::from_str("right 5").unwrap()
+			ScrollDirection::from_str("right 5")?
 		);
 		assert_eq!(
 			ScrollDirection::Left(9),
-			ScrollDirection::from_str("left 9").unwrap()
+			ScrollDirection::from_str("left 9")?
 		);
-		assert_eq!(
-			ScrollDirection::Down(1),
-			ScrollDirection::from_str("d").unwrap()
-		);
-		assert_eq!(
-			ScrollDirection::Top,
-			ScrollDirection::from_str("top").unwrap()
-		);
+		assert_eq!(ScrollDirection::Down(1), ScrollDirection::from_str("d")?);
+		assert_eq!(ScrollDirection::Top, ScrollDirection::from_str("top")?);
 		assert_eq!(
 			ScrollDirection::Bottom,
-			ScrollDirection::from_str("bottom").unwrap()
+			ScrollDirection::from_str("bottom")?
 		);
 		assert!(ScrollDirection::from_str("xyz").is_err());
+		Ok(())
 	}
 }
