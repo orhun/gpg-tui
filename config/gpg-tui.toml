@@ -4,6 +4,7 @@
   color = "gray"
   style = "plain"
   file_explorer = "xplr"
+  detail_level = "minimum"
   # key_bindings = [
   #   { keys = [ "?" ], command = ":help" },
   #   { keys = [ "o" ], command = ":options" },

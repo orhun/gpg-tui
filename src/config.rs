@@ -3,6 +3,7 @@
 use crate::app::command::Command;
 use crate::app::style::Style;
 use crate::args::Args;
+use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -33,6 +34,8 @@ pub struct GeneralConfig {
 	pub style: String,
 	/// [`Args::file_explorer`]
 	pub file_explorer: String,
+	/// [`Args::detail_level`]
+	pub detail_level: KeyDetail,
 	/// Custom key bindings.
 	#[serde(skip_serializing)]
 	pub key_bindings: Option<Vec<CustomKeyBinding>>,
@@ -170,6 +173,7 @@ impl Config {
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());
 		args.style = Style::from_str(&self.general.style).unwrap_or_default();
+		args.detail_level = self.general.detail_level;
 		args.file_explorer = self.general.file_explorer.clone();
 		args
 	}

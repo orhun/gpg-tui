@@ -63,8 +63,6 @@ pub struct App<'a> {
 	pub keys_table: StatefulTable<GpgKey>,
 	/// States of the keys table.
 	pub keys_table_states: HashMap<KeyType, TableState>,
-	/// Level of detail to show for keys table.
-	pub keys_table_detail: KeyDetail,
 	/// Bottom margin value of the keys table.
 	pub keys_table_margin: u16,
 	/// Clipboard context.
@@ -76,7 +74,7 @@ pub struct App<'a> {
 impl<'a> App<'a> {
 	/// Constructs a new instance of `App`.
 	pub fn new(gpgme: &'a mut GpgContext, args: &'a Args) -> Result<Self> {
-		let keys = gpgme.get_all_keys()?;
+		let keys = gpgme.get_all_keys(Some(args.detail_level))?;
 		let keys_table = StatefulTable::with_items(
 			keys.get(&KeyType::Public)
 				.expect("failed to get public keys")
@@ -103,7 +101,6 @@ impl<'a> App<'a> {
 			keys,
 			keys_table,
 			keys_table_states: HashMap::new(),
-			keys_table_detail: KeyDetail::Minimum,
 			keys_table_margin: 1,
 			clipboard: match ClipboardDisplayServer::select().try_context() {
 				None => {
@@ -122,9 +119,8 @@ impl<'a> App<'a> {
 		self.mode = Mode::Normal;
 		self.prompt.clear();
 		self.options.state.select(Some(0));
-		self.keys = self.gpgme.get_all_keys()?;
+		self.keys = self.gpgme.get_all_keys(Some(self.state.detail_level))?;
 		self.keys_table_states.clear();
-		self.keys_table_detail = KeyDetail::Minimum;
 		self.keys_table_margin = 1;
 		match self.tab {
 			Tab::Keys(key_type) => {
@@ -503,12 +499,12 @@ impl<'a> App<'a> {
 				}
 			}
 			Command::ToggleDetail(true) => {
-				self.keys_table_detail.increase();
+				self.state.detail_level.increase();
 				for key in self.keys_table.items.iter_mut() {
-					key.detail = self.keys_table_detail;
+					key.detail = self.state.detail_level;
 				}
 				for key in self.keys_table.default_items.iter_mut() {
-					key.detail = self.keys_table_detail;
+					key.detail = self.state.detail_level;
 				}
 			}
 			Command::ToggleDetail(false) => {
@@ -1003,10 +999,10 @@ mod tests {
 
 		app.run_command(Command::ListKeys(KeyType::Public))?;
 		app.run_command(Command::ToggleDetail(false))?;
-		let mut detail = app.keys_table_detail;
+		let mut detail = app.state.detail_level;
 		detail.increase();
 		app.run_command(Command::ToggleDetail(true))?;
-		assert_eq!(detail, app.keys_table_detail);
+		assert_eq!(detail, app.state.detail_level);
 
 		let prompt_text = format!("{}test", COMMAND_PREFIX);
 		app.run_command(Command::Set(

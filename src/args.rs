@@ -3,6 +3,7 @@
 use crate::app::banner::BANNERS;
 use crate::app::selection::Selection;
 use crate::app::style::Style;
+use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use clap::{AppSettings, Parser};
 
@@ -87,6 +88,15 @@ pub struct Args {
 	/// Sets the utility for file selection.
 	#[clap(short, long, value_name = "app", default_value = "xplr", env)]
 	pub file_explorer: String,
+	/// Sets the detail level for the keys.
+	#[clap(
+		long,
+		value_name = "level",
+		default_value = "minimum",
+		env,
+		arg_enum
+	)]
+	pub detail_level: KeyDetail,
 	/// Enables the selection mode.
 	#[clap(
 		long,

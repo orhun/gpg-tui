@@ -1,5 +1,7 @@
 use crate::gpg::handler;
+use clap::ArgEnum;
 use gpgme::{Key, SignatureNotation, Subkey, UserId, UserIdSignature};
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
@@ -38,7 +40,11 @@ impl FromStr for KeyType {
 }
 
 /// Level of detail to show for key.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(
+	Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, ArgEnum,
+)]
+#[serde(rename_all = "snake_case")]
+#[clap(rename_all = "snake_case")]
 pub enum KeyDetail {
 	/// Show only the primary key and user ID.
 	Minimum = 0,
@@ -46,6 +52,12 @@ pub enum KeyDetail {
 	Standard = 1,
 	/// Show signatures.
 	Full = 2,
+}
+
+impl Default for KeyDetail {
+	fn default() -> Self {
+		Self::Minimum
+	}
 }
 
 impl Display for KeyDetail {
@@ -86,16 +98,12 @@ pub struct GpgKey {
 	pub detail: KeyDetail,
 }
 
-impl From<Key> for GpgKey {
-	fn from(key: Key) -> Self {
-		Self {
-			inner: key,
-			detail: KeyDetail::Minimum,
-		}
-	}
-}
-
 impl GpgKey {
+	/// Constructs a new instance of `GpgKey`.
+	pub fn new(key: Key, detail: KeyDetail) -> Self {
+		Self { inner: key, detail }
+	}
+
 	/// Returns the key ID with '0x' prefix.
 	pub fn get_id(&self) -> String {
 		self.inner
@@ -316,11 +324,15 @@ mod tests {
 		let args = Args::default();
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
-		let mut keys = context.get_keys(KeyType::Public, None)?;
+		let mut keys =
+			context.get_keys(KeyType::Public, None, KeyDetail::default())?;
 		let key = &mut keys[0];
 		key.detail.increase();
 		assert_eq!(KeyDetail::Standard, key.detail);
-		assert_eq!(Ok(key.detail), KeyDetail::from_str("standard"));
+		assert_eq!(
+			Ok(key.detail),
+			<KeyDetail as std::str::FromStr>::from_str("standard")
+		);
 		key.detail.increase();
 		assert_eq!(KeyDetail::Full, key.detail);
 		assert_eq!("full", key.detail.to_string());

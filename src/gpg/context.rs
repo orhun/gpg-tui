@@ -1,5 +1,5 @@
 use crate::gpg::config::GpgConfig;
-use crate::gpg::key::{GpgKey, KeyType};
+use crate::gpg::key::{GpgKey, KeyDetail, KeyType};
 use anyhow::{anyhow, Result};
 use gpgme::context::Keys;
 use gpgme::{
@@ -120,19 +120,37 @@ impl GpgContext {
 		&mut self,
 		key_type: KeyType,
 		patterns: Option<Vec<String>>,
+		detail_level: KeyDetail,
 	) -> Result<Vec<GpgKey>> {
 		Ok(self
 			.get_keys_iter(key_type, patterns)?
 			.filter_map(|key| key.ok())
-			.map(GpgKey::from)
+			.map(|v| GpgKey::new(v, detail_level))
 			.collect())
 	}
 
 	/// Returns the all available keys and their types in a HashMap.
-	pub fn get_all_keys(&mut self) -> Result<HashMap<KeyType, Vec<GpgKey>>> {
+	pub fn get_all_keys(
+		&mut self,
+		detail_level: Option<KeyDetail>,
+	) -> Result<HashMap<KeyType, Vec<GpgKey>>> {
 		let mut keys = HashMap::new();
-		keys.insert(KeyType::Public, self.get_keys(KeyType::Public, None)?);
-		keys.insert(KeyType::Secret, self.get_keys(KeyType::Secret, None)?);
+		keys.insert(
+			KeyType::Public,
+			self.get_keys(
+				KeyType::Public,
+				None,
+				detail_level.unwrap_or_default(),
+			)?,
+		);
+		keys.insert(
+			KeyType::Secret,
+			self.get_keys(
+				KeyType::Secret,
+				None,
+				detail_level.unwrap_or_default(),
+			)?,
+		);
 		Ok(keys)
 	}
 
@@ -262,7 +280,7 @@ mod tests {
 		context.config.armor = true;
 		context.apply_config();
 		assert_eq!(true, context.config.armor);
-		let keys = context.get_all_keys()?;
+		let keys = context.get_all_keys(None)?;
 		let key_count = keys.get(&KeyType::Public).unwrap().len();
 		assert!(context
 			.get_key(
@@ -283,7 +301,10 @@ mod tests {
 		context.delete_key(KeyType::Public, key_id)?;
 		assert_eq!(
 			key_count - 1,
-			context.get_keys(KeyType::Public, None).unwrap().len()
+			context
+				.get_keys(KeyType::Public, None, KeyDetail::default())
+				.unwrap()
+				.len()
 		);
 		assert_eq!(
 			1,
@@ -293,7 +314,10 @@ mod tests {
 		);
 		assert_eq!(
 			key_count,
-			context.get_keys(KeyType::Public, None).unwrap().len()
+			context
+				.get_keys(KeyType::Public, None, KeyDetail::default())
+				.unwrap()
+				.len()
 		);
 		fs::remove_file(output_file)?;
 		Ok(())

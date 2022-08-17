@@ -292,6 +292,8 @@ OPTIONS:
     -s, --style <style>          Sets the style of the terminal [env: STYLE=] [default: plain]
                                  [possible values: plain, colored]
     -f, --file-explorer <app>    Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
+        --detail-level <level>   Sets the detail level for the keys [env: DETAIL_LEVEL=] [default: minimum]
+                                 [possible values: minimum, standard, full]
         --select <option>        Enables the selection mode [env: SELECT=]
                                  [possible values: key_id, key_fpr, user_id, row1, row2]
     -h, --help                   Print help information
@@ -406,6 +408,8 @@ The level of detail that an individual table row shows is determined by [detail 
                                                                    ├─[13] selfsig (2021-05-16)
                                                                    └─[10] 84C39331F6F85326 Other Signer Key <example@signer> (2021-05-16)
 ```
+
+Detail level can be set using `--detail-level` argument or `detail_level` entry in the [configuration file](#configuration).
 
 ### Key Information
 

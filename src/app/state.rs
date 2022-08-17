@@ -1,6 +1,7 @@
 use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::args::Args;
+use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use tui::style::Color as TuiColor;
 
@@ -21,6 +22,8 @@ pub struct State {
 	pub select: Option<Selection>,
 	/// File explorer to run.
 	pub file_explorer: String,
+	/// Detail level for the keys table.
+	pub detail_level: KeyDetail,
 	/// Exit message of the app.
 	pub exit_message: Option<String>,
 }
@@ -35,6 +38,7 @@ impl Default for State {
 			show_splash: false,
 			select: None,
 			file_explorer: String::from("xplr"),
+			detail_level: KeyDetail::default(),
 			exit_message: None,
 		}
 	}
@@ -48,6 +52,7 @@ impl<'a> From<&'a Args> for State {
 			show_splash: args.splash,
 			select: args.select,
 			file_explorer: args.file_explorer.to_string(),
+			detail_level: args.detail_level,
 			..Self::default()
 		}
 	}
@@ -57,8 +62,10 @@ impl State {
 	/// Reverts back the values to default.
 	pub fn refresh(&mut self) {
 		let style = self.style;
+		let detail_level = self.detail_level;
 		*self = Self::default();
 		self.style = style;
+		self.detail_level = detail_level;
 	}
 }
 
@@ -76,6 +83,7 @@ mod tests {
 		assert_eq!(false, state.show_options);
 		assert_eq!(false, state.show_splash);
 		assert_eq!(None, state.select);
+		assert_eq!(KeyDetail::default(), state.detail_level);
 		assert_eq!("xplr", state.file_explorer);
 		assert_eq!(None, state.exit_message);
 	}

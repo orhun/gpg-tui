@@ -560,7 +560,7 @@ mod tests {
 		let mut terminal = Terminal::new(backend)?;
 		let test_key = format!(
 			"│> [sc--] rsa3072/{} [u] test@example.org              │",
-			app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()[0]
+			app.gpgme.get_all_keys(None)?.get(&KeyType::Public).unwrap()[0]
 				.get_id()
 		)
 		.replace("0x", "");

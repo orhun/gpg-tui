@@ -458,9 +458,9 @@ mod tests {
 		let config = GpgConfig::new(&args)?;
 		let mut context = GpgContext::new(config)?;
 		let mut app = App::new(&mut context, &args)?;
-		let key_id = app.gpgme.get_all_keys()?.get(&KeyType::Public).unwrap()
-			[0]
-		.get_id();
+		let key_id =
+			app.gpgme.get_all_keys(None)?.get(&KeyType::Public).unwrap()[0]
+				.get_id();
 		let test_cases = vec![
 			(
 				Command::Confirm(Box::new(Command::DeleteKey(
