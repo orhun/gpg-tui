@@ -13,6 +13,7 @@ categories = ["command-line-utilities"]
 include = ["src/**/*", "assets/*", "Cargo.*", "LICENSE", "README.md", "CHANGELOG.md"]
 edition = "2021"
 default-run = "gpg-tui"
+rust-version = "1.57.0"
 
 [[bin]]
 name = "gpg-tui-completions"
