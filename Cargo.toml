@@ -25,35 +25,35 @@ gpg-tests = []
 
 [dependencies]
 gpgme = "0.10.0"
-tui = "0.18.0"
-anyhow = "1.0.57"
-chrono = "0.4.19"
+tui = "0.19.0"
+anyhow = "1.0.62"
+chrono = "0.4.22"
 unicode-width = "0.1.9"
-copypasta-ext = "0.3.7"
-colorsys = "0.6.5"
+copypasta-ext = "0.3.9"
+colorsys = "0.6.6"
 rust-embed = "6.4.0"
-shellexpand = "2.1.0"
+shellexpand = "2.1.2"
 hex-literal = "0.3.4"
 toml = "0.5.9"
 dirs-next = "2.0.0"
-clap_complete = "3.1.4"
+clap_complete = "3.2.4"
 tinytemplate = "1.2.1"
 
 [dependencies.crossterm]
-version = "0.23.2"
+version = "0.25.0"
 features = ["serde"]
 
 [dependencies.clap]
-version = "3.1.18"
+version = "3.2.17"
 features = ["derive", "env", "wrap_help"]
 
 [dependencies.image]
-version = "0.24.2"
+version = "0.24.3"
 default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.37"
+version = "1.0.143"
 features = ["derive"]
 
 [dev-dependencies]
