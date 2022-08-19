@@ -50,7 +50,7 @@ pub enum Command {
 	ToggleDetail(bool),
 	/// Toggle the table size.
 	ToggleTableSize,
-	/// Scroll the currrent widget.
+	/// Scroll the current widget.
 	Scroll(ScrollDirection, bool),
 	/// Set the value of an option.
 	Set(String, String),
