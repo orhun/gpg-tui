@@ -361,7 +361,7 @@ The configuration file can be specified via `--config` argument or `GPG_TUI_CONF
 
 ### Customization
 
-Key bindings can be overrided/customized via using `general.key_bindings` setting in the [configuration file](#configuration). For example,
+Key bindings can be overridden/customized via using `general.key_bindings` setting in the [configuration file](#configuration). For example,
 
 ```toml
 key_bindings = [
