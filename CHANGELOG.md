@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2022-12-02
+### Changed
+- Bump dependencies
+- Bump the Rust version in Dockerfile
+- Update Docker build badge in README.md
+- Bump Debian distribution in Dockerfile
+
+### Fixed
+- Fix typos (#45)
+- Apply clippy lints
+
 ## [0.9.1] - 2022-08-18
 ### Added
 - Support setting the detail level via config or args (#44)
