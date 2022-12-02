@@ -100,8 +100,8 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 ## Requirements
 
-- [Rust](https://www.rust-lang.org/): `>=1.57.0`
-- Core dependencies: `gnupg`, `gpgme>=1.7.0`, `libgpg-error`
+- [Rust](https://www.rust-lang.org/): `>=1.64.0`
+- Core dependencies: `gnupg`, `gpgme>=1.12.0`, `libgpg-error`
 - Other dependencies: `libxcb`
 
 Pleases note that the name of these dependencies (packages) might change depending on the distribution/platform.([*](https://github.com/orhun/gpg-tui/issues/10))
