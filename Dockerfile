@@ -1,4 +1,4 @@
-FROM rust:1.65-slim-buster as builder
+FROM rust:1.65-slim-bullseye as builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     --allow-unauthenticated \
@@ -15,7 +15,7 @@ COPY . .
 RUN cargo build --locked --release --verbose --bin gpg-tui
 RUN mkdir -p build-out && cp target/release/gpg-tui build-out/
 
-FROM debian:buster-slim as runner
+FROM debian:bullseye-slim as runner
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     --allow-unauthenticated \
