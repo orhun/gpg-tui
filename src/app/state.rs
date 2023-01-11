@@ -63,9 +63,11 @@ impl State {
 	pub fn refresh(&mut self) {
 		let style = self.style;
 		let detail_level = self.detail_level;
+		let color = self.color;
 		*self = Self::default();
 		self.style = style;
 		self.detail_level = detail_level;
+		self.color = color;
 	}
 }
 
