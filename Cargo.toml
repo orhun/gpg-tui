@@ -27,7 +27,7 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.11.0"
 tui = "0.19.0"
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 chrono = "0.4.23"
 unicode-width = "0.1.10"
 copypasta-ext = "0.3.9"
@@ -35,7 +35,7 @@ colorsys = "0.6.6"
 rust-embed = "6.4.2"
 shellexpand = "3.0.0"
 hex-literal = "0.3.4"
-toml = "0.5.9"
+toml = "0.5.10"
 dirs-next = "2.0.0"
 clap_complete = "3.2.5"
 tinytemplate = "1.2.1"
@@ -54,7 +54,7 @@ default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.148"
+version = "1.0.152"
 features = ["derive"]
 
 [dev-dependencies]
