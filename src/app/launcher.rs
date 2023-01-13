@@ -413,10 +413,9 @@ impl<'a> App<'a> {
 						Ok(path) => {
 							(OutputType::Success, format!("export: {path}"))
 						}
-						Err(e) => (
-							OutputType::Failure,
-							format!("export error: {e}"),
-						),
+						Err(e) => {
+							(OutputType::Failure, format!("export error: {e}"))
+						}
 					},
 				);
 			}
@@ -437,9 +436,7 @@ impl<'a> App<'a> {
 						OutputType::Success,
 						format!("key sent to the keyserver: 0x{key_id}"),
 					),
-					Err(e) => {
-						(OutputType::Failure, format!("send error: {e}"))
-					}
+					Err(e) => (OutputType::Failure, format!("send error: {e}")),
 				});
 			}
 			Command::GenerateKey
@@ -644,10 +641,7 @@ impl<'a> App<'a> {
 							if let Ok(value) = FromStr::from_str(&value) {
 								self.gpgme.config.armor = value;
 								self.gpgme.apply_config();
-								(
-									OutputType::Success,
-									format!("armor: {value}"),
-								)
+								(OutputType::Success, format!("armor: {value}"))
 							} else {
 								(
 									OutputType::Failure,
