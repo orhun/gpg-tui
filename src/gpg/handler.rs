@@ -32,7 +32,7 @@ pub fn get_subkey_time(subkey: Subkey, format: &str) -> String {
 		},
 		if let Some(date) = subkey.expiration_time() {
 			DateTime::<Utc>::from(date)
-				.format(&format!(" ─> ({})", format))
+				.format(&format!(" ─> ({format})"))
 				.to_string()
 		} else {
 			String::new()
@@ -60,7 +60,7 @@ pub fn get_signature_time(signature: UserIdSignature, format: &str) -> String {
 		},
 		if let Some(date) = signature.expiration_time() {
 			DateTime::<Utc>::from(date)
-				.format(&format!(" ─> ({})", format))
+				.format(&format!(" ─> ({format})"))
 				.to_string()
 		} else {
 			String::new()

@@ -131,7 +131,7 @@ impl Prompt {
 
 	/// Sets the command that will be asked to confirm.
 	pub fn set_command(&mut self, command: Command) {
-		self.text = format!("press 'y' to {}", command);
+		self.text = format!("press 'y' to {command}");
 		self.output_type = OutputType::Action;
 		self.command = Some(command);
 		self.clock = Some(Instant::now());

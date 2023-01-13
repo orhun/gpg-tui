@@ -37,7 +37,7 @@ impl<'a> From<&'a str> for Color {
 				"lightmagenta" => TuiColor::LightMagenta,
 				"lightcyan" => TuiColor::LightCyan,
 				"white" => TuiColor::White,
-				_ => match Rgb::from_hex_str(&format!("#{}", s)) {
+				_ => match Rgb::from_hex_str(&format!("#{s}")) {
 					Ok(rgb) => TuiColor::Rgb(
 						rgb.red() as u8,
 						rgb.green() as u8,

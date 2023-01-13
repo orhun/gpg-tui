@@ -22,7 +22,7 @@ impl Display for Selection {
 			f,
 			"{}",
 			match self {
-				Self::TableRow(i) => format!("table row ({})", i),
+				Self::TableRow(i) => format!("table row ({i})"),
 				Self::Key => String::from("exported key"),
 				Self::KeyId => String::from("key ID"),
 				Self::KeyFingerprint => String::from("key fingerprint"),

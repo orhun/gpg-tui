@@ -59,7 +59,7 @@ fn main() -> Result<()> {
 	tui.exit()?;
 	// Print the exit message if any.
 	if let Some(message) = app.state.exit_message {
-		writeln!(io::stdout(), "{}", message)?;
+		writeln!(io::stdout(), "{message}")?;
 	}
 	Ok(())
 }

@@ -95,7 +95,7 @@ impl Display for Command {
 				Command::ListKeys(key_type) => {
 					format!(
 						"list {} keys",
-						format!("{:?}", key_type).to_lowercase()
+						format!("{key_type:?}").to_lowercase()
 					)
 				}
 				Command::ImportClipboard => {
@@ -103,15 +103,15 @@ impl Display for Command {
 				}
 				Command::ExportKeys(key_type, patterns, ref export_subkeys) => {
 					if patterns.is_empty() {
-						format!("export all the keys ({})", key_type)
+						format!("export all the keys ({key_type})")
 					} else if *export_subkeys {
-						format!("export the selected subkeys ({})", key_type)
+						format!("export the selected subkeys ({key_type})")
 					} else {
-						format!("export the selected key ({})", key_type)
+						format!("export the selected key ({key_type})")
 					}
 				}
 				Command::DeleteKey(key_type, _) =>
-					format!("delete the selected key ({})", key_type),
+					format!("delete the selected key ({key_type})"),
 				Command::SendKey(_) =>
 					String::from("send key to the keyserver"),
 				Command::EditKey(_) => String::from("edit the selected key"),
@@ -129,7 +129,7 @@ impl Display for Command {
 					let action =
 						if value == "true" { "enable" } else { "disable" };
 					match option.as_ref() {
-						"armor" => format!("{} armored output", action),
+						"armor" => format!("{action} armored output"),
 						"signer" => String::from("set as the signing key"),
 						"margin" => String::from("toggle table margin"),
 						"prompt" => {
@@ -138,19 +138,19 @@ impl Display for Command {
 							} else if value == ":receive " {
 								String::from("receive key(s) from keyserver")
 							} else {
-								format!("set prompt text to {}", value)
+								format!("set prompt text to {value}")
 							}
 						}
-						_ => format!("set {} to {}", option, value),
+						_ => format!("set {option} to {value}"),
 					}
 				}
 				Command::SwitchMode(mode) => format!(
 					"switch to {} mode",
-					format!("{:?}", mode).to_lowercase()
+					format!("{mode:?}").to_lowercase()
 				),
 				Command::Quit => String::from("quit application"),
 				Command::Confirm(command) => (*command).to_string(),
-				_ => format!("{:?}", self),
+				_ => format!("{self:?}"),
 			}
 		)
 	}

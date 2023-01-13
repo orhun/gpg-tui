@@ -397,7 +397,7 @@ fn handle_command_execution<B: Backend>(
 					Ok(files) => {
 						command = Command::ImportKeys(files, false);
 					}
-					Err(e) => eprintln!("{:?}", e),
+					Err(e) => eprintln!("{e:?}"),
 				}
 			}
 		}

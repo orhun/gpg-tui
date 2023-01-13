@@ -221,7 +221,7 @@ impl<'a> Display for KeyBinding<'a> {
 			"{}\n └─{}\n ",
 			self.key
 				.split(',')
-				.fold(String::new(), |acc, v| format!("{}[{}] ", acc, v)),
+				.fold(String::new(), |acc, v| format!("{acc}[{v}] ")),
 			self.action
 		)
 	}

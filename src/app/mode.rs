@@ -16,7 +16,7 @@ pub enum Mode {
 
 impl Display for Mode {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-		write!(f, "-- {} --", format!("{:?}", self).to_lowercase())
+		write!(f, "-- {} --", format!("{self:?}").to_lowercase())
 	}
 }
 

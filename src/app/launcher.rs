@@ -128,7 +128,7 @@ impl<'a> App<'a> {
 					self.keys
 						.get(&key_type)
 						.unwrap_or_else(|| {
-							panic!("failed to get {} keys", key_type)
+							panic!("failed to get {key_type} keys")
 						})
 						.to_vec(),
 				)
@@ -356,7 +356,7 @@ impl<'a> App<'a> {
 					self.keys
 						.get(&key_type)
 						.unwrap_or_else(|| {
-							panic!("failed to get {} keys", key_type)
+							panic!("failed to get {key_type} keys")
 						})
 						.to_vec(),
 				);
@@ -383,7 +383,7 @@ impl<'a> App<'a> {
 				if keys.is_empty() {
 					self.prompt.set_output((
 						OutputType::Failure,
-						format!("import error: {}", import_error),
+						format!("import error: {import_error}"),
 					))
 				} else {
 					match self
@@ -394,12 +394,12 @@ impl<'a> App<'a> {
 							self.refresh()?;
 							self.prompt.set_output((
 								OutputType::Success,
-								format!("{} key(s) imported", key_count),
+								format!("{key_count} key(s) imported"),
 							))
 						}
 						Err(e) => self.prompt.set_output((
 							OutputType::Failure,
-							format!("import error: {}", e),
+							format!("import error: {e}"),
 						)),
 					}
 				}
@@ -411,11 +411,11 @@ impl<'a> App<'a> {
 						.export_keys(key_type, Some(patterns.to_vec()))
 					{
 						Ok(path) => {
-							(OutputType::Success, format!("export: {}", path))
+							(OutputType::Success, format!("export: {path}"))
 						}
 						Err(e) => (
 							OutputType::Failure,
-							format!("export error: {}", e),
+							format!("export error: {e}"),
 						),
 					},
 				);
@@ -427,7 +427,7 @@ impl<'a> App<'a> {
 					}
 					Err(e) => self.prompt.set_output((
 						OutputType::Failure,
-						format!("delete error: {}", e),
+						format!("delete error: {e}"),
 					)),
 				}
 			}
@@ -435,10 +435,10 @@ impl<'a> App<'a> {
 				self.prompt.set_output(match self.gpgme.send_key(key_id) {
 					Ok(key_id) => (
 						OutputType::Success,
-						format!("key sent to the keyserver: 0x{}", key_id),
+						format!("key sent to the keyserver: 0x{key_id}"),
 					),
 					Err(e) => {
-						(OutputType::Failure, format!("send error: {}", e))
+						(OutputType::Failure, format!("send error: {e}"))
 					}
 				});
 			}
@@ -494,7 +494,7 @@ impl<'a> App<'a> {
 					}
 					Err(e) => self.prompt.set_output((
 						OutputType::Failure,
-						format!("execution error: {}", e),
+						format!("execution error: {e}"),
 					)),
 				}
 			}
@@ -630,7 +630,7 @@ impl<'a> App<'a> {
 									OutputType::Success,
 									format!(
 										"mode: {}",
-										format!("{:?}", mode).to_lowercase()
+										format!("{mode:?}").to_lowercase()
 									),
 								)
 							} else {
@@ -646,7 +646,7 @@ impl<'a> App<'a> {
 								self.gpgme.apply_config();
 								(
 									OutputType::Success,
-									format!("armor: {}", value),
+									format!("armor: {value}"),
 								)
 							} else {
 								(
@@ -660,7 +660,7 @@ impl<'a> App<'a> {
 						"signer" => {
 							self.gpgme.config.default_key =
 								Some(value.to_string());
-							(OutputType::Success, format!("signer: {}", value))
+							(OutputType::Success, format!("signer: {value}"))
 						}
 						"minimize" => {
 							self.keys_table.state.minimize_threshold =
@@ -699,7 +699,7 @@ impl<'a> App<'a> {
 								}
 								(
 									OutputType::Success,
-									format!("detail: {}", detail_level),
+									format!("detail: {detail_level}"),
 								)
 							} else {
 								(
@@ -751,7 +751,7 @@ impl<'a> App<'a> {
 						_ => (
 							OutputType::Failure,
 							if !option.is_empty() {
-								format!("unknown option: {}", option)
+								format!("unknown option: {option}")
 							} else {
 								String::from("usage: set <option> <value>")
 							},
@@ -782,7 +782,7 @@ impl<'a> App<'a> {
 					"signer" => (
 						OutputType::Success,
 						match &self.gpgme.config.default_key {
-							Some(key) => format!("signer: {}", key),
+							Some(key) => format!("signer: {key}"),
 							None => String::from("signer key is not specified"),
 						},
 					),
@@ -839,7 +839,7 @@ impl<'a> App<'a> {
 					_ => (
 						OutputType::Failure,
 						if !option.is_empty() {
-							format!("unknown option: {}", option)
+							format!("unknown option: {option}")
 						} else {
 							String::from("usage: get <option>")
 						},
@@ -903,13 +903,12 @@ impl<'a> App<'a> {
 									Ok(_) => (
 										OutputType::Success,
 										format!(
-											"{} copied to clipboard",
-											copy_type
+											"{copy_type} copied to clipboard"
 										),
 									),
 									Err(e) => (
 										OutputType::Failure,
-										format!("clipboard error: {}", e),
+										format!("clipboard error: {e}"),
 									),
 								},
 							);
@@ -923,7 +922,7 @@ impl<'a> App<'a> {
 					Err(e) => {
 						self.prompt.set_output((
 							OutputType::Failure,
-							format!("selection error: {}", e),
+							format!("selection error: {e}"),
 						));
 					}
 				}
@@ -934,12 +933,12 @@ impl<'a> App<'a> {
 					match clipboard.get_contents() {
 						Ok(content) => {
 							self.prompt.clear();
-							self.prompt.text = format!(":{}", content);
+							self.prompt.text = format!(":{content}");
 						}
 						Err(e) => {
 							self.prompt.set_output((
 								OutputType::Failure,
-								format!("clipboard error: {}", e),
+								format!("clipboard error: {e}"),
 							));
 						}
 					}
@@ -1004,7 +1003,7 @@ mod tests {
 		app.run_command(Command::ToggleDetail(true))?;
 		assert_eq!(detail, app.state.detail_level);
 
-		let prompt_text = format!("{}test", COMMAND_PREFIX);
+		let prompt_text = format!("{COMMAND_PREFIX}test");
 		app.run_command(Command::Set(
 			String::from("prompt"),
 			prompt_text.to_string(),
@@ -1043,7 +1042,7 @@ mod tests {
 			))?;
 			app.run_command(Command::Get(option.to_string()))?;
 			assert!(
-				(app.prompt.text == format!("{}: {}", option, value))
+				(app.prompt.text == format!("{option}: {value}"))
 					|| app.prompt.text.contains(value)
 			);
 		}
@@ -1058,7 +1057,7 @@ mod tests {
 
 		app.run_command(Command::Search(Some(String::from("x"))))?;
 		assert!(app.prompt.is_search_enabled());
-		assert_eq!(format!("{}x", SEARCH_PREFIX), app.prompt.text);
+		assert_eq!(format!("{SEARCH_PREFIX}x"), app.prompt.text);
 
 		app.tab = Tab::Keys(KeyType::Public);
 		app.run_command(Command::NextTab)?;

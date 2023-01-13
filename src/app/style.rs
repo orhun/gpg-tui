@@ -20,7 +20,7 @@ impl Default for Style {
 
 impl Display for Style {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-		write!(f, "{}", format!("{:?}", self).to_lowercase())
+		write!(f, "{}", format!("{self:?}").to_lowercase())
 	}
 }
 

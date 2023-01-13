@@ -62,7 +62,7 @@ impl Default for KeyDetail {
 
 impl Display for KeyDetail {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-		write!(f, "{}", format!("{:?}", self).to_lowercase())
+		write!(f, "{}", format!("{self:?}").to_lowercase())
 	}
 }
 
@@ -108,7 +108,7 @@ impl GpgKey {
 	pub fn get_id(&self) -> String {
 		self.inner
 			.id()
-			.map_or(String::from("[?]"), |v| format!("0x{}", v))
+			.map_or(String::from("[?]"), |v| format!("0x{v}"))
 	}
 
 	/// Returns the key fingerprint.
@@ -261,7 +261,7 @@ impl GpgKey {
 			if !notations.is_empty() {
 				user_signatures.extend(self.get_signature_notations(
 					notations,
-					format!(" {}  ", padding),
+					format!(" {padding}  "),
 					signatures.len(),
 					i,
 				));

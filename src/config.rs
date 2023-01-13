@@ -111,7 +111,7 @@ where
 {
 	let s = String::deserialize(deserializer)?;
 	Command::from_str(&s)
-		.map_err(|_| de::Error::custom(format!("invalid command ({})", s)))
+		.map_err(|_| de::Error::custom(format!("invalid command ({s})")))
 }
 
 /// GnuPG configuration.
@@ -282,7 +282,7 @@ mod tests {
 					keys,
 					command: Command::from_str(cmd).expect("invalid command"),
 				},
-				toml::from_str(&format!("{}\ncommand = '{}'", config, cmd))?
+				toml::from_str(&format!("{config}\ncommand = '{cmd}'"))?
 			);
 		}
 
