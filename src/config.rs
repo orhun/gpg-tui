@@ -35,7 +35,7 @@ pub struct GeneralConfig {
 	/// [`Args::file_explorer`]
 	pub file_explorer: String,
 	/// [`Args::detail_level`]
-	pub detail_level: KeyDetail,
+	pub detail_level: Option<KeyDetail>,
 	/// Custom key bindings.
 	#[serde(skip_serializing)]
 	pub key_bindings: Option<Vec<CustomKeyBinding>>,
@@ -173,7 +173,7 @@ impl Config {
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());
 		args.style = Style::from_str(&self.general.style).unwrap_or_default();
-		args.detail_level = self.general.detail_level;
+		args.detail_level = self.general.detail_level.unwrap_or_default();
 		args.file_explorer = self.general.file_explorer.clone();
 		args
 	}
