@@ -17,7 +17,7 @@ use crate::widget::table::{StatefulTable, TableSize, TableState};
 use anyhow::{anyhow, Error as AnyhowError, Result};
 use colorsys::Rgb;
 use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
-use copypasta_ext::prelude::ClipboardProvider;
+use copypasta_ext::ClipboardProviderExt;
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command as OsCommand;
@@ -66,7 +66,7 @@ pub struct App<'a> {
 	/// Bottom margin value of the keys table.
 	pub keys_table_margin: u16,
 	/// Clipboard context.
-	pub clipboard: Option<Box<dyn ClipboardProvider>>,
+	pub clipboard: Option<Box<dyn ClipboardProviderExt>>,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
 }
