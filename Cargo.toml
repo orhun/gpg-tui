@@ -1,6 +1,6 @@
 [package]
 name = "gpg-tui"
-version = "0.9.3"
+version = "0.9.4"
 description = "Manage your GnuPG keys with ease!"
 authors = ["Orhun Parmaksız <orhunparmaksiz@gmail.com>"]
 license = "MIT"
