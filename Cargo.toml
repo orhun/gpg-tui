@@ -27,21 +27,21 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.11.0"
 tui = { package = "ratatui", version = "0.20.1" }
-anyhow = "1.0.69"
-chrono = "0.4.23"
+anyhow = "1.0.70"
+chrono = "0.4.24"
 unicode-width = "0.1.10"
-copypasta-ext = "0.4.1"
+copypasta-ext = "0.4.4"
 colorsys = "0.6.7"
-rust-embed = "6.4.2"
-shellexpand = "3.0.0"
+rust-embed = "6.6.1"
+shellexpand = "3.1.0"
 hex-literal = "0.3.4"
-toml = "0.7.2"
+toml = "0.7.3"
 dirs-next = "2.0.0"
 clap_complete = "3.2.5"
 tinytemplate = "1.2.1"
 
 [dependencies.crossterm]
-version = "0.26.0"
+version = "0.26.1"
 features = ["serde"]
 
 [dependencies.clap]
@@ -49,12 +49,12 @@ version = "3.2.23"
 features = ["derive", "env", "wrap_help"]
 
 [dependencies.image]
-version = "0.24.5"
+version = "0.24.6"
 default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.152"
+version = "1.0.159"
 features = ["derive"]
 
 [dev-dependencies]
