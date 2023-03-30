@@ -25,11 +25,9 @@ jobs:
             --allow-unauthenticated libgpgme-dev \
             libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{matrix.TARGET}}
-          override: true
+          targets: ${{matrix.TARGET}}
       - name: Build
         run: cargo build --release --locked --target ${{matrix.TARGET}}
       - name: Prepare release assets
@@ -85,10 +83,8 @@ jobs:
             --allow-unauthenticated libgpgme-dev \
             libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: x86_64-unknown-linux-gnu
-          override: true
+          targets: x86_64-unknown-linux-gnu
       - name: Publish
         run: cargo publish --locked --token ${{ secrets.CARGO_TOKEN }}
