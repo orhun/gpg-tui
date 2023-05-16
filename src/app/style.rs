@@ -1,10 +1,11 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
+use clap::ValueEnum;
 use tui::style::{Color, Style as TuiStyle};
 use tui::text::{Span, Spans, Text};
 
 /// Application style.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub enum Style {
 	/// Plain style with basic colors.
 	Plain,

@@ -80,7 +80,6 @@ pub struct Args {
 		short,
 		long,
 		value_name = "style",
-		value_parser = ["plain", "colored"],
 		default_value = "plain",
 		env
 	)]
@@ -108,8 +107,8 @@ impl Args {
 	/// input string into contents of the path returned by [`home_dir`].
 	///
 	/// [`home_dir`]: dirs_next::home_dir
-	fn parse_dir(dir: &str) -> Result<Option<String>, String> {
-		Ok(Some(shellexpand::tilde(dir).to_string()))
+	fn parse_dir(dir: &str) -> Result<String, String> {
+		Ok(shellexpand::tilde(dir).to_string())
 	}
 }
 
