@@ -6,7 +6,6 @@ use crate::app::style::Style;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use clap::Parser;
-use std::str::FromStr;
 
 /// Argument parser powered by [`clap`].
 #[derive(Debug, Default, Parser)]
@@ -71,7 +70,6 @@ pub struct Args {
 		long,
 		value_name = "color",
 		default_value = "gray",
-		value_parser = Color::from_str,
 		env
 	)]
 	pub color: Color,
