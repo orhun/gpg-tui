@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use colorsys::Rgb;
 use tui::style::Color as TuiColor;
 
@@ -47,6 +48,13 @@ impl<'a> From<&'a str> for Color {
 				},
 			},
 		}
+	}
+}
+
+impl FromStr for Color {
+	type Err = std::convert::Infallible;
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		Ok(Self::from(s))
 	}
 }
 

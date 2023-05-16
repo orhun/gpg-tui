@@ -5,6 +5,7 @@ use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
+use std::str::FromStr;
 use clap::{AppSettings, Parser};
 
 /// Argument parser powered by [`clap`].
@@ -30,7 +31,7 @@ pub struct Args {
 		long,
 		value_name = "path",
 		env = "GPG_TUI_CONFIG",
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub config: Option<String>,
 	/// Sets the GnuPG home directory.
@@ -38,7 +39,7 @@ pub struct Args {
 		long,
 		value_name = "dir",
 		env = "GNUPGHOME",
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub homedir: Option<String>,
 	/// Sets the output directory.
@@ -47,7 +48,7 @@ pub struct Args {
 		long,
 		value_name = "dir",
 		env,
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub outdir: Option<String>,
 	/// Sets the template for the output file name.
@@ -56,7 +57,7 @@ pub struct Args {
 		value_name = "path",
 		default_value = "{type}_{query}.{ext}",
 		env,
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub outfile: String,
 	/// Sets the default key to sign with.
@@ -71,7 +72,7 @@ pub struct Args {
 		long,
 		value_name = "color",
 		default_value = "gray",
-		parse(from_str),
+		value_parser = Color::from_str,
 		env
 	)]
 	pub color: Color,
@@ -80,7 +81,7 @@ pub struct Args {
 		short,
 		long,
 		value_name = "style",
-		possible_values = &["plain", "colored"],
+		value_parser = ["plain", "colored"],
 		default_value = "plain",
 		env
 	)]
@@ -101,7 +102,7 @@ pub struct Args {
 	#[clap(
 		long,
 		value_name = "option",
-		possible_values = &["key_id", "key_fpr", "user_id", "row1", "row2"],
+		value_parser = ["key_id", "key_fpr", "user_id", "row1", "row2"],
 		env
 	)]
 	pub select: Option<Selection>,
@@ -114,8 +115,8 @@ impl Args {
 	/// input string into contents of the path returned by [`home_dir`].
 	///
 	/// [`home_dir`]: dirs_next::home_dir
-	fn parse_dir(dir: &str) -> String {
-		shellexpand::tilde(dir).to_string()
+	fn parse_dir(dir: &str) -> clap::Result<Option<String>> {
+		Ok(Some(shellexpand::tilde(dir).to_string()))
 	}
 }
 
