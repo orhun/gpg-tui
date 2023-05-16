@@ -65,22 +65,10 @@ pub struct Args {
 	#[clap(short, long, value_name = "ms", default_value = "250", env)]
 	pub tick_rate: u64,
 	/// Sets the accent color of the terminal.
-	#[clap(
-		short,
-		long,
-		value_name = "color",
-		default_value = "gray",
-		env
-	)]
+	#[clap(short, long, value_name = "color", default_value = "gray", env)]
 	pub color: Color,
 	/// Sets the style of the terminal.
-	#[clap(
-		short,
-		long,
-		value_name = "style",
-		default_value = "plain",
-		env
-	)]
+	#[clap(short, long, value_name = "style", default_value = "plain", env)]
 	pub style: Style,
 	/// Sets the utility for file selection.
 	#[clap(short, long, value_name = "app", default_value = "xplr", env)]
