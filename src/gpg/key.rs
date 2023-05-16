@@ -69,7 +69,6 @@ impl Display for KeyDetail {
 	}
 }
 
-
 impl KeyDetail {
 	/// Increases the level of detail.
 	pub fn increase(&mut self) {

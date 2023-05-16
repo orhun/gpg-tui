@@ -77,11 +77,7 @@ pub struct Args {
 	#[clap(long, value_name = "level", default_value = "minimum", env)]
 	pub detail_level: KeyDetail,
 	/// Enables the selection mode.
-	#[clap(
-		long,
-		value_name = "option",
-		env
-	)]
+	#[clap(long, value_name = "option", env)]
 	pub select: Option<Selection>,
 }
 

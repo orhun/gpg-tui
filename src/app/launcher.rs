@@ -15,6 +15,7 @@ use crate::widget::row::ScrollDirection;
 use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableSize, TableState};
 use anyhow::{Error as AnyhowError, Result};
+use clap::ValueEnum;
 use colorsys::Rgb;
 use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
 use copypasta_ext::ClipboardProviderExt;
@@ -24,7 +25,6 @@ use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
 use std::time::Instant;
-use clap::ValueEnum;
 use tui::style::Color;
 
 /// Max duration of prompt messages.

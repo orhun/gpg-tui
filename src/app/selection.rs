@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter, Result as FmtResult};
 use clap::ValueEnum;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 /// Application property to copy to clipboard.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
@@ -39,8 +39,6 @@ impl Display for Selection {
 		)
 	}
 }
-
-
 
 #[cfg(test)]
 mod tests {
