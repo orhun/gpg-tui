@@ -47,10 +47,13 @@ impl FromStr for KeyType {
 #[clap(rename_all = "snake_case")]
 pub enum KeyDetail {
 	/// Show only the primary key and user ID.
+	#[clap(aliases = ["min", "1"])]
 	Minimum = 0,
 	/// Show all subkeys and user IDs.
+	#[clap(alias = "2")]
 	Standard = 1,
 	/// Show signatures.
+	#[clap(alias = "3")]
 	Full = 2,
 }
 
@@ -66,17 +69,6 @@ impl Display for KeyDetail {
 	}
 }
 
-impl FromStr for KeyDetail {
-	type Err = ();
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s.to_lowercase().as_str() {
-			"1" | "min" | "minimum" => Ok(KeyDetail::Minimum),
-			"2" | "standard" => Ok(KeyDetail::Standard),
-			"3" | "full" => Ok(KeyDetail::Full),
-			_ => Err(()),
-		}
-	}
-}
 
 impl KeyDetail {
 	/// Increases the level of detail.

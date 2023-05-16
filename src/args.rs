@@ -80,7 +80,6 @@ pub struct Args {
 	#[clap(
 		long,
 		value_name = "option",
-		value_parser = ["key_id", "key_fpr", "user_id", "row1", "row2"],
 		env
 	)]
 	pub select: Option<Selection>,
