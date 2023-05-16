@@ -6,7 +6,7 @@ use crate::app::style::Style;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use std::str::FromStr;
-use clap::{AppSettings, Parser};
+use clap::Parser;
 
 /// Argument parser powered by [`clap`].
 #[derive(Debug, Default, Parser)]
@@ -16,7 +16,6 @@ use clap::{AppSettings, Parser};
     author = env!("CARGO_PKG_AUTHORS"),
     about = env!("CARGO_PKG_DESCRIPTION"),
 	before_help = BANNERS[2],
-    global_setting = AppSettings::DeriveDisplayOrder,
 	rename_all_env = "screaming-snake",
 )]
 pub struct Args {
@@ -94,8 +93,7 @@ pub struct Args {
 		long,
 		value_name = "level",
 		default_value = "minimum",
-		env,
-		arg_enum
+		env
 	)]
 	pub detail_level: KeyDetail,
 	/// Enables the selection mode.
@@ -115,7 +113,7 @@ impl Args {
 	/// input string into contents of the path returned by [`home_dir`].
 	///
 	/// [`home_dir`]: dirs_next::home_dir
-	fn parse_dir(dir: &str) -> clap::Result<Option<String>> {
+	fn parse_dir(dir: &str) -> Result<Option<String>, String> {
 		Ok(Some(shellexpand::tilde(dir).to_string()))
 	}
 }

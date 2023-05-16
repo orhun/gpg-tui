@@ -1,5 +1,5 @@
 use crate::gpg::handler;
-use clap::ArgEnum;
+use clap::ValueEnum;
 use gpgme::{Key, SignatureNotation, Subkey, UserId, UserIdSignature};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -41,7 +41,7 @@ impl FromStr for KeyType {
 
 /// Level of detail to show for key.
 #[derive(
-	Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, ArgEnum,
+	Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, ValueEnum,
 )]
 #[serde(rename_all = "snake_case")]
 #[clap(rename_all = "snake_case")]
