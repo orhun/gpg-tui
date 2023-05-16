@@ -5,8 +5,8 @@ use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
-use std::str::FromStr;
 use clap::Parser;
+use std::str::FromStr;
 
 /// Argument parser powered by [`clap`].
 #[derive(Debug, Default, Parser)]
@@ -89,12 +89,7 @@ pub struct Args {
 	#[clap(short, long, value_name = "app", default_value = "xplr", env)]
 	pub file_explorer: String,
 	/// Sets the detail level for the keys.
-	#[clap(
-		long,
-		value_name = "level",
-		default_value = "minimum",
-		env
-	)]
+	#[clap(long, value_name = "level", default_value = "minimum", env)]
 	pub detail_level: KeyDetail,
 	/// Enables the selection mode.
 	#[clap(

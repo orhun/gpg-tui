@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use colorsys::Rgb;
+use std::str::FromStr;
 use tui::style::Color as TuiColor;
 
 /// Wrapper for widget colors.
