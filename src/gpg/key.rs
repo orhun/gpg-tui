@@ -320,10 +320,7 @@ mod tests {
 		let key = &mut keys[0];
 		key.detail.increase();
 		assert_eq!(KeyDetail::Standard, key.detail);
-		assert_eq!(
-			Ok(key.detail),
-			KeyDetail::from_str("standard", true)
-		);
+		assert_eq!(Ok(key.detail), KeyDetail::from_str("standard", true));
 		key.detail.increase();
 		assert_eq!(KeyDetail::Full, key.detail);
 		assert_eq!("full", key.detail.to_string());
