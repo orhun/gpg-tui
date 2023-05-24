@@ -16,7 +16,7 @@ pub enum Selection {
 	#[clap(aliases = ["id", "key_id", "keyid"])]
 	KeyId,
 	/// Fingerprint of the selected key.
-	#[clap(aliases = ["fingerprint", "key_fingerprint", "keyfingerprint", "fpr"])]
+	#[clap(aliases = ["fingerprint", "key_fingerprint", "keyfingerprint", "fpr", "key_fpr", "keyfpr"])]
 	KeyFingerprint,
 	/// User ID of the selected key.
 	#[clap(aliases = ["user", "user_id", "userid", "user-id", "key_user_id", "keyuserid"])]
