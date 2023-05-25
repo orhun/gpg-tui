@@ -10,7 +10,14 @@ homepage = "https://github.com/orhun/gpg-tui"
 repository = "https://github.com/orhun/gpg-tui"
 keywords = ["gnupg", "gpg", "tui", "key", "management"]
 categories = ["command-line-utilities"]
-include = ["src/**/*", "assets/*", "Cargo.*", "LICENSE", "README.md", "CHANGELOG.md"]
+include = [
+  "src/**/*",
+  "assets/*",
+  "Cargo.*",
+  "LICENSE",
+  "README.md",
+  "CHANGELOG.md",
+]
 edition = "2021"
 default-run = "gpg-tui"
 rust-version = "1.64.0"
@@ -46,7 +53,7 @@ features = ["serde"]
 
 [dependencies.clap]
 version = "4.2.7"
-features = ["derive", "env", "wrap_help"]
+features = ["derive", "env", "wrap_help", "cargo"]
 
 [dependencies.image]
 version = "0.24.6"

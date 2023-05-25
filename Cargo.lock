@@ -180,6 +180,7 @@ dependencies = [
  "anstyle",
  "bitflags",
  "clap_lex",
+ "once_cell",
  "strsim",
  "terminal_size",
 ]

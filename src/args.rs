@@ -10,12 +10,19 @@ use clap::Parser;
 /// Argument parser powered by [`clap`].
 #[derive(Debug, Default, Parser)]
 #[clap(
-    name = env!("CARGO_PKG_NAME"),
-    version = env!("CARGO_PKG_VERSION"),
-    author = env!("CARGO_PKG_AUTHORS"),
-    about = env!("CARGO_PKG_DESCRIPTION"),
-	before_help = BANNERS[2],
+    version,
+    author = clap::crate_authors!("\n"),
+    about,
 	rename_all_env = "screaming-snake",
+	before_help = format!("\u{2800} {}", BANNERS[2]),
+	help_template = "\
+{before-help}{name} {version}
+{author-with-newline}{about-with-newline}
+{usage-heading}
+  {usage}
+
+{all-args}{after-help}
+",
 )]
 pub struct Args {
 	/// Enables ASCII armored output.

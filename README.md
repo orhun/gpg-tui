@@ -278,26 +278,22 @@ gpg-tui [OPTIONS]
 ```
 
 ```
-OPTIONS:
-    -a, --armor                  Enables ASCII armored output
-        --splash                 Shows the splash screen on startup
-        --config <path>          Sets the configuration file [env: GPG_TUI_CONFIG=]
-        --homedir <dir>          Sets the GnuPG home directory [env: GNUPGHOME=]
-    -o, --outdir <dir>           Sets the output directory [env: OUTDIR=]
-        --outfile <path>         Sets the template for the output file name [env: OUTFILE=]
-                                 [default: {type}_{query}.{ext}]
-    -d, --default-key <key>      Sets the default key to sign with [env: DEFAULT_KEY=]
-    -t, --tick-rate <ms>         Sets the tick rate of the terminal [env: TICK_RATE=] [default: 250]
-    -c, --color <color>          Sets the accent color of the terminal [env: COLOR=] [default: gray]
-    -s, --style <style>          Sets the style of the terminal [env: STYLE=] [default: plain]
-                                 [possible values: plain, colored]
-    -f, --file-explorer <app>    Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
-        --detail-level <level>   Sets the detail level for the keys [env: DETAIL_LEVEL=] [default: minimum]
-                                 [possible values: minimum, standard, full]
-        --select <option>        Enables the selection mode [env: SELECT=]
-                                 [possible values: key_id, key_fpr, user_id, row1, row2]
-    -h, --help                   Print help information
-    -V, --version                Print version information
+Options:
+  -a, --armor                 Enables ASCII armored output
+      --splash                Shows the splash screen on startup
+      --config <path>         Sets the configuration file [env: GPG_TUI_CONFIG=]
+      --homedir <dir>         Sets the GnuPG home directory [env: GNUPGHOME=]
+  -o, --outdir <dir>          Sets the output directory [env: OUTDIR=]
+      --outfile <path>        Sets the template for the output file name [env: OUTFILE=] [default: {type}_{query}.{ext}]
+  -d, --default-key <key>     Sets the default key to sign with [env: DEFAULT_KEY=]
+  -t, --tick-rate <ms>        Sets the tick rate of the terminal [env: TICK_RATE=] [default: 250]
+  -c, --color <color>         Sets the accent color of the terminal [env: COLOR=] [default: gray]
+  -s, --style <style>         Sets the style of the terminal [env: STYLE=] [default: plain] [possible values: plain, colored]
+  -f, --file-explorer <app>   Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
+      --detail-level <level>  Sets the detail level for the keys [env: DETAIL_LEVEL=] [default: minimum] [possible values: minimum, standard, full]
+      --select <option>       Enables the selection mode [env: SELECT=] [possible values: row1, row2, key, key-id, key-fingerprint, user-id]
+  -h, --help                  Print help (see more with '--help')
+  -V, --version               Print version
 ```
 
 ## Configuration
