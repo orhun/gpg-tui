@@ -8,7 +8,7 @@ on:
 jobs:
   publish-github:
     name: Publish on GitHub
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         TARGET: [x86_64-unknown-linux-gnu]
@@ -71,7 +71,7 @@ jobs:
   publish-crates-io:
     name: Publish on crates.io
     needs: publish-github
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
