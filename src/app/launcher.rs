@@ -243,7 +243,7 @@ impl<'a> App<'a> {
 								Command::Copy(Selection::Key),
 								Command::Copy(Selection::KeyId),
 								Command::Copy(Selection::KeyFingerprint),
-								Command::Copy(Selection::KeyUserId),
+								Command::Copy(Selection::UserId),
 								Command::Copy(Selection::Row1),
 								Command::Copy(Selection::Row2),
 								Command::Paste,
@@ -881,7 +881,7 @@ impl<'a> App<'a> {
 					Selection::KeyFingerprint => {
 						Ok(selected_key.get_fingerprint())
 					}
-					Selection::KeyUserId => Ok(selected_key.get_user_id()),
+					Selection::UserId => Ok(selected_key.get_user_id()),
 				};
 				match content {
 					Ok(content) => {

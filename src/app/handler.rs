@@ -300,7 +300,7 @@ fn handle_key_event(
 			}
 			Key::Char('u') | Key::Char('U') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(Selection::KeyUserId)
+					Command::Copy(Selection::UserId)
 				} else {
 					match app.keys_table.selected() {
 						Some(selected_key) => Command::Confirm(Box::new(

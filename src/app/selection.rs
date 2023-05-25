@@ -20,7 +20,7 @@ pub enum Selection {
 	KeyFingerprint,
 	/// User ID of the selected key.
 	#[clap(aliases = ["user", "user_id", "userid", "user-id", "key_user_id", "keyuserid"])]
-	KeyUserId,
+	UserId,
 }
 
 impl Display for Selection {
@@ -34,7 +34,7 @@ impl Display for Selection {
 				Self::Key => String::from("exported key"),
 				Self::KeyId => String::from("key ID"),
 				Self::KeyFingerprint => String::from("key fingerprint"),
-				Self::KeyUserId => String::from("user ID"),
+				Self::UserId => String::from("user ID"),
 			}
 		)
 	}
@@ -62,7 +62,7 @@ mod tests {
 		assert_eq!(Selection::KeyFingerprint, copy_type);
 		assert_eq!(String::from("key fingerprint"), copy_type.to_string());
 		let copy_type = Selection::from_str("key_user_id", true)?;
-		assert_eq!(Selection::KeyUserId, copy_type);
+		assert_eq!(Selection::UserId, copy_type);
 		assert_eq!(String::from("user ID"), copy_type.to_string());
 		Ok(())
 	}
