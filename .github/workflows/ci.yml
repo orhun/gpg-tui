@@ -76,7 +76,7 @@ jobs:
         run: cargo tarpaulin --out Xml --verbose --features gpg-tests
 
       - name: Upload reports to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           name: code-coverage-report
           file: cobertura.xml
