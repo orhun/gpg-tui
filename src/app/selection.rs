@@ -1,18 +1,25 @@
+use clap::ValueEnum;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::str::FromStr;
 
 /// Application property to copy to clipboard.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub enum Selection {
-	/// Selected row of the keys table.
-	TableRow(usize),
+	/// One of the selected rows of the keys table
+	#[clap(aliases = ["row_1", "row1", "1"])]
+	Row1,
+	/// The other selected row of the keys table
+	#[clap(aliases = ["row_2", "row2", "2"])]
+	Row2,
 	/// Exported key.
 	Key,
 	/// ID of the selected key.
+	#[clap(aliases = ["id", "key_id", "keyid"])]
 	KeyId,
 	/// Fingerprint of the selected key.
+	#[clap(aliases = ["fingerprint", "key_fingerprint", "keyfingerprint", "fpr", "key_fpr", "keyfpr"])]
 	KeyFingerprint,
 	/// User ID of the selected key.
+	#[clap(aliases = ["user", "user_id", "userid", "user-id", "key_user_id", "keyuserid"])]
 	KeyUserId,
 }
 
@@ -22,7 +29,8 @@ impl Display for Selection {
 			f,
 			"{}",
 			match self {
-				Self::TableRow(i) => format!("table row ({i})"),
+				Self::Row1 => "table row (1)".to_string(),
+				Self::Row2 => "table row (2)".to_string(),
 				Self::Key => String::from("exported key"),
 				Self::KeyId => String::from("key ID"),
 				Self::KeyFingerprint => String::from("key fingerprint"),
@@ -32,42 +40,28 @@ impl Display for Selection {
 	}
 }
 
-impl FromStr for Selection {
-	type Err = String;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"row1" | "1" => Ok(Self::TableRow(1)),
-			"row2" | "2" => Ok(Self::TableRow(2)),
-			"key" => Ok(Self::Key),
-			"key_id" | "id" => Ok(Self::KeyId),
-			"key_fingerprint" | "key_fpr" | "fingerprint" | "fpr" => {
-				Ok(Self::KeyFingerprint)
-			}
-			"key_user_id" | "user" | "user_id" => Ok(Self::KeyUserId),
-			_ => Err(String::from("could not parse the type")),
-		}
-	}
-}
-
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
 	fn test_app_clipboard() -> Result<(), String> {
-		let copy_type = Selection::from_str("row1")?;
-		assert_eq!(Selection::TableRow(1), copy_type);
+		let copy_type = Selection::from_str("row1", true)?;
+		assert_eq!(Selection::Row1, copy_type);
 		assert_eq!(String::from("table row (1)"), copy_type.to_string());
-		let copy_type = Selection::from_str("key")?;
+		let copy_type = Selection::from_str("row2", true)?;
+		assert_eq!(Selection::Row2, copy_type);
+		assert_eq!(String::from("table row (2)"), copy_type.to_string());
+		let copy_type = Selection::from_str("key", true)?;
 		assert_eq!(Selection::Key, copy_type);
 		assert_eq!(String::from("exported key"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_id")?;
+		let copy_type = Selection::from_str("key_id", true)?;
 		assert_eq!(Selection::KeyId, copy_type);
 		assert_eq!(String::from("key ID"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_fingerprint")?;
+		let copy_type = Selection::from_str("key_fingerprint", true)?;
 		assert_eq!(Selection::KeyFingerprint, copy_type);
 		assert_eq!(String::from("key fingerprint"), copy_type.to_string());
-		let copy_type = Selection::from_str("key_user_id")?;
+		let copy_type = Selection::from_str("key_user_id", true)?;
 		assert_eq!(Selection::KeyUserId, copy_type);
 		assert_eq!(String::from("user ID"), copy_type.to_string());
 		Ok(())

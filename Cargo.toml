@@ -37,7 +37,7 @@ shellexpand = "3.1.0"
 hex-literal = "0.3.4"
 toml = "0.7.3"
 dirs-next = "2.0.0"
-clap_complete = "3.2.5"
+clap_complete = "4.2.3"
 tinytemplate = "1.2.1"
 
 [dependencies.crossterm]
@@ -45,7 +45,7 @@ version = "0.26.1"
 features = ["serde"]
 
 [dependencies.clap]
-version = "3.2.23"
+version = "4.2.7"
 features = ["derive", "env", "wrap_help"]
 
 [dependencies.image]

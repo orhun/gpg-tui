@@ -1,5 +1,5 @@
 use crate::gpg::handler;
-use clap::ArgEnum;
+use clap::ValueEnum;
 use gpgme::{Key, SignatureNotation, Subkey, UserId, UserIdSignature};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -41,16 +41,19 @@ impl FromStr for KeyType {
 
 /// Level of detail to show for key.
 #[derive(
-	Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, ArgEnum,
+	Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, ValueEnum,
 )]
 #[serde(rename_all = "snake_case")]
 #[clap(rename_all = "snake_case")]
 pub enum KeyDetail {
 	/// Show only the primary key and user ID.
+	#[clap(aliases = ["min", "1"])]
 	Minimum = 0,
 	/// Show all subkeys and user IDs.
+	#[clap(alias = "2")]
 	Standard = 1,
 	/// Show signatures.
+	#[clap(alias = "3")]
 	Full = 2,
 }
 
@@ -63,18 +66,6 @@ impl Default for KeyDetail {
 impl Display for KeyDetail {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 		write!(f, "{}", format!("{self:?}").to_lowercase())
-	}
-}
-
-impl FromStr for KeyDetail {
-	type Err = ();
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s.to_lowercase().as_str() {
-			"1" | "min" | "minimum" => Ok(KeyDetail::Minimum),
-			"2" | "standard" => Ok(KeyDetail::Standard),
-			"3" | "full" => Ok(KeyDetail::Full),
-			_ => Err(()),
-		}
 	}
 }
 
@@ -329,10 +320,7 @@ mod tests {
 		let key = &mut keys[0];
 		key.detail.increase();
 		assert_eq!(KeyDetail::Standard, key.detail);
-		assert_eq!(
-			Ok(key.detail),
-			<KeyDetail as std::str::FromStr>::from_str("standard")
-		);
+		assert_eq!(Ok(key.detail), KeyDetail::from_str("standard", true));
 		key.detail.increase();
 		assert_eq!(KeyDetail::Full, key.detail);
 		assert_eq!("full", key.detail.to_string());

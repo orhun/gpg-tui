@@ -1,10 +1,10 @@
+use clap::ValueEnum;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::str::FromStr;
 use tui::style::{Color, Style as TuiStyle};
 use tui::text::{Span, Spans, Text};
 
 /// Application style.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub enum Style {
 	/// Plain style with basic colors.
 	Plain,
@@ -21,17 +21,6 @@ impl Default for Style {
 impl Display for Style {
 	fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 		write!(f, "{}", format!("{self:?}").to_lowercase())
-	}
-}
-
-impl FromStr for Style {
-	type Err = String;
-	fn from_str(style: &str) -> Result<Self, Self::Err> {
-		match style {
-			"plain" => Ok(Self::Plain),
-			"colored" => Ok(Self::Colored),
-			_ => Err(String::from("could not parse the style")),
-		}
 	}
 }
 

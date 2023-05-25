@@ -6,6 +6,7 @@ use crate::args::Args;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
 use anyhow::Result;
+use clap::ValueEnum;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use std::fs;
@@ -172,7 +173,8 @@ impl Config {
 		args.default_key = self.gpg.default_key.clone();
 		args.tick_rate = self.general.tick_rate;
 		args.color = Color::from(self.general.color.as_ref());
-		args.style = Style::from_str(&self.general.style).unwrap_or_default();
+		args.style =
+			Style::from_str(&self.general.style, true).unwrap_or_default();
 		args.detail_level = self.general.detail_level.unwrap_or_default();
 		args.file_explorer = self.general.file_explorer.clone();
 		args

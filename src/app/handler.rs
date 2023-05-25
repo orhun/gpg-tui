@@ -257,7 +257,7 @@ fn handle_key_event(
 			}
 			Key::Char('1') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(Selection::TableRow(1))
+					Command::Copy(Selection::Row1)
 				} else {
 					Command::Set(
 						String::from("detail"),
@@ -267,7 +267,7 @@ fn handle_key_event(
 			}
 			Key::Char('2') => {
 				if app.mode == Mode::Copy {
-					Command::Copy(Selection::TableRow(2))
+					Command::Copy(Selection::Row2)
 				} else {
 					Command::Set(
 						String::from("detail"),

@@ -4,6 +4,7 @@ use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
+use clap::ValueEnum;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 
@@ -175,8 +176,11 @@ impl FromStr for Command {
 			}))),
 			"help" | "h" => Ok(Command::ShowHelp),
 			"style" => Ok(Command::ChangeStyle(
-				Style::from_str(&args.first().cloned().unwrap_or_default())
-					.unwrap_or_default(),
+				Style::from_str(
+					&args.first().cloned().unwrap_or_default(),
+					true,
+				)
+				.unwrap_or_default(),
 			)),
 			"output" | "out" => {
 				if !args.is_empty() {
@@ -248,7 +252,7 @@ impl FromStr for Command {
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
 					Ok(Command::Copy(
-						Selection::from_str(&arg).map_err(|_| ())?,
+						Selection::from_str(&arg, true).map_err(|_| ())?,
 					))
 				} else {
 					Ok(Command::SwitchMode(Mode::Copy))

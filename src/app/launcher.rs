@@ -14,7 +14,8 @@ use crate::widget::list::StatefulList;
 use crate::widget::row::ScrollDirection;
 use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableSize, TableState};
-use anyhow::{anyhow, Error as AnyhowError, Result};
+use anyhow::{Error as AnyhowError, Result};
+use clap::ValueEnum;
 use colorsys::Rgb;
 use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
 use copypasta_ext::ClipboardProviderExt;
@@ -243,8 +244,8 @@ impl<'a> App<'a> {
 								Command::Copy(Selection::KeyId),
 								Command::Copy(Selection::KeyFingerprint),
 								Command::Copy(Selection::KeyUserId),
-								Command::Copy(Selection::TableRow(1)),
-								Command::Copy(Selection::TableRow(2)),
+								Command::Copy(Selection::Row1),
+								Command::Copy(Selection::Row2),
 								Command::Paste,
 								Command::ToggleDetail(false),
 								Command::ToggleDetail(true),
@@ -669,7 +670,7 @@ impl<'a> App<'a> {
 						}
 						"detail" => {
 							if let Ok(detail_level) =
-								KeyDetail::from_str(&value)
+								KeyDetail::from_str(&value, true)
 							{
 								if let Some(index) =
 									self.keys_table.state.tui.selected()
@@ -713,7 +714,7 @@ impl<'a> App<'a> {
 								),
 							)
 						}
-						"style" => match Style::from_str(&value) {
+						"style" => match Style::from_str(&value, true) {
 							Ok(style) => {
 								self.state.style = style;
 								(
@@ -851,20 +852,17 @@ impl<'a> App<'a> {
 				let selected_key =
 					&self.keys_table.selected().expect("invalid selection");
 				let content = match copy_type {
-					Selection::TableRow(1) => Ok(selected_key
+					Selection::Row1 => Ok(selected_key
 						.get_subkey_info(
 							self.gpgme.config.default_key.as_deref(),
 							self.keys_table.state.size != TableSize::Normal,
 						)
 						.join("\n")),
-					Selection::TableRow(2) => Ok(selected_key
+					Selection::Row2 => Ok(selected_key
 						.get_user_info(
 							self.keys_table.state.size == TableSize::Minimized,
 						)
 						.join("\n")),
-					Selection::TableRow(_) => {
-						Err(anyhow!("invalid row number"))
-					}
 					Selection::Key => {
 						match self.gpgme.get_exported_keys(
 							match self.tab {

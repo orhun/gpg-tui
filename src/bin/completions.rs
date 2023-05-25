@@ -1,4 +1,4 @@
-use clap::{ArgEnum, CommandFactory};
+use clap::{CommandFactory, ValueEnum};
 use clap_complete::Shell;
 use gpg_tui::args::Args;
 use std::env;

@@ -5,7 +5,7 @@ use crate::app::selection::Selection;
 use crate::app::style::Style;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
-use clap::{AppSettings, Parser};
+use clap::Parser;
 
 /// Argument parser powered by [`clap`].
 #[derive(Debug, Default, Parser)]
@@ -15,7 +15,6 @@ use clap::{AppSettings, Parser};
     author = env!("CARGO_PKG_AUTHORS"),
     about = env!("CARGO_PKG_DESCRIPTION"),
 	before_help = BANNERS[2],
-    global_setting = AppSettings::DeriveDisplayOrder,
 	rename_all_env = "screaming-snake",
 )]
 pub struct Args {
@@ -30,7 +29,7 @@ pub struct Args {
 		long,
 		value_name = "path",
 		env = "GPG_TUI_CONFIG",
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub config: Option<String>,
 	/// Sets the GnuPG home directory.
@@ -38,7 +37,7 @@ pub struct Args {
 		long,
 		value_name = "dir",
 		env = "GNUPGHOME",
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub homedir: Option<String>,
 	/// Sets the output directory.
@@ -47,7 +46,7 @@ pub struct Args {
 		long,
 		value_name = "dir",
 		env,
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub outdir: Option<String>,
 	/// Sets the template for the output file name.
@@ -56,7 +55,7 @@ pub struct Args {
 		value_name = "path",
 		default_value = "{type}_{query}.{ext}",
 		env,
-		parse(from_str = Args::parse_dir)
+		value_parser = Args::parse_dir
 	)]
 	pub outfile: String,
 	/// Sets the default key to sign with.
@@ -66,44 +65,19 @@ pub struct Args {
 	#[clap(short, long, value_name = "ms", default_value = "250", env)]
 	pub tick_rate: u64,
 	/// Sets the accent color of the terminal.
-	#[clap(
-		short,
-		long,
-		value_name = "color",
-		default_value = "gray",
-		parse(from_str),
-		env
-	)]
+	#[clap(short, long, value_name = "color", default_value = "gray", env)]
 	pub color: Color,
 	/// Sets the style of the terminal.
-	#[clap(
-		short,
-		long,
-		value_name = "style",
-		possible_values = &["plain", "colored"],
-		default_value = "plain",
-		env
-	)]
+	#[clap(short, long, value_name = "style", default_value = "plain", env)]
 	pub style: Style,
 	/// Sets the utility for file selection.
 	#[clap(short, long, value_name = "app", default_value = "xplr", env)]
 	pub file_explorer: String,
 	/// Sets the detail level for the keys.
-	#[clap(
-		long,
-		value_name = "level",
-		default_value = "minimum",
-		env,
-		arg_enum
-	)]
+	#[clap(long, value_name = "level", default_value = "minimum", env)]
 	pub detail_level: KeyDetail,
 	/// Enables the selection mode.
-	#[clap(
-		long,
-		value_name = "option",
-		possible_values = &["key_id", "key_fpr", "user_id", "row1", "row2"],
-		env
-	)]
+	#[clap(long, value_name = "option", env)]
 	pub select: Option<Selection>,
 }
 
@@ -114,8 +88,8 @@ impl Args {
 	/// input string into contents of the path returned by [`home_dir`].
 	///
 	/// [`home_dir`]: dirs_next::home_dir
-	fn parse_dir(dir: &str) -> String {
-		shellexpand::tilde(dir).to_string()
+	fn parse_dir(dir: &str) -> Result<String, String> {
+		Ok(shellexpand::tilde(dir).to_string())
 	}
 }
 
