@@ -562,9 +562,10 @@ gpg-tui --select <option>
 
 `<option>` might be one of the following:
 
-- `key_id`: Key ID
-- `key_fpr`: Key fingerprint
-- `user_id`: User ID
+- `key`: Exported key
+- `key-id`: Key ID
+- `key-fingerprint`: Key fingerprint
+- `user-id`: User ID
 - `row<n>`: Contents of the nth row
 
 ![](demo/gpg-tui-selection_mode.gif)
@@ -572,7 +573,7 @@ gpg-tui --select <option>
 For example, you can use the following shell function to encrypt a file for the selected recipient (key ID):
 
 ```sh
-function encrypt() { gpg -e -r $(gpg-tui --select key_id) "$@"; }
+function encrypt() { gpg -e -r $(gpg-tui --select key-id) "$@"; }
 ```
 
 #### Detailed View
