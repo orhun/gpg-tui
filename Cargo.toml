@@ -44,7 +44,7 @@ shellexpand = "3.1.0"
 hex-literal = "0.4.1"
 toml = "0.7.5"
 dirs-next = "2.0.0"
-clap_complete = "4.3.1"
+clap_complete = "4.3.2"
 tinytemplate = "1.2.1"
 
 [dependencies.crossterm]
