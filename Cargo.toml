@@ -61,7 +61,7 @@ default-features = false
 features = ["jpeg"]
 
 [dependencies.serde]
-version = "1.0.167"
+version = "1.0.171"
 features = ["derive"]
 
 [dev-dependencies]
