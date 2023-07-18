@@ -52,7 +52,7 @@ version = "0.26.1"
 features = ["serde"]
 
 [dependencies.clap]
-version = "4.3.12"
+version = "4.3.15"
 features = ["derive", "env", "wrap_help", "cargo"]
 
 [dependencies.image]
