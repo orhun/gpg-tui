@@ -56,7 +56,7 @@ version = "4.3.21"
 features = ["derive", "env", "wrap_help", "cargo"]
 
 [dependencies.image]
-version = "0.24.6"
+version = "0.24.7"
 default-features = false
 features = ["jpeg"]
 
