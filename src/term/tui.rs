@@ -112,7 +112,7 @@ impl<B: Backend> Tui<B> {
 	fn reset() -> Result<()> {
 		terminal::disable_raw_mode()?;
 		crossterm::execute!(
-			io::stdout(),
+			io::stderr(),
 			LeaveAlternateScreen,
 			DisableMouseCapture
 		)?;
