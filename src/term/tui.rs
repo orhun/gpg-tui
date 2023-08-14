@@ -47,14 +47,11 @@ impl<B: Backend> Tui<B> {
 			EnterAlternateScreen,
 			EnableMouseCapture
 		)?;
-
 		let panic_hook = panic::take_hook();
-
 		panic::set_hook(Box::new(move |panic| {
 			Self::reset().expect("failed to reset the terminal");
 			panic_hook(panic);
 		}));
-
 		self.terminal.hide_cursor()?;
 		self.terminal.clear()?;
 		Ok(())
@@ -109,6 +106,7 @@ impl<B: Backend> Tui<B> {
 		Ok(())
 	}
 
+	/// Resets the terminal interface.
 	fn reset() -> Result<()> {
 		terminal::disable_raw_mode()?;
 		crossterm::execute!(
@@ -116,7 +114,6 @@ impl<B: Backend> Tui<B> {
 			LeaveAlternateScreen,
 			DisableMouseCapture
 		)?;
-
 		Ok(())
 	}
 }
