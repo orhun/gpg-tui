@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use std::io;
+use std::panic;
 use std::sync::atomic::Ordering;
 use tui::backend::Backend;
 use tui::Terminal;
@@ -46,6 +47,11 @@ impl<B: Backend> Tui<B> {
 			EnterAlternateScreen,
 			EnableMouseCapture
 		)?;
+		let panic_hook = panic::take_hook();
+		panic::set_hook(Box::new(move |panic| {
+			Self::reset().expect("failed to reset the terminal");
+			panic_hook(panic);
+		}));
 		self.terminal.hide_cursor()?;
 		self.terminal.clear()?;
 		Ok(())
@@ -95,13 +101,19 @@ impl<B: Backend> Tui<B> {
 	///
 	/// It disables the raw mode and reverts back the terminal properties.
 	pub fn exit(&mut self) -> Result<()> {
+		Self::reset()?;
+		self.terminal.show_cursor()?;
+		Ok(())
+	}
+
+	/// Resets the terminal interface.
+	fn reset() -> Result<()> {
 		terminal::disable_raw_mode()?;
 		crossterm::execute!(
 			io::stderr(),
 			LeaveAlternateScreen,
 			DisableMouseCapture
 		)?;
-		self.terminal.show_cursor()?;
 		Ok(())
 	}
 }
