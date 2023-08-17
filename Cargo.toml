@@ -34,7 +34,7 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.11.0"
 tui = { package = "ratatui", version = "0.20.1" }
-anyhow = "1.0.74"
+anyhow = "1.0.75"
 chrono = "0.4.26"
 unicode-width = "0.1.10"
 copypasta-ext = "0.4.4"
