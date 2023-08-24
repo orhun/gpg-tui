@@ -225,6 +225,17 @@ mod tests {
 		assert_eq!(Some(String::from("test_key")), args.default_key);
 		Ok(())
 	}
+	#[test]
+	fn test_args_partial_config() -> Result<()> {
+		if let Ok(config) = Config::parse_config("config/gpg-tui-part.toml") {
+			let args = config.update_args(Args::default());
+			// The missing fields from the partial config should be defaulted to false
+			assert_eq!(args.armor, false);
+			assert_eq!(args.splash, false);
+			assert_eq!(args.tick_rate, 250_u64);
+		}
+		Ok(())
+	}
 
 	#[test]
 	fn test_parse_key_bindings() -> Result<()> {
