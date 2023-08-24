@@ -26,15 +26,15 @@ pub struct Config {
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct GeneralConfig {
 	/// [`Args::splash`]
-	pub splash: bool,
+	pub splash: Option<bool>,
 	/// [`Args::tick_rate`]
-	pub tick_rate: u64,
+	pub tick_rate: Option<u64>,
 	/// [`Args::color`]
-	pub color: String,
+	pub color: Option<String>,
 	/// [`Args::style`]
-	pub style: String,
+	pub style: Option<String>,
 	/// [`Args::file_explorer`]
-	pub file_explorer: String,
+	pub file_explorer: Option<String>,
 	/// [`Args::detail_level`]
 	pub detail_level: Option<KeyDetail>,
 	/// Custom key bindings.
@@ -119,7 +119,7 @@ where
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct GpgConfig {
 	/// [`Args::armor`]
-	pub armor: bool,
+	pub armor: Option<bool>,
 	/// [`Args::homedir`]
 	pub homedir: Option<String>,
 	/// [`Args::outdir`]
@@ -163,20 +163,43 @@ impl Config {
 
 	/// Update the command-line arguments based on configuration.
 	pub fn update_args(&self, mut args: Args) -> Args {
-		args.armor = self.gpg.armor;
-		args.splash = self.general.splash;
+		let default_color = Color::from("gray");
+		let default_style = Style::from_str("plain", true).unwrap_or_default();
+		let default_file_exp = String::from("xplr");
+		args.armor = self.gpg.armor.unwrap_or_default();
+		args.splash = self.general.splash.unwrap_or_default();
 		args.homedir = self.gpg.homedir.clone();
 		args.outdir = self.gpg.outdir.clone();
 		if let Some(outfile) = &self.gpg.outfile {
 			args.outfile = outfile.to_string();
 		}
 		args.default_key = self.gpg.default_key.clone();
-		args.tick_rate = self.general.tick_rate;
-		args.color = Color::from(self.general.color.as_ref());
-		args.style =
-			Style::from_str(&self.general.style, true).unwrap_or_default();
+		args.tick_rate = self.general.tick_rate.unwrap_or(250_u64);
+
+		args.color = self
+			.general
+			.color
+			.as_ref()
+			.map(|color| Color::from(color.as_ref()))
+			.unwrap_or(default_color);
+
+		args.style = self
+			.general
+			.style
+			.as_ref()
+			.map(|style| {
+				Style::from_str(style.as_ref(), true).unwrap_or_default()
+			})
+			.unwrap_or(default_style);
+
+		args.file_explorer = self
+			.general
+			.file_explorer
+			.as_ref()
+			.cloned()
+			.unwrap_or(default_file_exp);
+
 		args.detail_level = self.general.detail_level.unwrap_or_default();
-		args.file_explorer = self.general.file_explorer.clone();
 		args
 	}
 }
