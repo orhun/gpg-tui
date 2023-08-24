@@ -26,7 +26,11 @@ fn main() -> Result<()> {
 	} else {
 		Config::default()
 	};
-	let custom_key_bindings = config.general.key_bindings.unwrap_or_default();
+	let custom_key_bindings = config
+		.general
+		.unwrap_or_default()
+		.key_bindings
+		.unwrap_or_default();
 	// Initialize GPGME library.
 	let gpg_config = GpgConfig::new(&args)?;
 	gpg_config.check_gpgme_version(GPGME_REQUIRED_VERSION);
