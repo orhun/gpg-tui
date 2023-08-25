@@ -260,7 +260,7 @@ mod tests {
 	#[test]
 	fn test_args_partial_config_general() -> Result<()> {
 		let mut temp_file = std::fs::File::create("config/temp.toml")?;
-		temp_file.write("[general]\n   splash = true\n".as_bytes())?;
+		temp_file.write_all("[general]\n   splash = true\n".as_bytes())?;
 		let tmp_path = PathBuf::from("config/temp.toml");
 		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
 			let args = config.update_args(Args::default());
@@ -279,7 +279,7 @@ mod tests {
 	#[test]
 	fn test_args_partial_config_gpg() -> Result<()> {
 		let mut temp_file = std::fs::File::create("config/temp2.toml")?;
-		temp_file.write("[gpg]\n   armor = true\n".as_bytes())?;
+		temp_file.write_all("[gpg]\n   armor = true\n".as_bytes())?;
 		let tmp_path = PathBuf::from("config/temp2.toml");
 		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
 			let args = config.update_args(Args::default());

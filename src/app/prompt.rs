@@ -211,7 +211,7 @@ mod tests {
 			prompt.next();
 			assert_eq!(i.to_string(), prompt.text);
 		}
-		for output_type in vec![
+		for output_type in [
 			OutputType::from(String::from("warning")),
 			OutputType::from(String::from("failure")),
 			OutputType::from(String::from("action")),
