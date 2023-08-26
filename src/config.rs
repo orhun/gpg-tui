@@ -13,6 +13,17 @@ use std::fs;
 use std::str::FromStr;
 use toml::value::Value;
 
+/// Default color, style, and settings.
+const DEFAULT_COLOR: &str = "gray";
+const DEFAULT_STYLE: &str = "plain";
+const DEFAULT_FILE_EXPLORER: &str = "xplr";
+const DEFAULT_TICK_RATE: u64 = 250_u64;
+const DEFAULT_SPLASH: bool = false;
+const DEFAULT_ARMOR: bool = false;
+const DEFAULT_DETAIL_LEVEL: &str = "minimum";
+const DEFAULT_HOMEDIR: &str = "~/.gnupg";
+const DEFAULT_OUTDIR: &str = "~/.gnupg";
+
 /// Application configuration.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
@@ -130,16 +141,6 @@ pub struct GpgConfig {
 	pub default_key: Option<String>,
 }
 
-const DEFAULT_COLOR: &str = "gray";
-const DEFAULT_STYLE: &str = "plain";
-const DEFAULT_FILE_EXP: &str = "xplr";
-const DEFAULT_TICK_RATE: u64 = 250_u64;
-const DEFAULT_SPLASH: bool = false;
-const DEFAULT_ARMOR: bool = false;
-const DEFAULT_DETAIL_LEVEL: &str = "minimum";
-const DEFAULT_HOMEDIR: &str = "~/.gnupg";
-const DEFAULT_OUTDIR: &str = "~/.gnupg";
-
 impl Config {
 	/// Checks the possible locations for the configuration file.
 	///
@@ -173,10 +174,10 @@ impl Config {
 
 	/// Update the command-line arguments based on configuration.
 	pub fn update_args(&self, mut args: Args) -> Args {
-		let def_color: Color = Color::from(DEFAULT_COLOR);
-		let def_style =
+		let default_color: Color = Color::from(DEFAULT_COLOR);
+		let default_style =
 			Style::from_str(DEFAULT_STYLE, true).unwrap_or_default();
-		let def_filexp: String = String::from(DEFAULT_FILE_EXP);
+		let default_file_explorer: String = String::from(DEFAULT_FILE_EXPLORER);
 		match self.gpg.as_ref() {
 			Some(gpg) => {
 				args.armor = gpg.armor.unwrap_or_default();
@@ -203,7 +204,7 @@ impl Config {
 					.color
 					.as_ref()
 					.map(|color| Color::from(color.as_ref()))
-					.unwrap_or(def_color);
+					.unwrap_or(default_color);
 				args.style = general
 					.style
 					.as_ref()
@@ -216,7 +217,7 @@ impl Config {
 					.file_explorer
 					.as_ref()
 					.cloned()
-					.unwrap_or(def_filexp);
+					.unwrap_or(default_file_explorer);
 				args.detail_level = general.detail_level.unwrap_or(
 					KeyDetail::from_str(DEFAULT_DETAIL_LEVEL, true)
 						.unwrap_or_default(),
@@ -225,9 +226,9 @@ impl Config {
 			None => {
 				args.splash = DEFAULT_SPLASH;
 				args.tick_rate = DEFAULT_TICK_RATE;
-				args.color = def_color;
-				args.style = def_style;
-				args.file_explorer = def_filexp;
+				args.color = default_color;
+				args.style = default_style;
+				args.file_explorer = default_file_explorer;
 			}
 		}
 		args
@@ -237,7 +238,7 @@ impl Config {
 mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
-	use std::fs::remove_file;
+	use std::fs::{self, File};
 	use std::io::Write;
 	use std::path::PathBuf;
 
@@ -259,7 +260,7 @@ mod tests {
 
 	#[test]
 	fn test_args_partial_config_general() -> Result<()> {
-		let mut temp_file = std::fs::File::create("config/temp.toml")?;
+		let mut temp_file = File::create("config/temp.toml")?;
 		temp_file.write_all("[general]\n   splash = true\n".as_bytes())?;
 		let tmp_path = PathBuf::from("config/temp.toml");
 		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
@@ -271,13 +272,13 @@ mod tests {
 			assert_eq!(args.armor, false);
 			assert_eq!(args.default_key, None);
 		}
-		remove_file(tmp_path)?;
+		fs::remove_file(tmp_path)?;
 		Ok(())
 	}
 
 	#[test]
 	fn test_args_partial_config_gpg() -> Result<()> {
-		let mut temp_file = std::fs::File::create("config/temp2.toml")?;
+		let mut temp_file = File::create("config/temp2.toml")?;
 		temp_file.write_all("[gpg]\n   armor = true\n".as_bytes())?;
 		let tmp_path = PathBuf::from("config/temp2.toml");
 		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
@@ -289,7 +290,7 @@ mod tests {
 			assert_eq!(args.armor, true); // supplied
 			assert_eq!(args.default_key, None);
 		}
-		remove_file(tmp_path)?;
+		fs::remove_file(tmp_path)?;
 		Ok(())
 	}
 
