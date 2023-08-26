@@ -13,28 +13,39 @@ use std::fs;
 use std::str::FromStr;
 use toml::value::Value;
 
+/// Default color, style, and settings.
+const DEFAULT_COLOR: &str = "gray";
+const DEFAULT_STYLE: &str = "plain";
+const DEFAULT_FILE_EXPLORER: &str = "xplr";
+const DEFAULT_TICK_RATE: u64 = 250_u64;
+const DEFAULT_SPLASH: bool = false;
+const DEFAULT_ARMOR: bool = false;
+const DEFAULT_DETAIL_LEVEL: &str = "minimum";
+const DEFAULT_HOMEDIR: &str = "~/.gnupg";
+const DEFAULT_OUTDIR: &str = "~/.gnupg";
+
 /// Application configuration.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
 	/// General configuration.
-	pub general: GeneralConfig,
+	pub general: Option<GeneralConfig>,
 	/// GnuPG configuration.
-	pub gpg: GpgConfig,
+	pub gpg: Option<GpgConfig>,
 }
 
 /// General configuration.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct GeneralConfig {
 	/// [`Args::splash`]
-	pub splash: bool,
+	pub splash: Option<bool>,
 	/// [`Args::tick_rate`]
-	pub tick_rate: u64,
+	pub tick_rate: Option<u64>,
 	/// [`Args::color`]
-	pub color: String,
+	pub color: Option<String>,
 	/// [`Args::style`]
-	pub style: String,
+	pub style: Option<String>,
 	/// [`Args::file_explorer`]
-	pub file_explorer: String,
+	pub file_explorer: Option<String>,
 	/// [`Args::detail_level`]
 	pub detail_level: Option<KeyDetail>,
 	/// Custom key bindings.
@@ -116,10 +127,10 @@ where
 }
 
 /// GnuPG configuration.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 pub struct GpgConfig {
 	/// [`Args::armor`]
-	pub armor: bool,
+	pub armor: Option<bool>,
 	/// [`Args::homedir`]
 	pub homedir: Option<String>,
 	/// [`Args::outdir`]
@@ -141,7 +152,7 @@ impl Config {
 	pub fn get_default_location() -> Option<String> {
 		if let Some(config_dir) = dirs_next::config_dir() {
 			let file_name = format!("{}.toml", env!("CARGO_PKG_NAME"));
-			for config_file in vec![
+			for config_file in [
 				config_dir.join(&file_name),
 				config_dir.join(env!("CARGO_PKG_NAME")).join(&file_name),
 				config_dir.join(env!("CARGO_PKG_NAME")).join("config"),
@@ -163,49 +174,129 @@ impl Config {
 
 	/// Update the command-line arguments based on configuration.
 	pub fn update_args(&self, mut args: Args) -> Args {
-		args.armor = self.gpg.armor;
-		args.splash = self.general.splash;
-		args.homedir = self.gpg.homedir.clone();
-		args.outdir = self.gpg.outdir.clone();
-		if let Some(outfile) = &self.gpg.outfile {
-			args.outfile = outfile.to_string();
+		let default_color: Color = Color::from(DEFAULT_COLOR);
+		let default_style =
+			Style::from_str(DEFAULT_STYLE, true).unwrap_or_default();
+		let default_file_explorer: String = String::from(DEFAULT_FILE_EXPLORER);
+		match self.gpg.as_ref() {
+			Some(gpg) => {
+				args.armor = gpg.armor.unwrap_or_default();
+				args.homedir = gpg.homedir.clone();
+				args.outdir = gpg.outdir.clone();
+				if let Some(outfile) = &gpg.outfile {
+					args.outfile = outfile.to_string();
+				}
+				if let Some(default_key) = &gpg.default_key {
+					args.default_key = Some(default_key.clone());
+				}
+			}
+			None => {
+				args.armor = DEFAULT_ARMOR;
+				args.homedir = Some(String::from(DEFAULT_HOMEDIR));
+				args.outdir = Some(String::from(DEFAULT_OUTDIR));
+			}
 		}
-		args.default_key = self.gpg.default_key.clone();
-		args.tick_rate = self.general.tick_rate;
-		args.color = Color::from(self.general.color.as_ref());
-		args.style =
-			Style::from_str(&self.general.style, true).unwrap_or_default();
-		args.detail_level = self.general.detail_level.unwrap_or_default();
-		args.file_explorer = self.general.file_explorer.clone();
+		match self.general.as_ref() {
+			Some(general) => {
+				args.splash = general.splash.unwrap_or_default();
+				args.tick_rate = general.tick_rate.unwrap_or(DEFAULT_TICK_RATE);
+				args.color = general
+					.color
+					.as_ref()
+					.map(|color| Color::from(color.as_ref()))
+					.unwrap_or(default_color);
+				args.style = general
+					.style
+					.as_ref()
+					.map(|style| {
+						Style::from_str(style.as_ref(), true)
+							.unwrap_or_default()
+					})
+					.unwrap_or_default();
+				args.file_explorer = general
+					.file_explorer
+					.as_ref()
+					.cloned()
+					.unwrap_or(default_file_explorer);
+				args.detail_level = general.detail_level.unwrap_or(
+					KeyDetail::from_str(DEFAULT_DETAIL_LEVEL, true)
+						.unwrap_or_default(),
+				);
+			}
+			None => {
+				args.splash = DEFAULT_SPLASH;
+				args.tick_rate = DEFAULT_TICK_RATE;
+				args.color = default_color;
+				args.style = default_style;
+				args.file_explorer = default_file_explorer;
+			}
+		}
 		args
 	}
 }
-
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
+	use std::fs::{self, File};
+	use std::io::Write;
 	use std::path::PathBuf;
+
 	#[test]
 	fn test_parse_config() -> Result<()> {
-		let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+		let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 			.join("config")
 			.join(format!("{}.toml", env!("CARGO_PKG_NAME")))
 			.to_string_lossy()
 			.into_owned();
-		if let Some(global_path) = Config::get_default_location() {
-			path = global_path;
-		}
 		let mut config = Config::parse_config(&path)?;
-		config.gpg.default_key = Some(String::from("test_key"));
+		if let Some(ref mut gpg) = config.gpg {
+			gpg.default_key = Some(String::from("test_key"));
+		}
 		let args = config.update_args(Args::default());
 		assert_eq!(Some(String::from("test_key")), args.default_key);
 		Ok(())
 	}
 
 	#[test]
+	fn test_args_partial_config_general() -> Result<()> {
+		let mut temp_file = File::create("config/temp.toml")?;
+		temp_file.write_all("[general]\n   splash = true\n".as_bytes())?;
+		let tmp_path = PathBuf::from("config/temp.toml");
+		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
+			let args = config.update_args(Args::default());
+			// [general]
+			assert_eq!(args.splash, true); // supplied
+			assert_eq!(args.tick_rate, 250_u64);
+			// [gpg]
+			assert_eq!(args.armor, false);
+			assert_eq!(args.default_key, None);
+		}
+		fs::remove_file(tmp_path)?;
+		Ok(())
+	}
+
+	#[test]
+	fn test_args_partial_config_gpg() -> Result<()> {
+		let mut temp_file = File::create("config/temp2.toml")?;
+		temp_file.write_all("[gpg]\n   armor = true\n".as_bytes())?;
+		let tmp_path = PathBuf::from("config/temp2.toml");
+		if let Ok(config) = Config::parse_config(&tmp_path.to_string_lossy()) {
+			let args = config.update_args(Args::default());
+			// [general]
+			assert_eq!(args.splash, false);
+			assert_eq!(args.tick_rate, 250_u64);
+			// [gpg]
+			assert_eq!(args.armor, true); // supplied
+			assert_eq!(args.default_key, None);
+		}
+		fs::remove_file(tmp_path)?;
+		Ok(())
+	}
+
+	#[test]
 	fn test_parse_key_bindings() -> Result<()> {
-		for (keys, cmd, config) in vec![
+		for (keys, cmd, config) in [
 			(
 				vec![
 					KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE),

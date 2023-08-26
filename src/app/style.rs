@@ -70,7 +70,7 @@ pub fn get_colored_table_row<'a>(
 					line[..first_bracket + 1].to_string(),
 					highlight_style,
 				)];
-				if vec![
+				if [
 					// expired
 					String::from("exp"),
 					// revoked
