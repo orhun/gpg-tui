@@ -271,7 +271,6 @@ mod tests {
 			assert_eq!(args.armor, false);
 			assert_eq!(args.default_key, None);
 		}
-		temp_file.flush()?;
 		remove_file(tmp_path)?;
 		Ok(())
 	}
@@ -290,7 +289,6 @@ mod tests {
 			assert_eq!(args.armor, true); // supplied
 			assert_eq!(args.default_key, None);
 		}
-		temp_file.flush()?;
 		remove_file(tmp_path)?;
 		Ok(())
 	}
