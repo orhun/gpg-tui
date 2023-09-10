@@ -30,16 +30,17 @@ Initial release.
 [git]
 conventional_commits = true
 commit_parsers = [
-    { message = "^.*: Add", group = "Added"},
-    { message = "^.*: Support", group = "Added"},
-    { message = "^.*: Remove", group = "Removed"},
-    { message = "^.*: Delete", group = "Removed"},
-    { message = "^test: Add", group = "Added"},
-    { message = "^test: *", group = "Fixed"},
-    { message = "^chore: Prepare", skip = true},
-    { message = "^fix: *", group = "Fixed"},
-    { message = "^.*: Fix", group = "Fixed"},
-    { message = "^.*", group = "Changed"},
+    { message = "^.*: Add", group = "Added" },
+    { message = "^.*: Support", group = "Added" },
+    { message = "^.*: Remove", group = "Removed" },
+    { message = "^.*: Delete", group = "Removed" },
+    { message = "^test: Add", group = "Added" },
+    { message = "^test: *", group = "Fixed" },
+    { message = "^chore: Bump", skip = true },
+    { message = "^chore: Prepare", skip = true },
+    { message = "^fix: *", group = "Fixed" },
+    { message = "^.*: Fix", group = "Fixed" },
+    { message = "^.*", group = "Changed" },
 ]
 filter_commits = true
 tag_pattern = "v[0-9]*"
