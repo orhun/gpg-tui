@@ -104,8 +104,16 @@ impl Args {
 mod tests {
 	use super::*;
 	use clap::CommandFactory;
+	use std::path::PathBuf;
 	#[test]
 	fn test_args() {
 		Args::command().debug_assert();
+	}
+	#[test]
+	fn test_tilde_expansion() {
+		let home_dir =
+			dirs_next::home_dir().expect("cannot retrieve home directory");
+		let dir = Args::parse_dir("~/").expect("cannot expand tilde");
+		assert_eq!(home_dir, PathBuf::from(dir));
 	}
 }
