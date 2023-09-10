@@ -303,14 +303,20 @@ mod tests {
 		assert_eq!(
 			Text {
 				lines: vec![
-					Line(vec![Span {
-						content: Borrowed("quits the application\n"),
-						style: Style::default(),
-					}]),
-					Line(vec![Span {
-						content: Borrowed(":quit\n"),
-						style: Style::default().fg(Color::Red),
-					}]),
+					Line {
+						spans: vec![Span {
+							content: Borrowed("quits the application\n"),
+							style: Style::default(),
+						}],
+						alignment: None,
+					},
+					Line {
+						spans: vec![Span {
+							content: Borrowed(":quit\n"),
+							style: Style::default().fg(Color::Red),
+						}],
+						alignment: None,
+					},
 				],
 			},
 			key_binding.get_description_text(Style::default().fg(Color::Red))
@@ -318,18 +324,27 @@ mod tests {
 		assert_eq!(
 			ListItem::new(Text {
 				lines: vec![
-					Line(vec![Span {
-						content: Borrowed("[q] [esc] "),
-						style: Style::default(),
-					}]),
-					Line(vec![Span {
-						content: Borrowed(" └─quit"),
-						style: Style::default(),
-					}]),
-					Line(vec![Span {
-						content: Borrowed(" "),
-						style: Style::default(),
-					}]),
+					Line {
+						spans: vec![Span {
+							content: Borrowed("[q] [esc] "),
+							style: Style::default(),
+						}],
+						alignment: None,
+					},
+					Line {
+						spans: vec![Span {
+							content: Borrowed(" └─quit"),
+							style: Style::default(),
+						}],
+						alignment: None,
+					},
+					Line {
+						spans: vec![Span {
+							content: Borrowed(" "),
+							style: Style::default(),
+						}],
+						alignment: None,
+					},
 				],
 			}),
 			key_binding.as_list_item(false, false)
@@ -337,70 +352,78 @@ mod tests {
 		assert_eq!(
 			ListItem::new(Text {
 				lines: vec![
-					Line(vec![
-						Span {
-							content: Borrowed("["),
-							style: Style {
-								fg: Some(Color::Reset),
-								..Style::default()
+					Line {
+						spans: vec![
+							Span {
+								content: Borrowed("["),
+								style: Style {
+									fg: Some(Color::Reset),
+									..Style::default()
+								},
 							},
-						},
-						Span {
-							content: Borrowed("q"),
-							style: Style {
-								fg: Some(Color::Green),
-								bg: None,
-								add_modifier: Modifier::BOLD,
-								sub_modifier: Modifier::empty(),
+							Span {
+								content: Borrowed("q"),
+								style: Style {
+									fg: Some(Color::Green),
+									bg: None,
+									add_modifier: Modifier::BOLD,
+									sub_modifier: Modifier::empty(),
+									underline_color: None,
+								},
 							},
-						},
-						Span {
-							content: Borrowed("] "),
-							style: Style {
-								fg: Some(Color::Reset),
-								..Style::default()
+							Span {
+								content: Borrowed("] "),
+								style: Style {
+									fg: Some(Color::Reset),
+									..Style::default()
+								},
 							},
-						},
-						Span {
-							content: Borrowed("["),
-							style: Style {
-								fg: Some(Color::Reset),
-								..Style::default()
+							Span {
+								content: Borrowed("["),
+								style: Style {
+									fg: Some(Color::Reset),
+									..Style::default()
+								},
 							},
-						},
-						Span {
-							content: Borrowed("esc"),
-							style: Style {
-								fg: Some(Color::Green),
-								bg: None,
-								add_modifier: Modifier::BOLD,
-								sub_modifier: Modifier::empty(),
+							Span {
+								content: Borrowed("esc"),
+								style: Style {
+									fg: Some(Color::Green),
+									bg: None,
+									add_modifier: Modifier::BOLD,
+									sub_modifier: Modifier::empty(),
+									underline_color: None,
+								},
 							},
-						},
-						Span {
-							content: Borrowed("] "),
-							style: Style {
-								fg: Some(Color::Reset),
-								..Style::default()
+							Span {
+								content: Borrowed("] "),
+								style: Style {
+									fg: Some(Color::Reset),
+									..Style::default()
+								},
 							},
-						},
-					]),
-					Line(vec![
-						Span {
-							content: Borrowed(" └─"),
-							style: Style {
-								fg: Some(Color::DarkGray),
-								..Style::default()
+						],
+						alignment: None,
+					},
+					Line {
+						spans: vec![
+							Span {
+								content: Borrowed(" └─"),
+								style: Style {
+									fg: Some(Color::DarkGray),
+									..Style::default()
+								},
 							},
-						},
-						Span {
-							content: Borrowed("quit"),
-							style: Style {
-								fg: Some(Color::Reset),
-								..Style::default()
+							Span {
+								content: Borrowed("quit"),
+								style: Style {
+									fg: Some(Color::Reset),
+									..Style::default()
+								},
 							},
-						},
-					]),
+						],
+						alignment: None,
+					},
 					Line::default(),
 				]
 			}),
