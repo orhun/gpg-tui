@@ -2,7 +2,7 @@
   splash = false
   tick_rate = 250
   color = "gray"
-  style = "plain"
+  style = "colored"
   file_explorer = "xplr"
   detail_level = "minimum"
   # key_bindings = [

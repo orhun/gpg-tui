@@ -288,7 +288,7 @@ Options:
   -d, --default-key <key>     Sets the default key to sign with [env: DEFAULT_KEY=]
   -t, --tick-rate <ms>        Sets the tick rate of the terminal [env: TICK_RATE=] [default: 250]
   -c, --color <color>         Sets the accent color of the terminal [env: COLOR=] [default: gray]
-  -s, --style <style>         Sets the style of the terminal [env: STYLE=] [default: plain] [possible values: plain, colored]
+  -s, --style <style>         Sets the style of the terminal [env: STYLE=] [default: colored] [possible values: plain, colored]
   -f, --file-explorer <app>   Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
       --detail-level <level>  Sets the detail level for the keys [env: DETAIL_LEVEL=] [default: minimum] [possible values: minimum, standard, full]
       --select <option>       Enables the selection mode [env: SELECT=] [possible values: row1, row2, key, key-id, key-fingerprint, user-id]
@@ -728,6 +728,14 @@ gpg-tui --style colored --color 507030
 ```
 
 ![](demo/gpg-tui-custom_colors.gif)
+
+To disable colors:
+
+```sh
+gpg-tui --style plain
+```
+
+Alternatively, you can set the [`NO_COLOR`](https://no-color.org) environment variable.
 
 #### Splash screen
 
