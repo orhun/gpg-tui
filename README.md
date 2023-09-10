@@ -35,6 +35,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
   - [Arch Linux](#arch-linux)
     - [Community](#community)
     - [AUR](#aur)
+  - [Alpine Linux](#alpine-linux)
   - [Gentoo](#gentoo)
   - [Homebrew](#homebrew)
   - [Docker](#docker)
@@ -156,6 +157,14 @@ git clone https://aur.archlinux.org/gpg-tui-git.git && cd gpg-tui-git/
 
 # build the package
 makepkg -si
+```
+
+### Alpine Linux
+
+`gpg-tui` is available for [Alpine Edge](https://pkgs.alpinelinux.org/packages?name=gpg-tui&branch=edge). It can be installed via [apk](https://wiki.alpinelinux.org/wiki/Alpine_Package_Keeper) after enabling the [community repository](https://wiki.alpinelinux.org/wiki/Repositories).
+
+```sh
+apk add gpg-tui
 ```
 
 ### Gentoo
