@@ -60,7 +60,7 @@ fn main() -> Result<()> {
 		}
 	}
 	// Exit the user interface.
-	tui.exit()?;
+	Tui::<CrosstermBackend<io::Stderr>>::reset()?;
 	// Print the exit message if any.
 	if let Some(message) = app.state.exit_message {
 		writeln!(io::stdout(), "{message}")?;

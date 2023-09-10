@@ -4,7 +4,7 @@ use crate::term::event::EventHandler;
 use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
-use ratatui::backend::Backend;
+use ratatui::backend::{Backend, CrosstermBackend};
 use ratatui::Terminal;
 use std::io;
 use std::panic;
@@ -69,7 +69,7 @@ impl<B: Backend> Tui<B> {
 	pub fn toggle_pause(&mut self) -> Result<()> {
 		self.paused = !self.paused;
 		if self.paused {
-			self.exit()?;
+			Self::reset()?;
 		} else {
 			self.init()?;
 		}
@@ -100,23 +100,17 @@ impl<B: Backend> Tui<B> {
 		Ok(())
 	}
 
-	/// Exits the terminal interface.
+	/// Reset the terminal interface.
 	///
 	/// It disables the raw mode and reverts back the terminal properties.
-	pub fn exit(&mut self) -> Result<()> {
-		Self::reset()?;
-		self.terminal.show_cursor()?;
-		Ok(())
-	}
-
-	/// Resets the terminal interface.
-	fn reset() -> Result<()> {
+	pub fn reset() -> Result<()> {
 		terminal::disable_raw_mode()?;
 		crossterm::execute!(
 			io::stderr(),
 			LeaveAlternateScreen,
 			DisableMouseCapture
 		)?;
+		Terminal::new(CrosstermBackend::new(io::stderr()))?.show_cursor()?;
 		Ok(())
 	}
 }
