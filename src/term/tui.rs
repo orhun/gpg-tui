@@ -47,10 +47,13 @@ impl<B: Backend> Tui<B> {
 			EnterAlternateScreen,
 			EnableMouseCapture
 		)?;
-		let panic_hook = panic::take_hook();
 		panic::set_hook(Box::new(move |panic| {
 			Self::reset().expect("failed to reset the terminal");
-			panic_hook(panic);
+			better_panic::Settings::auto()
+				.most_recent_first(false)
+				.lineno_suffix(true)
+				.create_panic_handler()(panic);
+			std::process::exit(1);
 		}));
 		self.terminal.hide_cursor()?;
 		self.terminal.clear()?;
