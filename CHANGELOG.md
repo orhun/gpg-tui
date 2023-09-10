@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2023-09-10
+### Added
+- Add panic hook for resetting the terminal (#106)
+- Add test for argument tilde expansion
+- Add instructions for installing on Alpine Linux
+
+### Changed
+- Allow partial configuration file (#116)
+- Set MSRV to 1.70.0
+- Enable colors as default
+- Integrate better panic handling
+- Skip dependency bumps in changelog
+- Restore the cursor on panic
+
+### Fixed
+- Update tests for the latest version of ratatui
+
 ## [0.9.6] - 2023-05-25
 ### Changed
 - Upgrade clap from v3 to v4 (#56)
