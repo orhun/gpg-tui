@@ -20,7 +20,7 @@ include = [
 ]
 edition = "2021"
 default-run = "gpg-tui"
-rust-version = "1.64.0"
+rust-version = "1.70.0"
 
 [[bin]]
 name = "gpg-tui-completions"
