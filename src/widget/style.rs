@@ -1,6 +1,6 @@
 use colorsys::Rgb;
+use ratatui::style::Color as TuiColor;
 use std::str::FromStr;
-use tui::style::Color as TuiColor;
 
 /// Wrapper for widget colors.
 #[derive(Clone, Copy, Debug)]

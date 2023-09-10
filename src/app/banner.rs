@@ -1,4 +1,4 @@
-use tui::layout::Rect;
+use ratatui::layout::Rect;
 
 /// Application banners that ordered from small to big.
 pub const BANNERS: &[&str] = &[

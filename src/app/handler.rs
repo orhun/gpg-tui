@@ -11,8 +11,8 @@ use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
+use ratatui::backend::Backend;
 use std::str::FromStr;
-use tui::backend::Backend;
 
 /// Handles the key events and executes the application command.
 pub fn handle_events<B: Backend>(

@@ -1,7 +1,7 @@
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::text::{Line, Span, Text};
+use ratatui::widgets::ListItem;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use tui::style::{Color, Modifier, Style};
-use tui::text::{Span, Spans, Text};
-use tui::widgets::ListItem;
 
 /// Key bindings of the application.
 pub const KEY_BINDINGS: &[KeyBinding] = &[
@@ -243,9 +243,9 @@ impl<'a> KeyBinding<'a> {
 		for line in self.description.lines().map(|v| format!("{}\n", v.trim()))
 		{
 			lines.push(if line.starts_with(':') {
-				Spans::from(Span::styled(line, command_style))
+				Line::from(Span::styled(line, command_style))
 			} else {
-				Spans::from(line)
+				Line::from(line)
 			})
 		}
 		Text::from(lines)
@@ -264,7 +264,7 @@ impl<'a> KeyBinding<'a> {
 		};
 		ListItem::new(if colored {
 			Text::from(vec![
-				Spans::from(self.key.split(',').fold(
+				Line::from(self.key.split(',').fold(
 					Vec::new(),
 					|mut keys, key| {
 						keys.push(Span::styled("[", highlight_style));
@@ -278,11 +278,11 @@ impl<'a> KeyBinding<'a> {
 						keys
 					},
 				)),
-				Spans::from(vec![
+				Line::from(vec![
 					Span::styled(" └─", Style::default().fg(Color::DarkGray)),
 					Span::styled(self.action, highlight_style),
 				]),
-				Spans::default(),
+				Line::default(),
 			])
 		} else {
 			Text::raw(self.to_string())
@@ -303,11 +303,11 @@ mod tests {
 		assert_eq!(
 			Text {
 				lines: vec![
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("quits the application\n"),
 						style: Style::default(),
 					}]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(":quit\n"),
 						style: Style::default().fg(Color::Red),
 					}]),
@@ -318,15 +318,15 @@ mod tests {
 		assert_eq!(
 			ListItem::new(Text {
 				lines: vec![
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("[q] [esc] "),
 						style: Style::default(),
 					}]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(" └─quit"),
 						style: Style::default(),
 					}]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(" "),
 						style: Style::default(),
 					}]),
@@ -337,7 +337,7 @@ mod tests {
 		assert_eq!(
 			ListItem::new(Text {
 				lines: vec![
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("["),
 							style: Style {
@@ -385,7 +385,7 @@ mod tests {
 							},
 						},
 					]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed(" └─"),
 							style: Style {
@@ -401,7 +401,7 @@ mod tests {
 							},
 						},
 					]),
-					Spans::default(),
+					Line::default(),
 				]
 			}),
 			key_binding.as_list_item(true, true)

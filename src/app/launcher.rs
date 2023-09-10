@@ -19,13 +19,13 @@ use clap::ValueEnum;
 use colorsys::Rgb;
 use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
 use copypasta_ext::ClipboardProviderExt;
+use ratatui::style::Color;
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command as OsCommand;
 use std::str;
 use std::str::FromStr;
 use std::time::Instant;
-use tui::style::Color;
 
 /// Max duration of prompt messages.
 const MESSAGE_DURATION: u128 = 1750;

@@ -1,7 +1,7 @@
 use clap::ValueEnum;
+use ratatui::style::{Color, Style as TuiStyle};
+use ratatui::text::{Line, Span, Text};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use tui::style::{Color, Style as TuiStyle};
-use tui::text::{Span, Spans, Text};
 
 /// Application style.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
@@ -176,10 +176,10 @@ pub fn get_colored_table_row<'a>(
 				} else {
 					colored_line.push(Span::styled(data, highlight_style));
 				}
-				Spans::from(colored_line)
+				Line::from(colored_line)
 			// Use the unfit data as is.
 			} else {
-				Spans::from(vec![Span::styled(
+				Line::from(vec![Span::styled(
 					line.to_string(),
 					highlight_style,
 				)])
@@ -199,7 +199,7 @@ pub fn get_colored_info(info: &str, color: Color) -> Text<'_> {
 		info.lines()
 			.map(|v| {
 				let mut values = v.split(':').collect::<Vec<&str>>();
-				Spans::from(if values.len() >= 2 && !v.starts_with(' ') {
+				Line::from(if values.len() >= 2 && !v.starts_with(' ') {
 					vec![
 						Span::styled(
 							values[0],
@@ -218,7 +218,7 @@ pub fn get_colored_info(info: &str, color: Color) -> Text<'_> {
 					vec![Span::styled(v, TuiStyle::default().fg(Color::Reset))]
 				})
 			})
-			.collect::<Vec<Spans>>(),
+			.collect::<Vec<Line>>(),
 	)
 }
 
@@ -240,11 +240,11 @@ mod tests {
 		assert_eq!(
 			Text {
 				lines: vec![
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(""),
 						style: TuiStyle::default(),
 					}]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("["),
 							style: TuiStyle::default(),
@@ -302,11 +302,11 @@ mod tests {
 							style: TuiStyle::default(),
 						},
 					],),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("       └─(2020-07-29)"),
 						style: TuiStyle::default(),
 					}]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("\t\t"),
 						style: TuiStyle::default(),
 					}]),
@@ -327,11 +327,11 @@ mod tests {
 		assert_eq!(
 			Text {
 				lines: vec![
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(""),
 						style: TuiStyle::default(),
 					}]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("["),
 							style: TuiStyle::default(),
@@ -373,7 +373,7 @@ mod tests {
 							style: TuiStyle::default(),
 						},
 					]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("\t├─["),
 							style: TuiStyle::default(),
@@ -390,11 +390,11 @@ mod tests {
 							style: TuiStyle::default(),
 						},
 					]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("\t├─][ test"),
 						style: TuiStyle::default(),
 					}]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("\t└─["),
 							style: TuiStyle::default(),
@@ -436,7 +436,7 @@ mod tests {
 							style: TuiStyle::default(),
 						},
 					]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("\t\t\t\t"),
 						style: TuiStyle::default(),
 					}]),
@@ -447,7 +447,7 @@ mod tests {
 		assert_eq!(
 			Text {
 				lines: vec![
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("test"),
 							style: TuiStyle {
@@ -470,7 +470,7 @@ mod tests {
 							},
 						},
 					]),
-					Spans(vec![
+					Line(vec![
 						Span {
 							content: Borrowed("test2"),
 							style: TuiStyle {
@@ -493,14 +493,14 @@ mod tests {
 							},
 						},
 					]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed(" skip this line"),
 						style: TuiStyle {
 							fg: Some(Color::Reset),
 							..TuiStyle::default()
 						},
 					}]),
-					Spans(vec![Span {
+					Line(vec![Span {
 						content: Borrowed("reset"),
 						style: TuiStyle {
 							fg: Some(Color::Reset),

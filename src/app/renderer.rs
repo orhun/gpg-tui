@@ -5,17 +5,17 @@ use crate::app::style;
 use crate::app::tab::Tab;
 use crate::widget::row::RowItem;
 use crate::widget::table::TableSize;
-use std::cmp;
-use std::convert::{TryFrom, TryInto};
-use tui::backend::Backend;
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Modifier, Style};
-use tui::terminal::Frame;
-use tui::text::{Span, Spans, Text};
-use tui::widgets::canvas::{Canvas, Points};
-use tui::widgets::{
+use ratatui::backend::Backend;
+use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::terminal::Frame;
+use ratatui::text::{Line, Span, Text};
+use ratatui::widgets::canvas::{Canvas, Points};
+use ratatui::widgets::{
 	Block, Borders, Clear, List, ListItem, Paragraph, Row, Table, Wrap,
 };
+use std::cmp;
+use std::convert::{TryFrom, TryInto};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/normal mode.
@@ -88,7 +88,7 @@ fn render_command_prompt<B: Backend>(
 	rect: Rect,
 ) {
 	frame.render_widget(
-		Paragraph::new(Spans::from(if !app.prompt.text.is_empty() {
+		Paragraph::new(Line::from(if !app.prompt.text.is_empty() {
 			vec![Span::raw(format!(
 				"{}{}",
 				app.prompt.output_type, app.prompt.text
@@ -527,10 +527,10 @@ mod tests {
 	use crate::gpg::key::KeyType;
 	use anyhow::Result;
 	use pretty_assertions::assert_eq;
+	use ratatui::backend::TestBackend;
+	use ratatui::buffer::Buffer;
+	use ratatui::Terminal;
 	use std::env;
-	use tui::backend::TestBackend;
-	use tui::buffer::Buffer;
-	use tui::Terminal;
 	fn assert_buffer(mut buffer: Buffer, terminal: &Terminal<TestBackend>) {
 		assert_eq!(buffer.area, terminal.backend().size().unwrap());
 		for x in 0..buffer.area().width {

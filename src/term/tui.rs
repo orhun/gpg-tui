@@ -4,11 +4,11 @@ use crate::term::event::EventHandler;
 use anyhow::{Context, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 use std::io;
 use std::panic;
 use std::sync::atomic::Ordering;
-use tui::backend::Backend;
-use tui::Terminal;
 
 /// Text-based user interface.
 ///
@@ -122,7 +122,7 @@ impl<B: Backend> Tui<B> {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use tui::backend::TestBackend;
+	use ratatui::backend::TestBackend;
 	#[test]
 	fn test_term_tui() -> Result<()> {
 		let backend = TestBackend::new(10, 10);

@@ -9,9 +9,9 @@ use gpg_tui::gpg::context::GpgContext;
 use gpg_tui::term::event::{Event, EventHandler};
 use gpg_tui::term::tui::Tui;
 use gpg_tui::GPGME_REQUIRED_VERSION;
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 use std::io::{self, Write};
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
 
 fn main() -> Result<()> {
 	// Parse command-line arguments.

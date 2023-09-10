@@ -1,5 +1,5 @@
 use crate::widget::row::{ScrollAmount, ScrollDirection};
-use tui::widgets::TableState as TuiState;
+use ratatui::widgets::TableState as TuiState;
 
 /// Table size mode.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -3,7 +3,7 @@ use crate::app::style::Style;
 use crate::args::Args;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
-use tui::style::Color as TuiColor;
+use ratatui::style::Color as TuiColor;
 
 /// Application states (flags) for managing the launcher.
 #[derive(Clone, Debug)]
