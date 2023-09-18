@@ -73,7 +73,7 @@ jobs:
           mv cargo-tarpaulin ~/.cargo/bin/
 
       - name: Run tests
-        run: cargo tarpaulin --out Xml --verbose --features gpg-tests
+        run: cargo tarpaulin --out xml --verbose --features gpg-tests
 
       - name: Upload reports to codecov
         uses: codecov/codecov-action@v3
