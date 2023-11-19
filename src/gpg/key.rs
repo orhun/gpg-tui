@@ -139,10 +139,13 @@ impl GpgKey {
 					" "
 				},
 				if let Ok(algorithm_name) = subkey.algorithm_name() {
-					if algorithm_name.len() == 7 {
-						algorithm_name
-					} else {
+					if algorithm_name.is_empty() {
 						String::from("unrecog")
+					} else {
+						format!("{:-<7}", algorithm_name)
+							.chars()
+							.take(7)
+							.collect()
 					}
 				} else {
 					String::from("unknown")
