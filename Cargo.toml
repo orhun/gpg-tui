@@ -44,7 +44,7 @@ shellexpand = "3.1.0"
 hex-literal = "0.4.1"
 toml = "0.8.6"
 dirs-next = "2.0.0"
-clap_complete = "4.4.1"
+clap_complete = "4.5.1"
 tinytemplate = "1.2.1"
 better-panic = "0.3.0"
 
