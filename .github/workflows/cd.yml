@@ -58,7 +58,7 @@ jobs:
           image: '<a href="https://github.com/orhun/gpg-tui"><img src="assets/logo.jpg" width="600"></a>'
           text: "See [**CHANGELOG.md**](./CHANGELOG.md) for release notes."
       - name: Upload the release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: RELEASE.txt
           files: |
