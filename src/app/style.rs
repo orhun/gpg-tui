@@ -245,7 +245,7 @@ mod tests {
 							content: Borrowed(""),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -306,23 +306,24 @@ mod tests {
 								style: TuiStyle::default(),
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed("       └─(2020-07-29)"),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed("\t\t"),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 				],
+				..Default::default()
 			},
 			get_colored_table_row(&row_data, false)
 		);
@@ -344,7 +345,7 @@ mod tests {
 							content: Borrowed(""),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -389,7 +390,7 @@ mod tests {
 								style: TuiStyle::default(),
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -409,14 +410,14 @@ mod tests {
 								style: TuiStyle::default(),
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed("\t├─][ test"),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -461,16 +462,17 @@ mod tests {
 								style: TuiStyle::default(),
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed("\t\t\t\t"),
 							style: TuiStyle::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 				],
+				..Default::default()
 			},
 			get_colored_table_row(&row_data, false)
 		);
@@ -501,7 +503,7 @@ mod tests {
 								},
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -527,7 +529,7 @@ mod tests {
 								},
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
@@ -537,7 +539,7 @@ mod tests {
 								..TuiStyle::default()
 							},
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
@@ -547,9 +549,10 @@ mod tests {
 								..TuiStyle::default()
 							},
 						}],
-						alignment: None,
+						..Default::default()
 					},
 				],
+				..Default::default()
 			},
 			get_colored_info(
 				"test: xyz \n\

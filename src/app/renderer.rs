@@ -5,7 +5,6 @@ use crate::app::style;
 use crate::app::tab::Tab;
 use crate::widget::row::RowItem;
 use crate::widget::table::TableSize;
-use ratatui::backend::Backend;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::terminal::Frame;
@@ -22,7 +21,7 @@ use unicode_width::UnicodeWidthStr;
 const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 
 /// Renders all the widgets thus the user interface.
-pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
+pub fn render(app: &mut App, frame: &mut Frame) {
 	let rect = frame.size();
 	if app.keys_table.state.minimize_threshold != 0 {
 		app.keys_table.state.size.set_minimized(
@@ -50,11 +49,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
 }
 
 /// Renders the splash screen.
-fn render_splash_screen<B: Backend>(
-	app: &mut App,
-	frame: &mut Frame<'_, B>,
-	rect: Rect,
-) {
+fn render_splash_screen(app: &mut App, frame: &mut Frame, rect: Rect) {
 	app.state.show_splash = app.splash_screen.step != 0;
 	let data = app.splash_screen.get(app.state.style.is_colored());
 	frame.render_widget(
@@ -82,11 +77,7 @@ fn render_splash_screen<B: Backend>(
 }
 
 /// Renders the command prompt.
-fn render_command_prompt<B: Backend>(
-	app: &mut App,
-	frame: &mut Frame<'_, B>,
-	rect: Rect,
-) {
+fn render_command_prompt(app: &mut App, frame: &mut Frame, rect: Rect) {
 	frame.render_widget(
 		Paragraph::new(Line::from(if !app.prompt.text.is_empty() {
 			vec![Span::raw(format!(
@@ -165,11 +156,7 @@ fn render_command_prompt<B: Backend>(
 }
 
 /// Renders the help tab.
-fn render_help_tab<B: Backend>(
-	app: &mut App,
-	frame: &mut Frame<'_, B>,
-	rect: Rect,
-) {
+fn render_help_tab(app: &mut App, frame: &mut Frame, rect: Rect) {
 	frame.render_widget(
 		Block::default()
 			.borders(Borders::ALL)
@@ -323,11 +310,7 @@ fn render_help_tab<B: Backend>(
 }
 
 /// Renders the options menu.
-fn render_options_menu<B: Backend>(
-	app: &mut App,
-	frame: &mut Frame<'_, B>,
-	rect: Rect,
-) {
+fn render_options_menu(app: &mut App, frame: &mut Frame, rect: Rect) {
 	let items = app
 		.options
 		.items
@@ -394,24 +377,26 @@ fn render_options_menu<B: Backend>(
 }
 
 /// Renders the table of keys.
-fn render_keys_table<B: Backend>(
-	app: &mut App,
-	frame: &mut Frame<'_, B>,
-	rect: Rect,
-) {
+fn render_keys_table(app: &mut App, frame: &mut Frame, rect: Rect) {
 	let keys_row_length = if app.keys_table.state.size != TableSize::Normal {
 		KEYS_ROW_LENGTH.0
 	} else {
 		KEYS_ROW_LENGTH.1
 	};
 	frame.render_stateful_widget(
-		Table::new(get_keys_table_rows(
-			app,
-			rect.width
-				.checked_sub(keys_row_length + 7)
-				.unwrap_or(rect.width),
-			rect.height.checked_sub(2).unwrap_or(rect.height),
-		))
+		Table::new(
+			get_keys_table_rows(
+				app,
+				rect.width
+					.checked_sub(keys_row_length + 7)
+					.unwrap_or(rect.width),
+				rect.height.checked_sub(2).unwrap_or(rect.height),
+			),
+			&[
+				Constraint::Min(keys_row_length),
+				Constraint::Percentage(100),
+			],
+		)
 		.style(Style::default().fg(app.state.color))
 		.highlight_style(if app.state.style.is_colored() {
 			Style::default().add_modifier(Modifier::BOLD)
@@ -426,10 +411,6 @@ fn render_keys_table<B: Backend>(
 				.borders(Borders::ALL)
 				.border_style(Style::default().fg(Color::DarkGray)),
 		)
-		.widths(&[
-			Constraint::Min(keys_row_length),
-			Constraint::Percentage(100),
-		])
 		.column_spacing(1),
 		rect,
 		&mut app.keys_table.state.tui,

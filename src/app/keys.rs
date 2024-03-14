@@ -308,16 +308,17 @@ mod tests {
 							content: Borrowed("quits the application\n"),
 							style: Style::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed(":quit\n"),
 							style: Style::default().fg(Color::Red),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 				],
+				..Default::default()
 			},
 			key_binding.get_description_text(Style::default().fg(Color::Red))
 		);
@@ -329,23 +330,24 @@ mod tests {
 							content: Borrowed("[q] [esc] "),
 							style: Style::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed(" └─quit"),
 							style: Style::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![Span {
 							content: Borrowed(" "),
 							style: Style::default(),
 						}],
-						alignment: None,
+						..Default::default()
 					},
 				],
+				..Default::default()
 			}),
 			key_binding.as_list_item(false, false)
 		);
@@ -403,7 +405,7 @@ mod tests {
 								},
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line {
 						spans: vec![
@@ -422,10 +424,11 @@ mod tests {
 								},
 							},
 						],
-						alignment: None,
+						..Default::default()
 					},
 					Line::default(),
-				]
+				],
+				..Default::default()
 			}),
 			key_binding.as_list_item(true, true)
 		);
