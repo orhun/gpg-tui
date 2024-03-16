@@ -480,7 +480,7 @@ mod tests {
 	use crate::gpg::key::KeyType;
 	use anyhow::Result;
 	use pretty_assertions::assert_eq;
-	use ratatui::backend::TestBackend;
+	use ratatui::backend::{Backend, TestBackend};
 	use ratatui::buffer::Buffer;
 	use ratatui::Terminal;
 	use std::env;
