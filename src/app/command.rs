@@ -233,7 +233,8 @@ impl FromStr for Command {
 				let key_id = args.get(1).cloned().unwrap_or_default();
 				Ok(Command::DeleteKey(
 					KeyType::from_str(
-						&args.first()
+						&args
+							.first()
 							.cloned()
 							.unwrap_or_else(|| String::from("pub")),
 					)?,
