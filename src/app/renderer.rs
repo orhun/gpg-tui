@@ -567,8 +567,8 @@ mod tests {
 			"│                                │                                   │",
 			&format!("│ Use arrow keys / hjkl to       │  {}            │", gpg_info[1].trim()),
 			&format!("│ navigate through the key       │  {}          │", gpg_info[2].trim()),
-			&format!("│ bindings.                      │  {}     │", gpg_info[3].trim()),
-			&format!("│ Corresponding commands and     │  {}     │", &gpg_info[4][0..32].trim()),
+			&format!("│ bindings.                      │  {}      │", gpg_info[3].trim()),
+			&format!("│ Corresponding commands and     │  {}      │", &gpg_info[4][0..32].trim()),
 			"│                                                                    │",
 			"└────────────────────────────────────────────────────────────────────┘",
 			"                                                              < help >",
@@ -577,7 +577,7 @@ mod tests {
 					Some(pos) => format!("{}{}", &line[..pos], line.chars().last().unwrap_or_default()),
 					None => line.to_string(),
 				}
-			}).collect()),
+			}).collect::<Vec<String>>()),
 			&terminal,
 		);
 		Ok(())
