@@ -3,7 +3,6 @@ use crate::app::keys::{KeyBinding, KEY_BINDINGS};
 use crate::app::mode::Mode;
 use crate::app::prompt::{OutputType, Prompt, COMMAND_PREFIX, SEARCH_PREFIX};
 use crate::app::selection::Selection;
-use crate::app::splash::{SplashConfig, SplashScreen};
 use crate::app::state::State;
 use crate::app::style::Style;
 use crate::app::tab::Tab;
@@ -20,6 +19,7 @@ use colorsys::Rgb;
 use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
 use copypasta_ext::ClipboardProviderExt;
 use ratatui::style::Color;
+use ratatui_splash_screen::{SplashConfig, SplashScreen};
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command as OsCommand;
@@ -32,11 +32,12 @@ const MESSAGE_DURATION: u128 = 1750;
 
 /// Splash screen config.
 static SPLASH_CONFIG: SplashConfig = SplashConfig {
-	image_path: "splash.jpg",
-	sha256_hash: Some(hex_literal::hex!(
-		"dffd680d649a4a4b5df25dc1afaa722186c3bf38469a9156bad33f1719574e2a"
-	)),
+	image_data: include_bytes!("../../assets/splash.jpg"),
+	sha256sum: Some(
+		"dffd680d649a4a4b5df25dc1afaa722186c3bf38469a9156bad33f1719574e2a",
+	),
 	render_steps: 12,
+	use_colors: true,
 };
 
 /// Main application.

@@ -39,14 +39,13 @@ chrono = "0.4.35"
 unicode-width = "0.1.11"
 copypasta-ext = "0.4.4"
 colorsys = "0.6.7"
-rust-embed = "8.3.0"
 shellexpand = "3.1.0"
-hex-literal = "0.4.1"
 toml = "0.8.8"
 dirs-next = "2.0.0"
 clap_complete = "4.5.1"
 tinytemplate = "1.2.1"
 better-panic = "0.3.0"
+ratatui-splash-screen = "0.1.0"
 
 [dependencies.crossterm]
 version = "0.27.0"
@@ -55,11 +54,6 @@ features = ["serde"]
 [dependencies.clap]
 version = "4.5.2"
 features = ["derive", "env", "wrap_help", "cargo"]
-
-[dependencies.image]
-version = "0.25.0"
-default-features = false
-features = ["jpeg"]
 
 [dependencies.serde]
 version = "1.0.197"

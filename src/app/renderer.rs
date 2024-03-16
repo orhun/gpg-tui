@@ -9,7 +9,6 @@ use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::terminal::Frame;
 use ratatui::text::{Line, Span, Text};
-use ratatui::widgets::canvas::{Canvas, Points};
 use ratatui::widgets::{
 	Block, Borders, Clear, List, ListItem, Paragraph, Row, Table, Wrap,
 };
@@ -29,7 +28,8 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 		);
 	}
 	if app.state.show_splash {
-		render_splash_screen(app, frame, rect);
+		frame.render_widget(&mut app.splash_screen, rect);
+		app.state.show_splash = !app.splash_screen.is_rendered();
 	} else {
 		let chunks = Layout::default()
 			.direction(Direction::Vertical)
@@ -46,34 +46,6 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 			render_options_menu(app, frame, rect);
 		}
 	}
-}
-
-/// Renders the splash screen.
-fn render_splash_screen(app: &mut App, frame: &mut Frame, rect: Rect) {
-	app.state.show_splash = app.splash_screen.step != 0;
-	let data = app.splash_screen.get(app.state.style.is_colored());
-	frame.render_widget(
-		Canvas::default()
-			.x_bounds([
-				0.0,
-				(app.splash_screen.image.to_rgb8().width() - 1) as f64,
-			])
-			.y_bounds([
-				0.0,
-				(app.splash_screen.image.to_rgb8().height() - 1) as f64,
-			])
-			.paint(|p| {
-				for rgb in data.keys() {
-					if let Some(coords) = data.get(rgb) {
-						p.draw(&Points {
-							coords,
-							color: Color::Rgb(rgb.0, rgb.1, rgb.2),
-						})
-					}
-				}
-			}),
-		rect,
-	);
 }
 
 /// Renders the command prompt.
