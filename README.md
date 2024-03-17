@@ -351,7 +351,7 @@ The configuration file can be specified via `--config` argument or `GPG_TUI_CONF
 | `C-s`                | toggle style                 |
 | `/`                  | search                       |
 | `:`                  | run command                  |
-| `logs`               | show logs                    |
+| `C-l,f2`             | show logs                    |
 | `r,f5`               | refresh application          |
 | `q,C-c/d,escape`     | quit application             |
 
