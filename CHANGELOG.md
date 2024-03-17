@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2024-03-17
+### Added
+- Add log view pane to the TUI (#201)
+
+### Changed
+- Simplify cargo-tarpaulin installation in CI
+- Set up mergify
+- Switch to ratatui-splash-screen
+
+### Fixed
+- Show all the algorithm names (#154)
+- Apply clippy suggestions
+
 ## [0.10.0] - 2023-09-10
 ### Added
 - Add panic hook for resetting the terminal (#106)
