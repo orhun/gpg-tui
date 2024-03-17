@@ -28,74 +28,78 @@ It aims to ease the key management operations such as listing/exporting/signing 
 <details>
   <summary>Table of Contents</summary>
 
-- [About](#about)
-- [Requirements](#requirements)
-- [Installation](#installation)
-  - [Cargo](#cargo)
-  - [Arch Linux](#arch-linux)
-    - [Community](#community)
-    - [AUR](#aur)
-  - [Alpine Linux](#alpine-linux)
-  - [Gentoo](#gentoo)
-  - [Homebrew](#homebrew)
-  - [Docker](#docker)
-    - [Docker Hub](#docker-hub)
-    - [Using the Dockerfile](#using-the-dockerfile)
-  - [FreeBSD](#freebsd)
-    - [Building from source](#building-from-source)
-    - [Binary releases](#binary-releases)
-  - [NetBSD](#netbsd)
-    - [Install using the package manager](#install-using-the-package-manager)
-    - [Building from source](#building-from-source-1)
-  - [Manually](#manually)
-    - [Building from source](#building-from-source-2)
-    - [Binary releases](#binary-releases-1)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Key Bindings](#key-bindings)
-  - [User Interface](#user-interface)
-  - [Key Management](#key-management)
-  - [Customization](#customization)
-- [Approach](#approach)
-  - [Detail Levels](#detail-levels)
-  - [Key Information](#key-information)
-  - [User Information](#user-information)
-- [Features](#features)
-  - [User Interface](#user-interface-1)
-    - [Scrolling](#scrolling)
-    - [Options Menu](#options-menu)
-    - [Copy / Paste](#copy--paste)
-    - [Selection Mode](#selection-mode)
-    - [Detailed View](#detailed-view)
-    - [Search](#search)
-    - [File explorer](#file-explorer)
-    - [Running commands](#running-commands)
-  - [Key Management](#key-management-1)
-    - [List](#list)
-    - [Export](#export)
-    - [Sign](#sign)
-    - [Edit](#edit)
-    - [Import/Receive](#importreceive)
-    - [Send](#send)
-    - [Generate](#generate)
-    - [Delete](#delete)
-    - [Refresh](#refresh)
-  - [Styling](#styling)
-    - [Colors](#colors)
-    - [Splash screen](#splash-screen)
-- [Roadmap](#roadmap)
-  - [Platforms](#platforms)
-  - [Packaging](#packaging)
-  - [Command-Line Fallback](#command-line-fallback)
-  - [Key Management Only](#key-management-only)
-- [Resources](#resources)
-  - [About the project](#about-the-project)
-  - [External links](#external-links)
-  - [In the media](#in-the-media)
-- [Contact](#contact)
-- [Funding](#funding)
-- [License](#license)
-- [Copyright](#copyright)
+<!-- vim-markdown-toc GFM -->
+
+* [Requirements](#requirements)
+* [Installation](#installation)
+	* [Cargo](#cargo)
+	* [Arch Linux](#arch-linux)
+		* [Community](#community)
+		* [AUR](#aur)
+	* [Alpine Linux](#alpine-linux)
+	* [Gentoo](#gentoo)
+	* [Homebrew](#homebrew)
+	* [Docker](#docker)
+		* [Docker Hub](#docker-hub)
+		* [Using the Dockerfile](#using-the-dockerfile)
+	* [FreeBSD](#freebsd)
+		* [Building from source](#building-from-source)
+		* [Binary releases](#binary-releases)
+	* [NetBSD](#netbsd)
+		* [Install using the package manager](#install-using-the-package-manager)
+		* [Building from source](#building-from-source-1)
+	* [Manually](#manually)
+		* [Building from source](#building-from-source-2)
+		* [Binary releases](#binary-releases-1)
+* [Usage](#usage)
+* [Configuration](#configuration)
+* [Key Bindings](#key-bindings)
+	* [User Interface](#user-interface)
+	* [Key Management](#key-management)
+	* [Customization](#customization)
+* [Approach](#approach)
+	* [Detail Levels](#detail-levels)
+	* [Key Information](#key-information)
+	* [User Information](#user-information)
+* [Features](#features)
+	* [User Interface](#user-interface-1)
+		* [Scrolling](#scrolling)
+		* [Options Menu](#options-menu)
+		* [Copy / Paste](#copy--paste)
+		* [Selection Mode](#selection-mode)
+		* [Detailed View](#detailed-view)
+		* [Search](#search)
+		* [File explorer](#file-explorer)
+		* [Show logs](#show-logs)
+		* [Running commands](#running-commands)
+	* [Key Management](#key-management-1)
+		* [List](#list)
+		* [Export](#export)
+		* [Sign](#sign)
+		* [Edit](#edit)
+		* [Import/Receive](#importreceive)
+		* [Send](#send)
+		* [Generate](#generate)
+		* [Delete](#delete)
+		* [Refresh](#refresh)
+	* [Styling](#styling)
+		* [Colors](#colors)
+		* [Splash screen](#splash-screen)
+* [Roadmap](#roadmap)
+	* [Platforms](#platforms)
+	* [Packaging](#packaging)
+	* [Command-Line Fallback](#command-line-fallback)
+	* [Key Management Only](#key-management-only)
+* [Resources](#resources)
+	* [About the project](#about-the-project)
+	* [External links](#external-links)
+	* [In the media](#in-the-media)
+* [Contact](#contact)
+* [Funding](#funding)
+* [License](#license)
+* [Copyright](#copyright)
+
+<!-- vim-markdown-toc -->
 
 </details>
 
@@ -300,6 +304,7 @@ Options:
   -s, --style <style>         Sets the style of the terminal [env: STYLE=] [default: colored] [possible values: plain, colored]
   -f, --file-explorer <app>   Sets the utility for file selection [env: FILE_EXPLORER=] [default: xplr]
       --detail-level <level>  Sets the detail level for the keys [env: DETAIL_LEVEL=] [default: minimum] [possible values: minimum, standard, full]
+      --log-file <path>       Sets the file to save the logs [env: LOG_FILE=]
       --select <option>       Enables the selection mode [env: SELECT=] [possible values: row1, row2, key, key-id, key-fingerprint, user-id]
   -h, --help                  Print help (see more with '--help')
   -V, --version               Print version
@@ -346,6 +351,7 @@ The configuration file can be specified via `--config` argument or `GPG_TUI_CONF
 | `C-s`                | toggle style                 |
 | `/`                  | search                       |
 | `:`                  | run command                  |
+| `C-l,f2`             | show logs                    |
 | `r,f5`               | refresh application          |
 | `q,C-c/d,escape`     | quit application             |
 
@@ -611,6 +617,55 @@ Some of the key management operations such as [importing keys](#importreceive) _
 
 ```sh
 gpg-tui --file-explorer "fzf --color dark"
+```
+
+#### Show logs
+
+To view the log messages, press `ctrl-l`. It will bring up a pane in the TUI for analyzing the logs:
+
+![](demo/gpg-tui-show_logs.gif)
+
+This pane consists of two parts. Left is the target selector and on the right side the logging messages view scrolling up.
+
+The target selector controls:
+
+- Capturing of log messages by the logger.
+- Selection of levels for display in the logging message view.
+
+The two columns have the following meaning:
+
+- Code `EWIDT`: `E` stands for Error, `W` for Warn, and similarly Info, Debug and Trace.
+  - Inverted characters (EWIDT) are enabled log levels in the view.
+  - Normal characters show enabled capturing of a log level per target.
+  - If any of EWIDT are not shown, then the respective log level is not captured.
+
+This logger pane has the following key bindings and they are only activated while the logs are being shown:
+
+| Key        | Action                                                         |
+| ---------- | -------------------------------------------------------------- |
+| `h`        | toggles target selector widget hidden/visible                  |
+| `f`        | toggle focus on the selected target only                       |
+| `up`       | select previous target in target selector widget               |
+| `down`     | select next target in target selector widget                   |
+| `left`     | reduce SHOWN (!) log messages by one level                     |
+| `right`    | increase SHOWN (!) log messages by one level                   |
+| `-`        | reduce CAPTURED (!) log messages by one level                  |
+| `+`        | increase CAPTURED (!) log messages by one level                |
+| `pageup`   | enter Page Mode and scroll approx. half page up in log history |
+| `pagedown` | only in page mode: scroll 10 events down in log history        |
+| `escape`   | exit page mode and go back to scrolling mode                   |
+| `space`    | toggles hiding of targets, which have logfilter set to off     |
+
+For saving the logs to a file, you can use the `--log-file` argument:
+
+```sh
+gpg-tui --log-file gpg-tui.log
+```
+
+`RUST_LOG` environment variable can be used to set the log level accordingly.
+
+```sh
+RUST_LOG=debug gpg-tui
 ```
 
 #### Running commands

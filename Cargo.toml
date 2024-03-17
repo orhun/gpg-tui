@@ -46,6 +46,8 @@ clap_complete = "4.5.1"
 tinytemplate = "1.2.1"
 better-panic = "0.3.0"
 ratatui-splash-screen = "0.1.0"
+env_logger = "0.11.3"
+log = "0.4.21"
 
 [dependencies.crossterm]
 version = "0.27.0"
@@ -58,6 +60,11 @@ features = ["derive", "env", "wrap_help", "cargo"]
 [dependencies.serde]
 version = "1.0.197"
 features = ["derive"]
+
+[dependencies.tui-logger]
+version = "0.11.0"
+default-features = false
+features = ["crossterm"]
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
