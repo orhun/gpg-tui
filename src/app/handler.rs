@@ -665,7 +665,7 @@ mod tests {
 			(
 				Command::NextTab,
 				vec![
-					KeyEvent::new(Key::Right, Modifiers::None),
+					KeyEvent::new(Key::Right, Modifiers::NONE),
 					KeyEvent::new(Key::Char('l'), Modifiers::NONE),
 				],
 			),
