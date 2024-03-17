@@ -3,10 +3,11 @@ use crate::app::style::Style;
 use crate::args::Args;
 use crate::gpg::key::KeyDetail;
 use crate::widget::style::Color;
+use log::LevelFilter;
 use ratatui::style::Color as TuiColor;
+use tui_logger::TuiWidgetState;
 
 /// Application states (flags) for managing the launcher.
-#[derive(Clone, Debug)]
 pub struct State {
 	/// Is app running?
 	pub running: bool,
@@ -26,6 +27,10 @@ pub struct State {
 	pub detail_level: KeyDetail,
 	/// Exit message of the app.
 	pub exit_message: Option<String>,
+	/// Whether if the logs are shown.
+	pub show_logs: bool,
+	/// Logger state.
+	pub logger_state: TuiWidgetState,
 }
 
 impl Default for State {
@@ -40,6 +45,9 @@ impl Default for State {
 			file_explorer: String::from("xplr"),
 			detail_level: KeyDetail::default(),
 			exit_message: None,
+			show_logs: false,
+			logger_state: TuiWidgetState::new()
+				.set_default_display_level(LevelFilter::Trace),
 		}
 	}
 }

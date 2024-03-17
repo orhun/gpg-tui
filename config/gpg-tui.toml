@@ -5,6 +5,7 @@
   style = "colored"
   file_explorer = "xplr"
   detail_level = "minimum"
+  # log_file = "test"
   # key_bindings = [
   #   { keys = [ "?" ], command = ":help" },
   #   { keys = [ "o" ], command = ":options" },

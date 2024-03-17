@@ -51,6 +51,8 @@ pub struct GeneralConfig {
 	/// Custom key bindings.
 	#[serde(skip_serializing)]
 	pub key_bindings: Option<Vec<CustomKeyBinding>>,
+	/// File to save the logs.
+	pub log_file: Option<String>,
 }
 
 /// Representation of custom key bindings.
@@ -222,6 +224,9 @@ impl Config {
 					KeyDetail::from_str(DEFAULT_DETAIL_LEVEL, true)
 						.unwrap_or_default(),
 				);
+				if general.log_file.is_some() {
+					args.log_file = general.log_file.clone();
+				}
 			}
 			None => {
 				args.splash = DEFAULT_SPLASH;

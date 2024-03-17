@@ -9,9 +9,12 @@ use gpg_tui::gpg::context::GpgContext;
 use gpg_tui::term::event::{Event, EventHandler};
 use gpg_tui::term::tui::Tui;
 use gpg_tui::GPGME_REQUIRED_VERSION;
+use log::LevelFilter;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use std::env;
 use std::io::{self, Write};
+use std::str::FromStr;
 
 fn main() -> Result<()> {
 	// Parse command-line arguments.
@@ -26,6 +29,19 @@ fn main() -> Result<()> {
 	} else {
 		Config::default()
 	};
+	// Initialize logger.
+	tui_logger::init_logger(if let Ok(log_level) = env::var("RUST_LOG") {
+		LevelFilter::from_str(&log_level)?
+	} else {
+		LevelFilter::Trace
+	})?;
+	tui_logger::set_default_level(LevelFilter::Trace);
+	if let Some(ref log_file) = args.log_file {
+		tui_logger::set_log_file(log_file)?;
+	}
+	log::debug!(target: "args", "{:?}", args);
+	log::debug!(target: "config", "{:?}", config);
+	// Set custom key bindings.
 	let custom_key_bindings = config
 		.general
 		.unwrap_or_default()
@@ -33,6 +49,7 @@ fn main() -> Result<()> {
 		.unwrap_or_default();
 	// Initialize GPGME library.
 	let gpg_config = GpgConfig::new(&args)?;
+	log::warn!(target: "gpg", "checking gpgme version: {:?}", GPGME_REQUIRED_VERSION);
 	gpg_config.check_gpgme_version(GPGME_REQUIRED_VERSION);
 	let mut gpgme = GpgContext::new(gpg_config)?;
 	// Create an application for rendering.

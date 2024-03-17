@@ -11,8 +11,11 @@ use crate::term::tui::Tui;
 use crate::widget::row::ScrollDirection;
 use anyhow::Result;
 use crossterm::event::{KeyCode as Key, KeyEvent, KeyModifiers as Modifiers};
+use log::Level;
 use ratatui::backend::Backend;
 use std::str::FromStr;
+
+use super::command::LoggerCommand;
 
 /// Handles the key events and executes the application command.
 pub fn handle_events<B: Backend>(
@@ -89,6 +92,24 @@ fn handle_key_event(
 		.find(|key_binding| key_binding.keys.contains(&key_event))
 	{
 		command = key_binding.command.clone();
+	} else if app.state.show_logs {
+		if let Some(logger_command) =
+			LoggerCommand::parse(key_event.code).map(Command::LoggerEvent)
+		{
+			command = logger_command;
+		} else {
+			match key_event.code {
+				Key::Char('l') => {
+					if key_event.modifiers == Modifiers::CONTROL {
+						command = Command::Logs;
+					}
+				}
+				Key::F(2) => {
+					command = Command::Logs;
+				}
+				_ => {}
+			}
+		}
 	} else {
 		command = match key_event.code {
 			Key::Char('?') => Command::ShowHelp,
@@ -163,6 +184,8 @@ fn handle_key_event(
 			Key::Right | Key::Char('l') | Key::Char('L') => {
 				if key_event.modifiers == Modifiers::ALT {
 					Command::Scroll(ScrollDirection::Right(1), true)
+				} else if key_event.modifiers == Modifiers::CONTROL {
+					Command::Logs
 				} else {
 					Command::NextTab
 				}
@@ -330,6 +353,7 @@ fn handle_key_event(
 					Command::ShowOptions
 				}
 			}
+			Key::F(2) => Command::Logs,
 			Key::Char(':') => Command::EnableInput,
 			Key::Char('/') => Command::Search(None),
 			_ => Command::None,
@@ -397,7 +421,7 @@ fn handle_command_execution<B: Backend>(
 					Ok(files) => {
 						command = Command::ImportKeys(files, false);
 					}
-					Err(e) => eprintln!("{e:?}"),
+					Err(e) => log::error!("failed to run OS command: {e:?}"),
 				}
 			}
 		}
@@ -425,6 +449,14 @@ fn handle_command_execution<B: Backend>(
 			}
 		}
 		_ => {}
+	}
+	if !app.state.show_logs {
+		match command {
+			Command::Scroll(_, _) | Command::None => {}
+			_ => {
+				log::log!(target: "tui", Level::Trace, "running command: {:?}", command);
+			}
+		}
 	}
 	app.run_command(command)?;
 	if toggle_pause {

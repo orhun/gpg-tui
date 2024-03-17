@@ -5,8 +5,37 @@ use crate::app::style::Style;
 use crate::gpg::key::KeyType;
 use crate::widget::row::ScrollDirection;
 use clap::ValueEnum;
+use crossterm::event::KeyCode as Key;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
+use tui_logger::TuiWidgetEvent;
+
+/// Possible logger widget commands.
+#[derive(Clone, Debug, PartialEq)]
+pub struct LoggerCommand(pub TuiWidgetEvent);
+
+impl Eq for LoggerCommand {}
+
+impl LoggerCommand {
+	/// Parses a logger command from the given key.
+	pub fn parse(key: Key) -> Option<Self> {
+		match key {
+			Key::Char(' ') => Some(Self(TuiWidgetEvent::SpaceKey)),
+			Key::Esc => Some(Self(TuiWidgetEvent::EscapeKey)),
+			Key::PageUp => Some(Self(TuiWidgetEvent::PrevPageKey)),
+			Key::PageDown => Some(Self(TuiWidgetEvent::NextPageKey)),
+			Key::Up => Some(Self(TuiWidgetEvent::UpKey)),
+			Key::Down => Some(Self(TuiWidgetEvent::DownKey)),
+			Key::Left => Some(Self(TuiWidgetEvent::LeftKey)),
+			Key::Right => Some(Self(TuiWidgetEvent::RightKey)),
+			Key::Char('+') => Some(Self(TuiWidgetEvent::PlusKey)),
+			Key::Char('-') => Some(Self(TuiWidgetEvent::MinusKey)),
+			Key::Char('h') => Some(Self(TuiWidgetEvent::HideKey)),
+			Key::Char('f') => Some(Self(TuiWidgetEvent::FocusKey)),
+			_ => None,
+		}
+	}
+}
 
 /// Command to run on rendering process.
 ///
@@ -69,6 +98,10 @@ pub enum Command {
 	NextTab,
 	/// Select the previous tab.
 	PreviousTab,
+	/// Show logs.
+	Logs,
+	/// Logger event.
+	LoggerEvent(LoggerCommand),
 	/// Refresh the application.
 	Refresh,
 	/// Quit the application.
@@ -151,6 +184,7 @@ impl Display for Command {
 				),
 				Command::Quit => String::from("quit application"),
 				Command::Confirm(command) => (*command).to_string(),
+				Command::Logs => String::from("show logs"),
 				_ => format!("{self:?}"),
 			}
 		)
@@ -304,6 +338,7 @@ impl FromStr for Command {
 				}
 			}
 			"quit" | "q" | "q!" => Ok(Command::Quit),
+			"logs" | "l" => Ok(Command::Logs),
 			"none" => Ok(Command::None),
 			_ => Err(()),
 		}
@@ -481,6 +516,7 @@ mod tests {
 		}
 		assert_eq!(Command::None, Command::from_str(":none")?);
 		assert!(Command::from_str("test").is_err());
+		assert_eq!(Command::Logs, Command::from_str(":logs")?);
 
 		assert_eq!("close menu", Command::None.to_string());
 		assert_eq!("show help", Command::ShowHelp.to_string());
@@ -590,6 +626,7 @@ mod tests {
 		);
 		assert_eq!("quit application", Command::Quit.to_string());
 		assert_eq!("NextTab", Command::NextTab.to_string());
+		assert_eq!("show logs", Command::Logs.to_string());
 		Ok(())
 	}
 }

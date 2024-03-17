@@ -14,6 +14,7 @@ use ratatui::widgets::{
 };
 use std::cmp;
 use std::convert::{TryFrom, TryInto};
+use tui_logger::{TuiLoggerLevelOutput, TuiLoggerSmartWidget};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/normal mode.
@@ -31,21 +32,59 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 		frame.render_widget(&mut app.splash_screen, rect);
 		app.state.show_splash = !app.splash_screen.is_rendered();
 	} else {
+		let mut main_rect = rect;
+		if app.state.show_logs {
+			let chunks = Layout::default()
+				.direction(Direction::Vertical)
+				.constraints([
+					Constraint::Percentage(60),
+					Constraint::Percentage(40),
+				])
+				.split(rect);
+			render_log_view(app, frame, chunks[1]);
+			main_rect = chunks[0];
+		}
 		let chunks = Layout::default()
 			.direction(Direction::Vertical)
 			.constraints(
-				[Constraint::Min(rect.height - 1), Constraint::Min(1)].as_ref(),
+				[Constraint::Min(main_rect.height - 1), Constraint::Min(1)]
+					.as_ref(),
 			)
-			.split(rect);
+			.split(main_rect);
 		render_command_prompt(app, frame, chunks[1]);
 		match app.tab {
 			Tab::Keys(_) => render_keys_table(app, frame, chunks[0]),
 			Tab::Help => render_help_tab(app, frame, chunks[0]),
 		}
 		if app.state.show_options {
-			render_options_menu(app, frame, rect);
+			render_options_menu(app, frame, main_rect);
 		}
 	}
+}
+
+/// Renders the log view.
+fn render_log_view(app: &mut App, frame: &mut Frame, rect: Rect) {
+	let logger_widget = TuiLoggerSmartWidget::default()
+		.style_trace(Style::default().fg(Color::DarkGray))
+		.style_debug(Style::default().fg(Color::Blue))
+		.style_warn(Style::default().fg(Color::Yellow))
+		.style_error(Style::default().fg(Color::Red))
+		.style_info(Style::default().fg(Color::Green))
+		.highlight_style(if app.state.style.is_colored() {
+			Style::default().add_modifier(Modifier::BOLD)
+		} else {
+			Style::default()
+				.fg(Color::Reset)
+				.add_modifier(Modifier::BOLD)
+		})
+		.output_separator(':')
+		.output_timestamp(Some("%H:%M:%S".to_string()))
+		.output_level(Some(TuiLoggerLevelOutput::Long))
+		.output_target(true)
+		.output_file(true)
+		.output_line(true)
+		.state(&app.state.logger_state);
+	frame.render_widget(logger_widget, rect);
 }
 
 /// Renders the command prompt.

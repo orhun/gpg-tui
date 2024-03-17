@@ -1,3 +1,5 @@
+use log::Level;
+
 use crate::app::command::Command;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -52,6 +54,19 @@ impl From<String> for OutputType {
 			"failure" => Self::Failure,
 			"action" => Self::Action,
 			_ => Self::None,
+		}
+	}
+}
+
+impl OutputType {
+	/// Converts output type to log level.
+	pub fn as_log_level(&self) -> Level {
+		match self {
+			OutputType::None => Level::Trace,
+			OutputType::Success => Level::Info,
+			OutputType::Warning => Level::Warn,
+			OutputType::Failure => Level::Error,
+			OutputType::Action => Level::Info,
 		}
 	}
 }
@@ -124,6 +139,7 @@ impl Prompt {
 	/// Sets the output message.
 	pub fn set_output<S: AsRef<str>>(&mut self, output: (OutputType, S)) {
 		let (output_type, message) = output;
+		log::log!(target: "tui", self.output_type.as_log_level(), "{}", message.as_ref().to_string());
 		self.output_type = output_type;
 		self.text = message.as_ref().to_string();
 		self.clock = Some(Instant::now());

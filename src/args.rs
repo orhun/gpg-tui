@@ -83,6 +83,9 @@ pub struct Args {
 	/// Sets the detail level for the keys.
 	#[clap(long, value_name = "level", default_value = "minimum", env)]
 	pub detail_level: KeyDetail,
+	/// Sets the file to save the logs.
+	#[clap(long, value_name = "path", env)]
+	pub log_file: Option<String>,
 	/// Enables the selection mode.
 	#[clap(long, value_name = "option", env)]
 	pub select: Option<Selection>,

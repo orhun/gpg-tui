@@ -106,7 +106,7 @@ impl<'a> App<'a> {
 			keys_table_margin: 1,
 			clipboard: match ClipboardDisplayServer::select().try_context() {
 				None => {
-					eprintln!("failed to initialize clipboard, no suitable clipboard provider found");
+					log::error!("failed to initialize clipboard, no suitable clipboard provider found");
 					None
 				}
 				clipboard => clipboard,
@@ -483,6 +483,7 @@ impl<'a> App<'a> {
 					Command::RefreshKeys => os_command.arg("--refresh-keys"),
 					_ => os_command.arg("--full-gen-key"),
 				};
+				log::debug!(target: "cmd", "running OS command: {os_command:?}");
 				match os_command.spawn() {
 					Ok(mut child) => {
 						child.wait()?;
@@ -953,6 +954,12 @@ impl<'a> App<'a> {
 			}
 			Command::PreviousTab => {
 				self.run_command(self.tab.previous().get_command())?
+			}
+			Command::Logs => {
+				self.state.show_logs = !self.state.show_logs;
+			}
+			Command::LoggerEvent(event) => {
+				self.state.logger_state.transition(event.0);
 			}
 			Command::Refresh => self.refresh()?,
 			Command::Quit => self.state.running = false,

@@ -192,6 +192,11 @@ pub const KEY_BINDINGS: &[KeyBinding] = &[
 		description: "Switches to command mode for running commands.",
 	},
 	KeyBinding {
+		key: "ctrl-l,f2",
+		action: "show logs",
+		description: ":logs",
+	},
+	KeyBinding {
 		key: "r,f5",
 		action: "refresh application",
 		description: ":refresh",
