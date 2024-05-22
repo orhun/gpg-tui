@@ -867,7 +867,7 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 * [![Follow @gpg_tui](https://img.shields.io/twitter/follow/gpg_tui?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/gpg_tui)
 * [![https://orhun.dev](https://img.shields.io/badge/author-orhun-000000?style=flat&labelColor=1d1d1d&color=424242&logo=Rust&logoColor=white)](https://orhun.dev)
   * [![Follow @orhun](https://img.shields.io/github/followers/orhun?label=follow%20%40orhun&style=flat&labelColor=1d1d1d&logo=GitHub&logoColor=white&color=424242)](https://github.com/orhun)
-  * [![Follow @orhunp_](https://img.shields.io/twitter/follow/orhunp_?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/orhunp_)
+  * [![Follow @orhundev](https://img.shields.io/twitter/follow/orhundev?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/orhundev)
 
 ## Funding
 
