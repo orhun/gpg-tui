@@ -162,7 +162,7 @@ impl<T: Clone> StatefulTable<T> {
 
 	/// Resets the items state.
 	pub fn reset_state(&mut self) {
-		self.items = self.default_items.clone();
+		self.items.clone_from(&self.default_items);
 		self.state.tui.select(Some(0));
 	}
 

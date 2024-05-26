@@ -371,7 +371,7 @@ impl<'a> App<'a> {
 				let mut keys = Vec::new();
 				let mut import_error = String::from("no files given");
 				if let Command::ImportKeys(ref key_files, _) = command {
-					keys = key_files.clone();
+					keys.clone_from(key_files);
 				} else if let Some(clipboard) = self.clipboard.as_mut() {
 					match clipboard.get_contents() {
 						Ok(content) => {
@@ -947,7 +947,7 @@ impl<'a> App<'a> {
 			Command::Search(query) => {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
 				self.prompt.enable_search();
-				self.keys_table.items = self.keys_table.default_items.clone();
+				self.keys_table.items.clone_from(&self.keys_table.default_items);
 			}
 			Command::NextTab => {
 				self.run_command(self.tab.next().get_command())?

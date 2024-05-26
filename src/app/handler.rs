@@ -53,7 +53,7 @@ fn handle_key_event(
 					app.prompt.enable_search();
 				} else if app.prompt.is_search_enabled() {
 					app.prompt.enable_command_input();
-					app.keys_table.items = app.keys_table.default_items.clone();
+					app.keys_table.items.clone_from(&app.keys_table.default_items);
 				}
 			}
 			Key::Backspace => {

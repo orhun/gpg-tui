@@ -183,8 +183,8 @@ impl Config {
 		match self.gpg.as_ref() {
 			Some(gpg) => {
 				args.armor = gpg.armor.unwrap_or_default();
-				args.homedir = gpg.homedir.clone();
-				args.outdir = gpg.outdir.clone();
+				args.homedir.clone_from(&gpg.homedir);
+				args.outdir.clone_from(&gpg.outdir);
 				if let Some(outfile) = &gpg.outfile {
 					args.outfile = outfile.to_string();
 				}
@@ -225,7 +225,7 @@ impl Config {
 						.unwrap_or_default(),
 				);
 				if general.log_file.is_some() {
-					args.log_file = general.log_file.clone();
+					args.log_file.clone_from(&general.log_file);
 				}
 			}
 			None => {
