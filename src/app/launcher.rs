@@ -947,7 +947,9 @@ impl<'a> App<'a> {
 			Command::Search(query) => {
 				self.prompt.text = format!("/{}", query.unwrap_or_default());
 				self.prompt.enable_search();
-				self.keys_table.items.clone_from(&self.keys_table.default_items);
+				self.keys_table
+					.items
+					.clone_from(&self.keys_table.default_items);
 			}
 			Command::NextTab => {
 				self.run_command(self.tab.next().get_command())?
