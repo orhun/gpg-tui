@@ -127,10 +127,36 @@ impl GpgKey {
 	) -> Vec<String> {
 		let mut key_info = Vec::new();
 		let subkeys = self.inner.subkeys().collect::<Vec<Subkey>>();
+		let blank = String::from("");
 		for (i, subkey) in subkeys.iter().enumerate() {
 			key_info.push(format!(
-				"[{}]{}{}/{}",
+				"[{}] {} {}{}/{}",
 				handler::get_subkey_flags(*subkey),
+				format!(
+					"{}",
+					if i != subkeys.len() - 1 {
+						let last = subkeys.last();
+						if let Some(key) = last {
+							if key.is_expired() {
+								String::from("(exp)")
+							} else if key.is_revoked() {
+								String::from("(rev)")
+							} else if key.is_disabled() {
+								String::from("(d)")
+							} else if key.is_invalid() {
+								String::from("(i)")
+							} else if key.is_qualified() {
+								String::from("(q)")
+							} else {
+								blank.to_string()
+							}
+						} else {
+							blank.to_string()
+						}
+					} else {
+						blank.to_string()
+					}
+				),
 				if default_key.map(|v| v.trim_start_matches("0x"))
 					== subkey.id().ok()
 				{
@@ -227,7 +253,7 @@ impl GpgKey {
 				"│   "
 			};
 			user_signatures.push(format!(
-				" {}  {}[{:x}] {} {}",
+				" {}  {}[{:x}] {}, {} {}",
 				padding,
 				if i == signatures.len() - 1 {
 					"└─"
@@ -235,6 +261,8 @@ impl GpgKey {
 					"├─"
 				},
 				sig.cert_class(),
+				// FIXME??
+				format!("REV: {}", sig.is_revocation()),
 				if sig.signer_key_id() == self.inner.id() {
 					String::from("selfsig")
 				} else if truncate {
