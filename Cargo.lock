@@ -703,7 +703,7 @@ dependencies = [
  "gpgme",
  "log",
  "pretty_assertions",
- "ratatui 0.27.0",
+ "ratatui",
  "ratatui-splash-screen",
  "serde",
  "shellexpand",
@@ -1167,26 +1167,6 @@ dependencies = [
 
 [[package]]
 name = "ratatui"
-version = "0.26.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f44c9e68fd46eda15c646fbb85e1040b657a58cdc8c98db1d97a55930d991eef"
-dependencies = [
- "bitflags 2.4.0",
- "cassowary",
- "compact_str",
- "crossterm",
- "itertools 0.12.1",
- "lru",
- "paste",
- "stability",
- "strum",
- "unicode-segmentation",
- "unicode-truncate",
- "unicode-width",
-]
-
-[[package]]
-name = "ratatui"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d16546c5b5962abf8ce6e2881e722b4e0ae3b6f1a08a26ae3573c55853ca68d3"
@@ -1213,7 +1193,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f51faae827f8985e9fd9fb323b12ca0b745103826983cfa3e81588c6e9fd70eb"
 dependencies = [
  "image",
- "ratatui 0.27.0",
+ "ratatui",
  "sha256",
 ]
 
@@ -1635,16 +1615,16 @@ dependencies = [
 
 [[package]]
 name = "tui-logger"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "115f9ceabfa07b739dc00baf0180cf5060731a2de66aa7fb47e22dc442aa05ca"
+checksum = "10cd1a0f217c2180e736bc9f3282fea4af182483532c6e719081b6b1c6d6be90"
 dependencies = [
  "chrono",
  "fxhash",
  "lazy_static",
  "log",
  "parking_lot",
- "ratatui 0.26.3",
+ "ratatui",
 ]
 
 [[package]]
