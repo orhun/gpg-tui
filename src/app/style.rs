@@ -193,6 +193,7 @@ pub fn get_colored_table_row<'a>(
 ///
 /// It adds colors to:
 /// * parts separated by ':' character. (e.g. `version: 2`)
+///
 /// Skips the lines that starts with ' '.
 pub fn get_colored_info(info: &str, color: Color) -> Text<'_> {
 	Text::from(

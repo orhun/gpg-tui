@@ -98,7 +98,7 @@ impl EventHandler {
 	/// Receive the next event from handler.
 	///
 	/// > This function will always block the current thread if
-	/// there is no data available and it's possible for more data to be sent.
+	/// > there is no data available and it's possible for more data to be sent.
 	///
 	/// (Note that [`Tick`] event is frequently received depending on the tick rate.)
 	///
