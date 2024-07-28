@@ -153,6 +153,8 @@ pub fn get_colored_table_row<'a>(
 						highlight_style,
 					));
 				// Colorize inside the arrows.
+
+				// FIXME: These need updating for breakage
 				} else if let (
 					Some(first_parenthesis),
 					Some(second_parenthesis),
