@@ -150,8 +150,6 @@ pub fn get_colored_table_row<'a>(
 						highlight_style,
 					));
 				// Colorize inside the arrows.
-
-				// FIXME: These need updating for breakage
 				} else if let (
 					Some(first_parenthesis),
 					Some(second_parenthesis),
@@ -160,9 +158,6 @@ pub fn get_colored_table_row<'a>(
 					let inner = line[first_parenthesis..].to_string();
 
 					log::trace!(target: "style", "inner: {inner:?}");
-
-					// panic!("{:?}", data);
-
 					let expected = [
 						// expired
 						String::from("exp"),

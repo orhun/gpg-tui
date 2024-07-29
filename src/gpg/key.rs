@@ -261,7 +261,6 @@ impl GpgKey {
 					"├─"
 				},
 				sig.cert_class(),
-				// FIXME??
 				format!("REV: {}", sig.is_revocation()),
 				if sig.signer_key_id() == self.inner.id() {
 					String::from("selfsig")
