@@ -1,10 +1,7 @@
 use clap::ValueEnum;
-use core::panic;
 use ratatui::style::{Color, Style as TuiStyle};
 use ratatui::text::{Line, Span, Text};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-
-use crate::gpg::key;
 
 /// Application style.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
@@ -176,47 +173,14 @@ pub fn get_colored_table_row<'a>(
 						// invalid
 						String::from("i"),
 					];
-
-					let matched: Vec<_> = data.match_indices("(").collect();
-					// panic!("{:?}", matched);
-
-					// let s = String::from("foo rev bar");
-					// let matched: Vec<_> = s.match_indices("(").collect();
-
-					// panic!(
-					// 	"Data: {:?}, Inner: {:?}, Contains? {:?}",
-					// 	&s,
-					// 	&inner,
-					// 	s.contains(&inner)
-					// );
-
-					if let Some((opening_parenthesis, char)) =
+					if let Some((opening_parenthesis, _)) =
 						data.match_indices("(").next()
 					{
 						let inner = data[(opening_parenthesis + 1)
 							..(opening_parenthesis + 4)]
 							.to_string();
 
-						// THIS WORKS
-						// panic!(
-						// 	"Data: {:?}, Inner: {:?}, Contains? {:?}",
-						// 	&data,
-						// 	&inner,
-						// 	expected.contains(&inner)
-						// );
-
-						if [
-							// expired
-							String::from("exp"),
-							// revoked
-							String::from("rev"),
-							// disabled
-							String::from("d"),
-							// invalid
-							String::from("i"),
-						]
-						.contains(&inner)
-						{
+						if expected.contains(&inner) {
 							colored_line.push(Span::styled(
 								data[..first_parenthesis].to_string(),
 								highlight_style,
@@ -240,29 +204,6 @@ pub fn get_colored_table_row<'a>(
 							));
 						}
 					}
-
-				// colored_line.push(Span::styled(
-				// 	data[..first_parenthesis].to_string(),
-				// 	highlight_style,
-				// ));
-				// colored_line.push(Span::styled(
-				// 	"{",
-				// 	TuiStyle::default().fg(Color::DarkGray),
-				// ));
-				// colored_line.push(Span::styled(
-				// 	data[first_parenthesis + 1..second_parenthesis]
-				// 		.to_string(),
-				// 	TuiStyle::default().fg(Color::Cyan),
-				// ));
-				// colored_line.push(Span::styled(
-				// 	"}",
-				// 	TuiStyle::default().fg(Color::DarkGray),
-				// ));
-				// colored_line.push(Span::styled(
-				// 	data[second_parenthesis + 1..].to_string(),
-				// 	highlight_style,
-				// ));
-				// FIXME
 				} else if let (Some(first_arrow), Some(second_arrow)) =
 					(data.rfind('<'), data.rfind('>'))
 				{
