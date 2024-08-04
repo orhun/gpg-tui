@@ -310,7 +310,7 @@ mod tests {
 				lines: vec![
 					Line {
 						spans: vec![Span {
-							content: Borrowed("quits the application\n"),
+							content: Borrowed("quits the application"),
 							style: Style::default(),
 						}],
 						..Default::default()
