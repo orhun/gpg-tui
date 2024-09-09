@@ -58,7 +58,7 @@ version = "4.5.17"
 features = ["derive", "env", "wrap_help", "cargo"]
 
 [dependencies.serde]
-version = "1.0.209"
+version = "1.0.210"
 features = ["derive"]
 
 [dependencies.tui-logger]
