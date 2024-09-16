@@ -67,7 +67,7 @@ default-features = false
 features = ["crossterm"]
 
 [dev-dependencies]
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
 
 [profile.dev]
 opt-level = 0
