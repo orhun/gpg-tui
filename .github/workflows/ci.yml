@@ -88,7 +88,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Check the links
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2
         with:
           args: --exclude "discussions/new|twitter.com|patreon.com|aur.archlinux.org/(.+?).git|mailto:+|%7Buser%7D" -v *.md
         env:
