@@ -153,7 +153,7 @@ impl Config {
 	/// Returns the path if the configuration file is found.
 	pub fn get_default_location() -> Option<String> {
 		if let Some(config_dir) = dirs_next::config_dir() {
-			let file_name = format!("{}.toml", env!("CARGO_PKG_NAME"));
+			let file_name = concat!(env!("CARGO_PKG_NAME"), ".toml");
 			for config_file in [
 				config_dir.join(&file_name),
 				config_dir.join(env!("CARGO_PKG_NAME")).join(&file_name),
@@ -251,7 +251,7 @@ mod tests {
 	fn test_parse_config() -> Result<()> {
 		let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 			.join("config")
-			.join(format!("{}.toml", env!("CARGO_PKG_NAME")))
+			.join(concat!(env!("CARGO_PKG_NAME"), ".toml"))
 			.to_string_lossy()
 			.into_owned();
 		let mut config = Config::parse_config(&path)?;
