@@ -62,6 +62,7 @@ pub fn get_colored_table_row<'a>(
 			line.find('[').unwrap_or_default(),
 			line.find(']').unwrap_or_default(),
 		);
+
 		row.push(
 			// Colorize inside the brackets to start.
 			if second_bracket > first_bracket + 1 {
@@ -149,6 +150,55 @@ pub fn get_colored_table_row<'a>(
 						highlight_style,
 					));
 				// Colorize inside the arrows.
+				} else if let (
+					Some(first_parenthesis),
+					Some(second_parenthesis),
+				) = (data.rfind('('), data.rfind(')'))
+				{
+					let inner = line[first_parenthesis..].to_string();
+
+					log::trace!(target: "style", "inner: {inner:?}");
+					let expected = [
+						// expired
+						String::from("exp"),
+						// revoked
+						String::from("rev"),
+						// disabled
+						String::from("d"),
+						// invalid
+						String::from("i"),
+					];
+					if let Some((opening_parenthesis, _)) =
+						data.match_indices("(").next()
+					{
+						let inner = data[(opening_parenthesis + 1)
+							..(opening_parenthesis + 4)]
+							.to_string();
+
+						if expected.contains(&inner) {
+							colored_line.push(Span::styled(
+								data[..first_parenthesis].to_string(),
+								highlight_style,
+							));
+							colored_line.push(Span::styled(
+								"(",
+								TuiStyle::default().fg(Color::DarkGray),
+							));
+							colored_line.push(Span::styled(
+								data[first_parenthesis + 1..second_parenthesis]
+									.to_string(),
+								TuiStyle::default().fg(Color::Red),
+							));
+							colored_line.push(Span::styled(
+								")",
+								TuiStyle::default().fg(Color::DarkGray),
+							));
+							colored_line.push(Span::styled(
+								data[second_parenthesis + 1..].to_string(),
+								highlight_style,
+							));
+						}
+					}
 				} else if let (Some(first_arrow), Some(second_arrow)) =
 					(data.rfind('<'), data.rfind('>'))
 				{
