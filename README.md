@@ -139,7 +139,7 @@ cargo install gpg-tui
 
 #### Community
 
-**gpg-tui** can be installed from the [community repository](https://archlinux.org/packages/community/x86_64/gpg-tui/) using [Pacman](https://wiki.archlinux.org/title/Pacman):
+**gpg-tui** can be installed from the [extra repository](https://archlinux.org/packages/extra/x86_64/gpg-tui/) using [Pacman](https://wiki.archlinux.org/title/Pacman):
 
 ```sh
 pacman -S gpg-tui
