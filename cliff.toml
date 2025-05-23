@@ -37,6 +37,7 @@ commit_parsers = [
     { message = "^test: Add", group = "Added" },
     { message = "^test: *", group = "Fixed" },
     { message = "^chore: Bump", skip = true },
+    { message = "^chore\\(deps\\)", skip = true },
     { message = "^chore: Prepare", skip = true },
     { message = "^fix: *", group = "Fixed" },
     { message = "^.*: Fix", group = "Fixed" },
