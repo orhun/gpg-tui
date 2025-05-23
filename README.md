@@ -30,74 +30,74 @@ It aims to ease the key management operations such as listing/exporting/signing 
 
 <!-- vim-markdown-toc GFM -->
 
-* [Requirements](#requirements)
-* [Installation](#installation)
-	* [Cargo](#cargo)
-	* [Arch Linux](#arch-linux)
-		* [Community](#community)
-		* [AUR](#aur)
-	* [Alpine Linux](#alpine-linux)
-	* [Gentoo](#gentoo)
-	* [Homebrew](#homebrew)
-	* [Docker](#docker)
-		* [Docker Hub](#docker-hub)
-		* [Using the Dockerfile](#using-the-dockerfile)
-	* [FreeBSD](#freebsd)
-		* [Building from source](#building-from-source)
-		* [Binary releases](#binary-releases)
-	* [NetBSD](#netbsd)
-		* [Install using the package manager](#install-using-the-package-manager)
-		* [Building from source](#building-from-source-1)
-	* [Manually](#manually)
-		* [Building from source](#building-from-source-2)
-		* [Binary releases](#binary-releases-1)
-* [Usage](#usage)
-* [Configuration](#configuration)
-* [Key Bindings](#key-bindings)
-	* [User Interface](#user-interface)
-	* [Key Management](#key-management)
-	* [Customization](#customization)
-* [Approach](#approach)
-	* [Detail Levels](#detail-levels)
-	* [Key Information](#key-information)
-	* [User Information](#user-information)
-* [Features](#features)
-	* [User Interface](#user-interface-1)
-		* [Scrolling](#scrolling)
-		* [Options Menu](#options-menu)
-		* [Copy / Paste](#copy--paste)
-		* [Selection Mode](#selection-mode)
-		* [Detailed View](#detailed-view)
-		* [Search](#search)
-		* [File explorer](#file-explorer)
-		* [Show logs](#show-logs)
-		* [Running commands](#running-commands)
-	* [Key Management](#key-management-1)
-		* [List](#list)
-		* [Export](#export)
-		* [Sign](#sign)
-		* [Edit](#edit)
-		* [Import/Receive](#importreceive)
-		* [Send](#send)
-		* [Generate](#generate)
-		* [Delete](#delete)
-		* [Refresh](#refresh)
-	* [Styling](#styling)
-		* [Colors](#colors)
-		* [Splash screen](#splash-screen)
-* [Roadmap](#roadmap)
-	* [Platforms](#platforms)
-	* [Packaging](#packaging)
-	* [Command-Line Fallback](#command-line-fallback)
-	* [Key Management Only](#key-management-only)
-* [Resources](#resources)
-	* [About the project](#about-the-project)
-	* [External links](#external-links)
-	* [In the media](#in-the-media)
-* [Contact](#contact)
-* [Funding](#funding)
-* [License](#license)
-* [Copyright](#copyright)
+- [Requirements](#requirements)
+- [Installation](#installation)
+    - [Cargo](#cargo)
+    - [Arch Linux](#arch-linux)
+        - [Community](#community)
+        - [AUR](#aur)
+    - [Alpine Linux](#alpine-linux)
+    - [Gentoo](#gentoo)
+    - [Homebrew](#homebrew)
+    - [Docker](#docker)
+        - [Docker Hub](#docker-hub)
+        - [Using the Dockerfile](#using-the-dockerfile)
+    - [FreeBSD](#freebsd)
+        - [Building from source](#building-from-source)
+        - [Binary releases](#binary-releases)
+    - [NetBSD](#netbsd)
+        - [Install using the package manager](#install-using-the-package-manager)
+        - [Building from source](#building-from-source-1)
+    - [Manually](#manually)
+        - [Building from source](#building-from-source-2)
+        - [Binary releases](#binary-releases-1)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Key Bindings](#key-bindings)
+    - [User Interface](#user-interface)
+    - [Key Management](#key-management)
+    - [Customization](#customization)
+- [Approach](#approach)
+    - [Detail Levels](#detail-levels)
+    - [Key Information](#key-information)
+    - [User Information](#user-information)
+- [Features](#features)
+    - [User Interface](#user-interface-1)
+        - [Scrolling](#scrolling)
+        - [Options Menu](#options-menu)
+        - [Copy / Paste](#copy--paste)
+        - [Selection Mode](#selection-mode)
+        - [Detailed View](#detailed-view)
+        - [Search](#search)
+        - [File explorer](#file-explorer)
+        - [Show logs](#show-logs)
+        - [Running commands](#running-commands)
+    - [Key Management](#key-management-1)
+        - [List](#list)
+        - [Export](#export)
+        - [Sign](#sign)
+        - [Edit](#edit)
+        - [Import/Receive](#importreceive)
+        - [Send](#send)
+        - [Generate](#generate)
+        - [Delete](#delete)
+        - [Refresh](#refresh)
+    - [Styling](#styling)
+        - [Colors](#colors)
+        - [Splash screen](#splash-screen)
+- [Roadmap](#roadmap)
+    - [Platforms](#platforms)
+    - [Packaging](#packaging)
+    - [Command-Line Fallback](#command-line-fallback)
+    - [Key Management Only](#key-management-only)
+- [Resources](#resources)
+    - [About the project](#about-the-project)
+    - [External links](#external-links)
+    - [In the media](#in-the-media)
+- [Contact](#contact)
+- [Funding](#funding)
+- [License](#license)
+- [Copyright](#copyright)
 
 <!-- vim-markdown-toc -->
 
@@ -109,7 +109,7 @@ It aims to ease the key management operations such as listing/exporting/signing 
 - Core dependencies: `gnupg`, `gpgme>=1.12.0`, `libgpg-error`
 - Other dependencies: `libxcb`
 
-Pleases note that the name of these dependencies (packages) might change depending on the distribution/platform.([*](https://github.com/orhun/gpg-tui/issues/10))
+Please note that the name of these dependencies (packages) might change depending on the distribution/platform.([\*](https://github.com/orhun/gpg-tui/issues/10))
 
 For installing these dependencies:
 
@@ -318,17 +318,17 @@ See [gpg-tui.toml](config/gpg-tui.toml) for the default configuration values.
 
 The configuration file can be specified via `--config` argument or `GPG_TUI_CONFIG` environment variable. Also, it can be placed to a location where **gpg-tui** looks for:
 
-* `<config_dir>` `/` `gpg-tui.toml`
-* `<config_dir>` `/` `gpg-tui/gpg-tui.toml`
-* `<config_dir>` `/` `gpg-tui/config`
+- `<config_dir>` `/` `gpg-tui.toml`
+- `<config_dir>` `/` `gpg-tui/gpg-tui.toml`
+- `<config_dir>` `/` `gpg-tui/config`
 
 `<config_dir>` depends on the platform as shown in the following table:
 
-|Platform | Value                                 | Example                          |
-| ------- | ------------------------------------- | -------------------------------- |
-| Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config              |
-| macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |
-| Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming   |
+| Platform | Value                                 | Example                                  |
+| -------- | ------------------------------------- | ---------------------------------------- |
+| Linux    | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config                      |
+| macOS    | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |
+| Windows  | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming           |
 
 ## Key Bindings
 
@@ -368,7 +368,6 @@ The configuration file can be specified via `--config` argument or `GPG_TUI_CONF
 | `g`           | generate key  |
 | `d,backspace` | delete key    |
 | `C-r`         | refresh keys  |
-
 
 ### Customization
 
@@ -435,10 +434,10 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 
 **0**: Key flags. Determines what the key can do.
 
-* `s`: sign
-* `c`: certify
-* `e`: encrypt
-* `a`: authenticate
+- `s`: sign
+- `c`: certify
+- `e`: encrypt
+- `a`: authenticate
 
 **1**: Algorithm of the key.
 
@@ -448,16 +447,16 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 
 **4**: Time information of the key:
 
-* creation time (`Y-m-d`)
-* expiration time (`Y-m-d`)
+- creation time (`Y-m-d`)
+- expiration time (`Y-m-d`)
 
 **5**: Is the key one of the following?
 
-* `[exp]`: expired
-* `[rev]`: revoked
-* `[d]`: disabled
-* `[i]`: invalid
-* `[q]`: qualified
+- `[exp]`: expired
+- `[rev]`: revoked
+- `[d]`: disabled
+- `[i]`: invalid
+- `[q]`: qualified
 
 **6**: Star symbol (`*`) is shown after key flags if the key is selected as the default signing key.
 
@@ -476,12 +475,12 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **0**: Validity of the user.
 
-* `[q]`: undefined
-* `[n]`: never
-* `[m]`: marginal
-* `[f]`: full
-* `[u]`: ultimate
-* `[?]`: unknown
+- `[q]`: undefined
+- `[n]`: never
+- `[m]`: marginal
+- `[f]`: full
+- `[u]`: ultimate
+- `[?]`: unknown
 
 **1**: User ID. (`name` + `email`)
 
@@ -489,10 +488,10 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **3**: Certification level of the signature.
 
-* `[10]`: no indication
-* `[11]`: personal belief but no verification
-* `[12]`: casual verification
-* `[13]`: extensive verification
+- `[10]`: no indication
+- `[11]`: personal belief but no verification
+- `[12]`: casual verification
+- `[13]`: extensive verification
 
 **4**: Indicates that this is a self signature, whereby the users' own private key was used to sign their public key.
 
@@ -500,22 +499,22 @@ An example table entry for the detail level `full` (which includes other user ID
 
 **6**: Time information of the signature.
 
-* creation time (`Y-m-d`)
-* expiration time (`Y-m-d`)
+- creation time (`Y-m-d`)
+- expiration time (`Y-m-d`)
 
 **7**: Is the signature one of the following?
 
-* `[exp]`: expired
-* `[rev]`: revoked
-* `[i]`: invalid
-* `[!x]`: non-exportable
+- `[exp]`: expired
+- `[rev]`: revoked
+- `[i]`: invalid
+- `[!x]`: non-exportable
 
 **8**: Notation data.
 
 **9**: Flags associated with the notation data.
 
-* `[h]`: the notation data is in human readable form
-* `[!]`: the notation data is critical
+- `[h]`: the notation data is in human readable form
+- `[!]`: the notation data is critical
 
 ## Features
 
@@ -547,11 +546,11 @@ Most of the actions can be performed using the options menu. Simply press `Enter
 
 There's a `copy` mode for making it easier to copy particular values to the clipboard. To use this mode, press `c` followed by one of the key bindings:
 
-* `x`: Copy the exported key
-* `i`: Copy the key id
-* `f`: Copy the key fingerprint
-* `u`: Copy the user id
-* `1,2`: Copy the content of the row
+- `x`: Copy the exported key
+- `i`: Copy the key id
+- `f`: Copy the key fingerprint
+- `u`: Copy the user id
+- `1,2`: Copy the content of the row
 
 Then the value will be copied to the clipboard and the application mode will be reverted to `normal`.
 
@@ -635,9 +634,9 @@ The target selector controls:
 The two columns have the following meaning:
 
 - Code `EWIDT`: `E` stands for Error, `W` for Warn, and similarly Info, Debug and Trace.
-  - Inverted characters (EWIDT) are enabled log levels in the view.
-  - Normal characters show enabled capturing of a log level per target.
-  - If any of EWIDT are not shown, then the respective log level is not captured.
+    - Inverted characters (EWIDT) are enabled log levels in the view.
+    - Normal characters show enabled capturing of a log level per target.
+    - If any of EWIDT are not shown, then the respective log level is not captured.
 
 This logger pane has the following key bindings and they are only activated while the logs are being shown:
 
@@ -674,8 +673,8 @@ Every operation on the terminal interface is handled implicitly by the applicati
 
 For example,
 
-* `:list pub` -> list public keys
-* `:set armor true` -> enable armored output
+- `:list pub` -> list public keys
+- `:set armor true` -> enable armored output
 
 A full list of commands can be found [here.](COMMANDS.md)
 
@@ -829,7 +828,7 @@ gpg-tui --splash --style colored
 
 [![Packaging status](https://img.shields.io/repology/repositories/gpg-tui?label=in%20repositories&style=flat&labelColor=424242&color=1d1d1d&logoColor=white)](https://repology.org/project/gpg-tui/versions)
 
-**gpg-tui** should be more and easily accessible for other platforms/distributions. Thus, it should be packaged for package managers such as [Homebrew](https://brew.sh/) and [APT](https://en.wikipedia.org/wiki/APT_(software)). If you're a packager and want to contribute, feel free to [submit an issue](https://github.com/orhun/gpg-tui/issues/new/choose) or [start a discussion](https://github.com/orhun/gpg-tui/discussions/new)!
+**gpg-tui** should be more and easily accessible for other platforms/distributions. Thus, it should be packaged for package managers such as [Homebrew](https://brew.sh/) and [APT](<https://en.wikipedia.org/wiki/APT_(software)>). If you're a packager and want to contribute, feel free to [submit an issue](https://github.com/orhun/gpg-tui/issues/new/choose) or [start a discussion](https://github.com/orhun/gpg-tui/discussions/new)!
 
 ### Command-Line Fallback
 
@@ -845,16 +844,16 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 ### About the project
 
-* [Code of Conduct](./CODE_OF_CONDUCT.md)
-* [Contribution Guidelines](./CONTRIBUTING.md)
-* [Changelog](./CHANGELOG.md)
-* [List of Commands](./COMMANDS.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Contribution Guidelines](./CONTRIBUTING.md)
+- [Changelog](./CHANGELOG.md)
+- [List of Commands](./COMMANDS.md)
 
 ### External links
 
-* [GnuPG Documentation](https://gnupg.org/documentation/)
-* [Understanding PGP/GPG Key Server Output](https://www.jamieweb.net/blog/understanding-pgp-gpg-key-server-output/)
-* [What is the meaning of GnuPG's --list-sigs output?](https://security.stackexchange.com/questions/141501/what-is-the-meaning-of-gnupgs-list-sigs-output)
+- [GnuPG Documentation](https://gnupg.org/documentation/)
+- [Understanding PGP/GPG Key Server Output](https://www.jamieweb.net/blog/understanding-pgp-gpg-key-server-output/)
+- [What is the meaning of GnuPG's --list-sigs output?](https://security.stackexchange.com/questions/141501/what-is-the-meaning-of-gnupgs-list-sigs-output)
 
 ### In the media
 
@@ -863,11 +862,11 @@ The plan for the future of **gpg-tui** is utilizing `gpg` _when it is necessary_
 
 ## Contact
 
-* [![Join Matrix Room](https://img.shields.io/matrix/gpg-tui:matrix.org?style=flat&labelColor=1d1d1d&logo=matrix&logoColor=white&color=424242&label=join%20matrix)](https://matrix.to/#/!WRksRGtlvyEvEDByqt:matrix.org?via=matrix.org)
-* [![Follow @gpg_tui](https://img.shields.io/twitter/follow/gpg_tui?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/gpg_tui)
-* [![https://orhun.dev](https://img.shields.io/badge/author-orhun-000000?style=flat&labelColor=1d1d1d&color=424242&logo=Rust&logoColor=white)](https://orhun.dev)
-  * [![Follow @orhun](https://img.shields.io/github/followers/orhun?label=follow%20%40orhun&style=flat&labelColor=1d1d1d&logo=GitHub&logoColor=white&color=424242)](https://github.com/orhun)
-  * [![Follow @orhundev](https://img.shields.io/twitter/follow/orhundev?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/orhundev)
+- [![Join Matrix Room](https://img.shields.io/matrix/gpg-tui:matrix.org?style=flat&labelColor=1d1d1d&logo=matrix&logoColor=white&color=424242&label=join%20matrix)](https://matrix.to/#/!WRksRGtlvyEvEDByqt:matrix.org?via=matrix.org)
+- [![Follow @gpg_tui](https://img.shields.io/twitter/follow/gpg_tui?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/gpg_tui)
+- [![https://orhun.dev](https://img.shields.io/badge/author-orhun-000000?style=flat&labelColor=1d1d1d&color=424242&logo=Rust&logoColor=white)](https://orhun.dev)
+    - [![Follow @orhun](https://img.shields.io/github/followers/orhun?label=follow%20%40orhun&style=flat&labelColor=1d1d1d&logo=GitHub&logoColor=white&color=424242)](https://github.com/orhun)
+    - [![Follow @orhundev](https://img.shields.io/twitter/follow/orhundev?style=flat&labelColor=1d1d1d&logo=twitter&logoColor=white&color=424242)](https://twitter.com/orhundev)
 
 ## Funding
 
