@@ -7,11 +7,11 @@ use crate::widget::row::RowItem;
 use crate::widget::table::TableSize;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::terminal::Frame;
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{
 	Block, Borders, Clear, List, ListItem, Paragraph, Row, Table, Wrap,
 };
+use ratatui::Frame;
 use std::cmp;
 use std::convert::{TryFrom, TryInto};
 use tui_logger::{TuiLoggerLevelOutput, TuiLoggerSmartWidget};
@@ -22,7 +22,7 @@ const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
 
 /// Renders all the widgets thus the user interface.
 pub fn render(app: &mut App, frame: &mut Frame) {
-	let rect = frame.size();
+	let rect = frame.area();
 	if app.keys_table.state.minimize_threshold != 0 {
 		app.keys_table.state.size.set_minimized(
 			rect.width < app.keys_table.state.minimize_threshold,
@@ -162,7 +162,10 @@ fn render_command_prompt(app: &mut App, frame: &mut Frame, rect: Rect) {
 		rect,
 	);
 	if app.prompt.is_enabled() {
-		frame.set_cursor(rect.x + app.prompt.text.width() as u16, rect.y + 1);
+		frame.set_cursor_position((
+			rect.x + app.prompt.text.width() as u16,
+			rect.y + 1,
+		));
 	}
 }
 
@@ -344,23 +347,24 @@ fn render_options_menu(app: &mut App, frame: &mut Frame, rect: Rect) {
 			.as_ref(),
 		)
 		.split(rect);
-	let area = Layout::default()
-		.direction(Direction::Horizontal)
-		.constraints(
-			[
-				Constraint::Length(
-					(popup_layout[1].width.checked_sub(length_x))
-						.unwrap_or_default() / 2,
-				),
-				Constraint::Min(length_x),
-				Constraint::Length(
-					(popup_layout[1].width.checked_sub(length_x))
-						.unwrap_or_default() / 2,
-				),
-			]
-			.as_ref(),
-		)
-		.split(popup_layout[1])[1];
+	let area =
+		Layout::default()
+			.direction(Direction::Horizontal)
+			.constraints(
+				[
+					Constraint::Length(
+						(popup_layout[1].width.checked_sub(length_x))
+							.unwrap_or_default() / 2,
+					),
+					Constraint::Min(length_x),
+					Constraint::Length(
+						(popup_layout[1].width.checked_sub(length_x))
+							.unwrap_or_default() / 2,
+					),
+				]
+				.as_ref(),
+			)
+			.split(popup_layout[1])[1];
 	frame.render_widget(Clear, area);
 	frame.render_stateful_widget(
 		List::new(items)
@@ -409,7 +413,7 @@ fn render_keys_table(app: &mut App, frame: &mut Frame, rect: Rect) {
 			],
 		)
 		.style(Style::default().fg(app.state.color))
-		.highlight_style(if app.state.style.is_colored() {
+		.row_highlight_style(if app.state.style.is_colored() {
 			Style::default().add_modifier(Modifier::BOLD)
 		} else {
 			Style::default()

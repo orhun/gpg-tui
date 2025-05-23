@@ -155,8 +155,8 @@ impl Config {
 		if let Some(config_dir) = dirs_next::config_dir() {
 			let file_name = concat!(env!("CARGO_PKG_NAME"), ".toml");
 			for config_file in [
-				config_dir.join(&file_name),
-				config_dir.join(env!("CARGO_PKG_NAME")).join(&file_name),
+				config_dir.join(file_name),
+				config_dir.join(env!("CARGO_PKG_NAME")).join(file_name),
 				config_dir.join(env!("CARGO_PKG_NAME")).join("config"),
 			] {
 				if config_file.exists() {

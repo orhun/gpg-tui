@@ -15,6 +15,7 @@ use ratatui::Terminal;
 use std::env;
 use std::io::{self, Write};
 use std::str::FromStr;
+use tui_logger::TuiLoggerFile;
 
 fn main() -> Result<()> {
 	// Parse command-line arguments.
@@ -37,7 +38,8 @@ fn main() -> Result<()> {
 	})?;
 	tui_logger::set_default_level(LevelFilter::Trace);
 	if let Some(ref log_file) = args.log_file {
-		tui_logger::set_log_file(log_file)?;
+		let file_options = TuiLoggerFile::new(log_file);
+		tui_logger::set_log_file(file_options);
 	}
 	log::debug!(target: "args", "{:?}", args);
 	log::debug!(target: "config", "{:?}", config);

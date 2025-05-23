@@ -139,7 +139,7 @@ impl Prompt {
 	/// Sets the output message.
 	pub fn set_output<S: AsRef<str>>(&mut self, output: (OutputType, S)) {
 		let (output_type, message) = output;
-		log::log!(target: "tui", self.output_type.as_log_level(), "{}", message.as_ref().to_string());
+		log::log!(target: "tui", self.output_type.as_log_level(), "{}", message.as_ref());
 		self.output_type = output_type;
 		self.text = message.as_ref().to_string();
 		self.clock = Some(Instant::now());
