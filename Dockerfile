@@ -1,4 +1,4 @@
-FROM rust:1.76.0-slim-bullseye as builder
+FROM rust:1.82.0-slim-bullseye as builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     --allow-unauthenticated \
