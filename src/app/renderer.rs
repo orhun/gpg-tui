@@ -528,7 +528,9 @@ mod tests {
 	use ratatui::Terminal;
 	use std::env;
 	fn assert_buffer(mut buffer: Buffer, terminal: &Terminal<TestBackend>) {
-		assert_eq!(buffer.area, terminal.backend().size().unwrap());
+		let size = terminal.backend().size().unwrap();
+		assert_eq!(buffer.area.width, size.width);
+		assert_eq!(buffer.area.height, size.height);
 		for x in 0..buffer.area().width {
 			for y in 0..buffer.area().height {
 				buffer
