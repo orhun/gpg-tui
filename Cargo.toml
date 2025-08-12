@@ -34,7 +34,7 @@ gpg-tests = []
 [dependencies]
 gpgme = "0.11.0"
 ratatui = "0.29.0"
-anyhow = "1.0.98"
+anyhow = "1.0.99"
 chrono = "0.4.41"
 unicode-width = "0.2.0"
 copypasta-ext = "0.4.4"
