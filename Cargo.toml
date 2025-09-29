@@ -62,7 +62,7 @@ version = "1.0.227"
 features = ["derive"]
 
 [dependencies.tui-logger]
-version = "0.17.3"
+version = "0.17.4"
 default-features = false
 features = ["crossterm"]
 
