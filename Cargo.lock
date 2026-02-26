@@ -1698,9 +1698,9 @@ dependencies = [
 
 [[package]]
 name = "ratatui-splash-screen"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80deb90f97b9032cfa23d27e62110f194275f083895729abe447d60b4dca8588"
+checksum = "993891ee5947b5abc52b0bafb2cb9cbd118957d607c16840837a5eb98799521e"
 dependencies = [
  "image",
  "ratatui",
