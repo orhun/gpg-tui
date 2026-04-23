@@ -103,7 +103,7 @@ impl GpgContext {
 		&mut self,
 		key_type: KeyType,
 		patterns: Option<Vec<String>>,
-	) -> Result<Keys> {
+	) -> Result<Keys<'_>> {
 		Ok(match key_type {
 			KeyType::Public => {
 				self.inner.find_keys(patterns.unwrap_or_default())?

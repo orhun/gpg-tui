@@ -37,7 +37,7 @@ ratatui = "0.30.0"
 anyhow = "1.0.102"
 chrono = "0.4.44"
 unicode-width = "0.2.2"
-copypasta-ext = "0.4.4"
+arboard = { version = "3.6.1", default-features = false, features = ["wayland-data-control"] }
 colorsys = "0.7.3"
 shellexpand = "3.1.2"
 toml = "1.1.2"

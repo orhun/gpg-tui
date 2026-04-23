@@ -13,11 +13,10 @@ use crate::widget::list::StatefulList;
 use crate::widget::row::ScrollDirection;
 use crate::widget::style::Color as WidgetColor;
 use crate::widget::table::{StatefulTable, TableSize, TableState};
+use arboard::Clipboard as ClipboardContext;
 use anyhow::{Error as AnyhowError, Result};
 use clap::ValueEnum;
 use colorsys::Rgb;
-use copypasta_ext::display::DisplayServer as ClipboardDisplayServer;
-use copypasta_ext::ClipboardProviderExt;
 use ratatui::style::Color;
 use ratatui_splash_screen::{SplashConfig, SplashScreen};
 use std::collections::HashMap;
@@ -68,7 +67,7 @@ pub struct App<'a> {
 	/// Bottom margin value of the keys table.
 	pub keys_table_margin: u16,
 	/// Clipboard context.
-	pub clipboard: Option<Box<dyn ClipboardProviderExt>>,
+	pub clipboard: Option<ClipboardContext>,
 	/// GPGME context.
 	pub gpgme: &'a mut GpgContext,
 }
@@ -104,12 +103,12 @@ impl<'a> App<'a> {
 			keys_table,
 			keys_table_states: HashMap::new(),
 			keys_table_margin: 1,
-			clipboard: match ClipboardDisplayServer::select().try_context() {
-				None => {
-					log::error!("failed to initialize clipboard, no suitable clipboard provider found");
+			clipboard: match ClipboardContext::new() {
+				Ok(clipboard) => Some(clipboard),
+				Err(e) => {
+					log::error!("failed to initialize clipboard: {e}");
 					None
 				}
-				clipboard => clipboard,
 			},
 			gpgme,
 		})
@@ -373,7 +372,7 @@ impl<'a> App<'a> {
 				if let Command::ImportKeys(ref key_files, _) = command {
 					keys.clone_from(key_files);
 				} else if let Some(clipboard) = self.clipboard.as_mut() {
-					match clipboard.get_contents() {
+					match clipboard.get_text() {
 						Ok(content) => {
 							keys = vec![content];
 						}
@@ -893,7 +892,7 @@ impl<'a> App<'a> {
 						} else if let Some(clipboard) = self.clipboard.as_mut()
 						{
 							self.prompt.set_output(
-								match clipboard.set_contents(content) {
+								match clipboard.set_text(content) {
 									Ok(_) => (
 										OutputType::Success,
 										format!(
@@ -924,7 +923,7 @@ impl<'a> App<'a> {
 			}
 			Command::Paste => {
 				if let Some(clipboard) = self.clipboard.as_mut() {
-					match clipboard.get_contents() {
+					match clipboard.get_text() {
 						Ok(content) => {
 							self.prompt.clear();
 							self.prompt.text = format!(":{content}");

@@ -1,7 +1,7 @@
 use crate::app::launcher::App;
 use crate::app::renderer;
 use crate::term::event::EventHandler;
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Result};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::{Backend, CrosstermBackend};
@@ -55,8 +55,12 @@ impl<B: Backend> Tui<B> {
 				.create_panic_handler()(panic);
 			std::process::exit(1);
 		}));
-		self.terminal.hide_cursor()?;
-		self.terminal.clear()?;
+		self.terminal
+			.hide_cursor()
+			.map_err(|e| anyhow!("failed to hide cursor: {e}"))?;
+		self.terminal
+			.clear()
+			.map_err(|e| anyhow!("failed to clear terminal: {e}"))?;
 		Ok(())
 	}
 
@@ -96,7 +100,7 @@ impl<B: Backend> Tui<B> {
 	pub fn draw(&mut self, app: &mut App) -> Result<()> {
 		self.terminal
 			.draw(|frame| renderer::render(app, frame))
-			.context("failed to draw TUI")?;
+			.map_err(|e| anyhow!("failed to draw TUI: {e}"))?;
 		Ok(())
 	}
 
