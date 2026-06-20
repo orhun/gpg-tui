@@ -19,7 +19,7 @@ pub enum ScrollDirection {
 }
 
 impl FromStr for ScrollDirection {
-	type Err = ();
+	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let s = s.split_whitespace().collect::<Vec<&str>>();
 		let value = s.get(1).cloned().unwrap_or_default().parse().unwrap_or(1);
@@ -30,7 +30,7 @@ impl FromStr for ScrollDirection {
 			Some("left") | Some("l") => Ok(Self::Left(value)),
 			Some("top") | Some("t") => Ok(Self::Top),
 			Some("bottom") | Some("b") => Ok(Self::Bottom),
-			_ => Err(()),
+			_ => Err(format!("invalid scroll direction: {s:?}")),
 		}
 	}
 }
@@ -179,7 +179,7 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_widget_row() -> Result<(), ()> {
+	fn test_widget_row() -> Result<(), String> {
 		assert_eq!(
 			vec!["..", ".ne3", ".ne4", ".."],
 			RowItem::new(

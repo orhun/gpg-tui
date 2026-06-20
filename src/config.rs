@@ -9,7 +9,6 @@ use anyhow::Result;
 use clap::ValueEnum;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{de, Deserialize, Deserializer, Serialize};
-use std::fs;
 use std::str::FromStr;
 use toml::value::Value;
 
@@ -72,8 +71,23 @@ where
 	D: Deserializer<'de>,
 {
 	let mut key_bindings = Vec::new();
-	let keys: Vec<Value> = Deserialize::deserialize(deserializer)?;
+	let keys: Vec<Value> = Deserialize::deserialize(deserializer)
+		.map_err(|_| de::Error::custom("expected an array of strings"))?;
+
+	if keys.is_empty() {
+		return Err(de::Error::custom(
+			"The 'keys' component of the keys array cannot be empty",
+		));
+	}
+
 	for key in keys {
+		if !key.is_str() || !key.is_human_readable() {
+			// NOTE: Worth noting it's _could_ be viable here to `continue;` ?
+			return Err(de::Error::custom(
+				"each key binding must be a human-readable string",
+			));
+		}
+
 		if let Some(key_str) = key.as_str() {
 			let mut modifiers = KeyModifiers::NONE;
 			// parse a single character
@@ -123,7 +137,12 @@ fn deserialize_command<'de, D>(deserializer: D) -> Result<Command, D::Error>
 where
 	D: Deserializer<'de>,
 {
-	let s = String::deserialize(deserializer)?;
+	let s = String::deserialize(deserializer).unwrap_or_else(|_| String::new());
+	if s.is_empty() {
+		return Err(de::Error::custom(
+			"The 'command' component of the keys array cannot be empty",
+		));
+	}
 	Command::from_str(&s)
 		.map_err(|_| de::Error::custom(format!("invalid command ({s})")))
 }
@@ -169,8 +188,12 @@ impl Config {
 
 	/// Parses the configuration file.
 	pub fn parse_config(file: &str) -> Result<Config> {
-		let contents = fs::read_to_string(file)?;
-		let config: Config = toml::from_str(&contents)?;
+		let contents =
+			std::fs::read_to_string(file).expect("failed to read config file");
+		let config: Config = toml::from_str(&contents).map_err(|err| {
+			anyhow::anyhow!("failed to parse config file: {err}")
+		})?;
+
 		Ok(config)
 	}
 

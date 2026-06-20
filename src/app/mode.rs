@@ -21,13 +21,13 @@ impl Display for Mode {
 }
 
 impl FromStr for Mode {
-	type Err = ();
+	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		match s.to_lowercase().as_str() {
 			"normal" | "n" => Ok(Self::Normal),
 			"visual" | "v" => Ok(Self::Visual),
 			"copy" | "c" => Ok(Self::Copy),
-			_ => Err(()),
+			_ => Err(format!("invalid mode: {s}")),
 		}
 	}
 }
@@ -37,7 +37,7 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_app_mode() -> Result<(), ()> {
+	fn test_app_mode() -> Result<(), String> {
 		let mode = Mode::from_str("normal")?;
 		assert_eq!(Mode::Normal, mode);
 		assert_eq!(String::from("-- normal --"), mode.to_string());
