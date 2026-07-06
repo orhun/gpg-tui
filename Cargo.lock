@@ -2429,9 +2429,9 @@ dependencies = [
 
 [[package]]
 name = "tui-logger"
-version = "0.18.2"
+version = "0.18.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a6965ab2d37d9bcb0de9eb62631540ff4043048785f35136c58ef233f887a50"
+checksum = "a6f73b6b6152df40e19f2ffc818c7259211955dd9b35072d361ddbc51c20bb61"
 dependencies = [
  "env_filter 0.1.3",
  "jiff",
