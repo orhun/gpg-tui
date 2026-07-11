@@ -21,24 +21,28 @@ fn main() -> Result<()> {
 	// Parse command-line arguments.
 	let mut args = Args::parse();
 	// Initialize logger.
-	#[rustfmt::skip]
 	let log_level = if let Ok(log_level) = env::var("RUST_LOG") {
 		LevelFilter::from_str(&log_level)?
-	} else { LevelFilter::Trace };
+	} else {
+		LevelFilter::Trace
+	};
 
 	tui_logger::init_logger(log_level)?;
 	tui_logger::set_default_level(LevelFilter::Trace);
 
 	// Parse configuration file.
-	#[rustfmt::skip]
-	let config = if let Some(config_file) = args.config.to_owned().or_else(Config::get_default_location) {
+	let config = if let Some(config_file) =
+		args.config.to_owned().or_else(Config::get_default_location)
+	{
 		let config = Config::parse_config(&config_file).unwrap_or_else(|err| {
 			eprintln!("Failed to parse config file: {err}");
 			std::process::exit(2);
 		});
 		args = config.update_args(args);
 		config
-	} else { Config::default() };
+	} else {
+		Config::default()
+	};
 
 	if let Some(ref log_file) = args.log_file {
 		let file_options = TuiLoggerFile::new(log_file);

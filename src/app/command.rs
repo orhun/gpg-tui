@@ -219,13 +219,15 @@ impl FromStr for Command {
 
 		let arg = args.first().cloned().unwrap_or_default();
 
-		#[rustfmt::skip]
 		let arg_or_fallback = |fallback: &str| -> Result<String, String> {
 			if arg.is_empty() && !fallback.is_empty() {
 				Ok(fallback.to_string())
 			} else if arg.is_empty() && fallback.is_empty() {
 				Err(String::from("argument is missing"))
-			} else { Ok(arg.clone()) } };
+			} else {
+				Ok(arg.clone())
+			}
+		};
 
 		match command.as_str() {
 			"confirm" => Ok(Command::Confirm(Box::new(if args.is_empty() {
@@ -297,13 +299,15 @@ impl FromStr for Command {
 					},
 				))
 			}
-			#[rustfmt::skip]
-			"send" => Ok(Command::SendKey(args.first().cloned().expect("Invalid"))),
-			#[rustfmt::skip]
-			"edit" => Ok(Command::EditKey(args.first().cloned().expect("Invalid"))),
-			#[rustfmt::skip]
-			"sign" => Ok(Command::SignKey(args.first().cloned().expect("Invalid"))),
-			#[rustfmt::skip]
+			"send" => {
+				Ok(Command::SendKey(args.first().cloned().expect("Invalid")))
+			}
+			"edit" => {
+				Ok(Command::EditKey(args.first().cloned().expect("Invalid")))
+			}
+			"sign" => {
+				Ok(Command::SignKey(args.first().cloned().expect("Invalid")))
+			}
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
