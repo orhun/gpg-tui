@@ -1,3 +1,5 @@
+# cargo-features = ["codegen-backend", "trim-paths"]
+
 [package]
 name = "gpg-tui"
 version = "0.11.2"
@@ -37,7 +39,9 @@ ratatui = "0.30.1"
 anyhow = "1.0.102"
 chrono = "0.4.45"
 unicode-width = "0.2.2"
-arboard = { version = "3.6.1", default-features = false, features = ["wayland-data-control"] }
+arboard = { version = "3.6.1", default-features = false, features = [
+  "wayland-data-control",
+] }
 colorsys = "0.7.3"
 shellexpand = "3.1.2"
 toml = "1.1.2"
@@ -71,8 +75,15 @@ pretty_assertions = "1.4.1"
 
 [profile.dev]
 opt-level = 0
-debug = true
-panic = "abort"
+debug = "full"
+panic = "abort"         # "unwind" | "abort"
+debug-assertions = true
+codegen-units = 256
+incremental = true
+overflow-checks = true
+strip = "none"          # true | false | "none" | "symbols" | "debuginfo" ## Leave off @ w. THIS IS NOT OBFUSCATION.
+lto = "off"             # "false" ### # true | false | "off" | "thin" | "fat" ## Can't use with cranelift yet
+# trim-paths = "none"
 
 [profile.test]
 opt-level = 0

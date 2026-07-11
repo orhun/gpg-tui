@@ -3,6 +3,7 @@ use log::Level;
 use crate::app::command::Command;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::str::FromStr;
 use std::time::Instant;
 
 /// Prefix character for indicating command input.
@@ -38,6 +39,26 @@ impl Display for OutputType {
 				_ => "",
 			}
 		)
+	}
+}
+
+impl FromStr for OutputType {
+	type Err = String;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		Ok(match s.to_lowercase().as_str() {
+			"success" => Self::Success,
+			"warning" => Self::Warning,
+			"failure" => Self::Failure,
+			"action" => Self::Action,
+			_ => Self::None,
+		})
+	}
+}
+
+impl From<OutputType> for String {
+	fn from(output_type: OutputType) -> Self {
+		output_type.to_string()
 	}
 }
 

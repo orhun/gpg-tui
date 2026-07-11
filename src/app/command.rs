@@ -192,16 +192,43 @@ impl Display for Command {
 }
 
 impl FromStr for Command {
-	type Err = ();
+	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let mut values = s
+		let values = s
 			.replacen(':', "", 1)
 			.to_lowercase()
 			.split_whitespace()
 			.map(String::from)
 			.collect::<Vec<String>>();
+		if values.is_empty() {
+			return Err(String::from("command string is empty"));
+		}
+		debug_assert!(!values.is_empty(), "command string is empty");
+		debug_assert_eq!(
+			values[0],
+			values[0].to_lowercase(),
+			"command is not lowercase"
+		);
 		let command = values.first().cloned().unwrap_or_default();
-		let args = values.drain(1..).collect::<Vec<String>>();
+		debug_assert!(!command.is_empty(), "command is empty");
+
+		let args = values.iter().skip(1).cloned().collect::<Vec<String>>();
+		if command.is_empty() {
+			return Err(String::from("command is empty"));
+		}
+
+		let arg = args.first().cloned().unwrap_or_default();
+
+		let arg_or_fallback = |fallback: &str| -> Result<String, String> {
+			if arg.is_empty() && !fallback.is_empty() {
+				Ok(fallback.to_string())
+			} else if arg.is_empty() && fallback.is_empty() {
+				Err(String::from("argument is missing"))
+			} else {
+				Ok(arg.clone())
+			}
+		};
+
 		match command.as_str() {
 			"confirm" => Ok(Command::Confirm(Box::new(if args.is_empty() {
 				Command::None
@@ -210,28 +237,27 @@ impl FromStr for Command {
 			}))),
 			"help" | "h" => Ok(Command::ShowHelp),
 			"style" => Ok(Command::ChangeStyle(
-				Style::from_str(
-					&args.first().cloned().unwrap_or_default(),
-					true,
-				)
-				.unwrap_or_default(),
+				Style::from_str(&arg, true).unwrap_or_default(),
 			)),
 			"output" | "out" => {
 				if !args.is_empty() {
 					Ok(Command::ShowOutput(
-						OutputType::from(
-							args.first().cloned().unwrap_or_default(),
-						),
+						OutputType::from_str(&arg).unwrap_or_default(),
 						args[1..].join(" "),
 					))
 				} else {
-					Err(())
+					Err(String::from("output type is missing"))
 				}
 			}
 			"options" | "opt" => Ok(Command::ShowOptions),
-			"list" | "ls" => Ok(Command::ListKeys(KeyType::from_str(
-				&args.first().cloned().unwrap_or_else(|| String::from("pub")),
-			)?)),
+			"list" | "ls" => Ok(Command::ListKeys(
+				KeyType::from_str(
+					&arg_or_fallback("pub")?, // 'is_empty()' when unwrap_or_default() was used above the match statemnt
+				)
+				.map_err(|_| {
+					String::from("invalid key type :: [list] | [ls]")
+				})?,
+			)),
 			"import" | "receive" => Ok(Command::ImportKeys(
 				s.replacen(':', "", 1)
 					.split_whitespace()
@@ -253,11 +279,10 @@ impl FromStr for Command {
 					patterns.truncate(patterns.len() - 1)
 				}
 				Ok(Command::ExportKeys(
-					KeyType::from_str(
-						&args
-							.first()
-							.cloned()
-							.unwrap_or_else(|| String::from("pub")),
+					KeyType::from_str(&arg_or_fallback("pub")?).map_err(
+						|_| {
+							String::from("invalid key type :: [export] | [exp]")
+						},
 					)?,
 					patterns,
 					export_subkeys,
@@ -266,12 +291,7 @@ impl FromStr for Command {
 			"delete" | "del" => {
 				let key_id = args.get(1).cloned().unwrap_or_default();
 				Ok(Command::DeleteKey(
-					KeyType::from_str(
-						&args
-							.first()
-							.cloned()
-							.unwrap_or_else(|| String::from("pub")),
-					)?,
+					KeyType::from_str(&arg_or_fallback("pub")?)?,
 					if let Some(key) = key_id.strip_prefix("0x") {
 						format!("0x{}", key.to_string().to_uppercase())
 					} else {
@@ -279,15 +299,21 @@ impl FromStr for Command {
 					},
 				))
 			}
-			"send" => Ok(Command::SendKey(args.first().cloned().ok_or(())?)),
-			"edit" => Ok(Command::EditKey(args.first().cloned().ok_or(())?)),
-			"sign" => Ok(Command::SignKey(args.first().cloned().ok_or(())?)),
+			"send" => {
+				Ok(Command::SendKey(args.first().cloned().expect("Invalid")))
+			}
+			"edit" => {
+				Ok(Command::EditKey(args.first().cloned().expect("Invalid")))
+			}
+			"sign" => {
+				Ok(Command::SignKey(args.first().cloned().expect("Invalid")))
+			}
 			"generate" | "gen" => Ok(Command::GenerateKey),
 			"copy" | "c" => {
 				if let Some(arg) = args.first().cloned() {
-					Ok(Command::Copy(
-						Selection::from_str(&arg, true).map_err(|_| ())?,
-					))
+					Ok(Command::Copy(Selection::from_str(&arg, true).map_err(
+						|_| String::from("invalid key type :: [copy] | [c]"),
+					)?))
 				} else {
 					Ok(Command::SwitchMode(Mode::Copy))
 				}
@@ -320,9 +346,22 @@ impl FromStr for Command {
 			"get" | "g" => {
 				Ok(Command::Get(args.first().cloned().unwrap_or_default()))
 			}
-			"mode" | "m" => Ok(Command::SwitchMode(Mode::from_str(
-				&args.first().cloned().ok_or(())?,
-			)?)),
+			"mode" | "m" => {
+				// Ok(Command::SwitchMode(Mode::from_str(&args.first().cloned())?))
+				let args = arg_or_fallback("").map_err(|_| {
+					String::from("mode is missing :: [mode] | [m]")
+				})?;
+
+				if let Ok(mode) = match Mode::from_str(&args) {
+					Ok(mode) => Ok(mode),
+					Err(_) => Err(String::from("invalid mode :: [mode] | [m]")),
+				} {
+					Ok(Command::SwitchMode(mode))
+				} else {
+					Err(String::from("invalid mode :: [mode] | [m]"))
+				}
+			}
+
 			"normal" | "n" => Ok(Command::SwitchMode(Mode::Normal)),
 			"visual" | "v" => Ok(Command::SwitchMode(Mode::Visual)),
 			"paste" | "p" => Ok(Command::Paste),
@@ -331,7 +370,7 @@ impl FromStr for Command {
 			"next" => Ok(Command::NextTab),
 			"previous" | "prev" => Ok(Command::PreviousTab),
 			"refresh" | "r" => {
-				if args.first() == Some(&String::from("keys")) {
+				if args.first().cloned() == Some(String::from("keys")) {
 					Ok(Command::RefreshKeys)
 				} else {
 					Ok(Command::Refresh)
@@ -340,7 +379,7 @@ impl FromStr for Command {
 			"quit" | "q" | "q!" => Ok(Command::Quit),
 			"logs" | "l" => Ok(Command::Logs),
 			"none" => Ok(Command::None),
-			_ => Err(()),
+			_ => Err(format!("invalid command: {command}")),
 		}
 	}
 }
@@ -350,7 +389,7 @@ mod tests {
 	use super::*;
 	use pretty_assertions::assert_eq;
 	#[test]
-	fn test_app_command() -> Result<(), ()> {
+	fn test_app_command() -> Result<(), String> {
 		assert_eq!(
 			Command::Confirm(Box::new(Command::None)),
 			Command::from_str(":confirm none")?

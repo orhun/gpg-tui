@@ -28,14 +28,14 @@ impl Display for KeyType {
 }
 
 impl FromStr for KeyType {
-	type Err = ();
+	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		for key_type in &[Self::Public, Self::Secret] {
 			if key_type.to_string().matches(&s).count() >= 1 {
 				return Ok(*key_type);
 			}
 		}
-		Err(())
+		Err(format!("invalid key type: {s}"))
 	}
 }
 
