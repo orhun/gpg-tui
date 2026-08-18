@@ -17,6 +17,16 @@ pub fn get_subkey_flags(subkey: Subkey) -> String {
 	)
 }
 
+/// Returns the keygrip of the given subkey.
+///
+/// The keygrip is only available if the key list mode includes
+/// [`KeyListMode::WITH_KEYGRIP`], otherwise `[?]` is returned.
+///
+/// [`KeyListMode::WITH_KEYGRIP`]: gpgme::KeyListMode::WITH_KEYGRIP
+pub fn get_subkey_keygrip(subkey: Subkey) -> String {
+	format!("Keygrip: {}", subkey.keygrip().unwrap_or("[?]"))
+}
+
 /// Returns time information about the given subkey.
 ///
 /// * creation time
