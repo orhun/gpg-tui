@@ -18,7 +18,11 @@ use tui_logger::{TuiLoggerLevelOutput, TuiLoggerSmartWidget};
 use unicode_width::UnicodeWidthStr;
 
 /// Lengths of keys row in minimized/normal mode.
-const KEYS_ROW_LENGTH: (u16, u16) = (31, 55);
+///
+/// The normal width fits the widest subkey line, which is the keygrip row
+/// (`" "` + 6 spaces + `"└─Keygrip: "` + 40 hex characters = 58 columns).
+/// Anything narrower clips the tail of the 40-character keygrip.
+const KEYS_ROW_LENGTH: (u16, u16) = (31, 58);
 
 /// Renders all the widgets thus the user interface.
 pub fn render(app: &mut App, frame: &mut Frame) {
@@ -617,5 +621,27 @@ mod tests {
 			&terminal,
 		);
 		Ok(())
+	}
+}
+
+#[cfg(test)]
+mod width_tests {
+	use super::*;
+	use unicode_width::UnicodeWidthStr;
+
+	#[test]
+	fn keygrip_row_fits_normal_key_column() {
+		// The detailed subkey view appends a keygrip line built as
+		// `"{branch}      └─Keygrip: {40 hex}"`. The normal key column must be
+		// wide enough to show the full 40-character keygrip without clipping.
+		let keygrip = "0123456789ABCDEF0123456789ABCDEF01234567";
+		assert_eq!(keygrip.len(), 40);
+		let line = format!(" {}└─Keygrip: {keygrip}", "      ");
+		assert!(
+			UnicodeWidthStr::width(line.as_str()) <= KEYS_ROW_LENGTH.1 as usize,
+			"keygrip row width {} exceeds normal key column {}",
+			UnicodeWidthStr::width(line.as_str()),
+			KEYS_ROW_LENGTH.1
+		);
 	}
 }

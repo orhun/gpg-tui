@@ -427,9 +427,11 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 
 <pre>
 [sc--]<b>⁰</b>  rsa3072<b>¹</b>/B14085A20355B74DE0CE0FA1E19F76D037BD65B6<b>²</b>
-|<b>³</b>       └─(2021-05-14)<b>⁴</b>
+|<b>³</b>       ├─(2021-05-14)<b>⁴</b>
+|        └─Keygrip: 701631AED9D6EA6C31F15176F01958D10B98DCBC<b>⁷</b>
 [--e-]<b>⁰</b>*<b>⁶</b>rsa3072<b>¹</b>/E56CAC142AE5A979BEECB00FB4F68595CAD4E7E5<b>²</b>
-         └─(2021-05-14) -> (2021-05-16)<b>⁴</b> [exp]<b>⁵</b>
+         ├─(2021-05-14) -> (2021-05-16)<b>⁴</b> [exp]<b>⁵</b>
+         └─Keygrip: 8A47C1F0D2B3E4A5968778695A4C3D2E1F0B9A88<b>⁷</b>
 </pre>
 
 **0**: Key flags. Determines what the key can do.
@@ -459,6 +461,8 @@ An example table entry for the detail level `full` (which includes subkeys) is e
 - `[q]`: qualified
 
 **6**: Star symbol (`*`) is shown after key flags if the key is selected as the default signing key.
+
+**7**: [Keygrip](https://www.gnupg.org/documentation/manuals/gnupg/Glossary.html) of the key. It is shown in the detailed views (i.e. any level above `minimum`) and hidden in the minimum view.
 
 ### User Information
 
@@ -592,7 +596,7 @@ function encrypt() { gpg -e -r $(gpg-tui --select key-id) "$@"; }
 
 #### Detailed View
 
-Press `Tab` to toggle the [detail level](#detail-levels) for the selected entry in the list. Number keys (e.g. `1`, `2`, `3`) can be also used to set a specific level.
+Press `Tab` to toggle the [detail level](#detail-levels) for the selected entry in the list. Number keys (e.g. `1`, `2`, `3`) can be also used to set a specific level. The [keygrip](https://www.gnupg.org/documentation/manuals/gnupg/Glossary.html) of each subkey is shown once you move past the minimum view (e.g. after pressing `Tab`), so it stays out of the way by default but is there when you need it.
 
 ![](demo/gpg-tui-detailed_view.gif)
 
