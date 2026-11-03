@@ -160,16 +160,22 @@ impl GpgKey {
 				}
 				.unwrap_or("[?]"),
 			));
+			let branch = if i != subkeys.len() - 1 { "|" } else { " " };
 			if self.detail == KeyDetail::Minimum {
 				break;
 			}
 			key_info.push(format!(
-				"{}      └─{}",
-				if i != subkeys.len() - 1 { "|" } else { " " },
+				"{}      ├─{}",
+				branch,
 				handler::get_subkey_time(
 					*subkey,
 					if truncate { "%Y" } else { "%F" }
 				)
+			));
+			key_info.push(format!(
+				"{}      └─{}",
+				branch,
+				handler::get_subkey_keygrip(*subkey)
 			));
 		}
 		key_info
@@ -338,6 +344,13 @@ mod tests {
 			.get_subkey_info(Some(""), false)
 			.join("\n")
 			.contains(&key.get_fingerprint()));
+		let subkey_info = key.get_subkey_info(Some(""), false).join("\n");
+		assert!(subkey_info.contains("Keygrip:"));
+		let mut minimum_key = key.clone();
+		minimum_key.detail = KeyDetail::Minimum;
+		let minimum_info =
+			minimum_key.get_subkey_info(Some(""), false).join("\n");
+		assert!(!minimum_info.contains("Keygrip:"));
 		assert!(key
 			.get_user_info(false)
 			.join("\n")
