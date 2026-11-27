@@ -38,7 +38,10 @@ impl GpgContext {
 	pub fn new(config: GpgConfig) -> Result<Self> {
 		let mut context = Context::from_protocol(Protocol::OpenPgp)?;
 		context.set_key_list_mode(
-			KeyListMode::LOCAL | KeyListMode::SIGS | KeyListMode::SIG_NOTATIONS,
+			KeyListMode::LOCAL
+				| KeyListMode::SIGS
+				| KeyListMode::SIG_NOTATIONS
+				| KeyListMode::WITH_KEYGRIP,
 		)?;
 		context.set_armor(config.armor);
 		context.set_offline(false);
